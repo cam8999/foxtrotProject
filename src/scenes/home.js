@@ -1,41 +1,93 @@
 import React from 'react';
-import {View, Text, FlatList, Button, Alert} from 'react-native';
+import {Dimensions, Image, View, Text, FlatList, Button, Alert} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {AppStyle} from '../styles';
 import Colours from '../styles'
 
 
-class Post {
-  key;
-  title;
-  author;
-  description;
+class Post extends React.Component{
 
-  constructor(key, title, author, description) {
-    this.key = key;
-    this.title = title;
-    this.author = author;
-    this.description = description;
+  constructor(props) {
+    super(props);
+    this.state = {
+      mediaWidth: 0,
+      mediaHeight: 0,
+    }
   }
 
-  renderPost() {
+  componentDidMount() {
+    if (this.props.mediaType == 'image') {
+      Image.getSize(this.props.mediaSource, (w, h) => {
+        const displayWidth = Dimensions.get('window').width
+        this.setState({mediaWidth: displayWidth, mediaHeight: ((h * displayWidth) / w)})
+      })
+    }
+  }
+
+  render() {
     return (
       <View style={AppStyle.post}>
         <Text style={AppStyle.postHeader}>
-          '{this.title}' by {this.author}
+          {this.props.author}, 
+          <Text style={AppStyle.primary}> {this.props.location}</Text>
+        </Text>
+        {this.props.mediaType == 'image' ? 
+         <Image
+          style={{width: this.state.mediawidth, height: this.state.mediaHeight}} 
+          source={{uri: this.props.mediaSource}} 
+          /> 
+        : null}
+        <Text style={AppStyle.postTags}>
+          Tags: {this.props.tags.join(", ")}
         </Text>
         <Text style={AppStyle.postTail}>
-          {this.description}
+          {this.props.description}
+        </Text>
+        <Text style={AppStyle.postTail}> 
+        <Ionicons name="heart" size={16} color={Colours.PRIMARY}/> {this.props.upvotes} upvotes
         </Text>
       </View>
-      
     )
   }
 }
 
-const p1 = new Post(10, 'Effects of Climate Change', 'H. Simpson', 'Research on the effects of Climate Change in Bangladesh.');
-const p2 = new Post(12, 'Global Warming', 'J. Frink', 'Study of average temperature increase in Asia.');
+const posts = [
+  {
+    key: 10,
+    author: 'H. Simpson',
+    description: 'Research on the effects of Climate Change in Bangladesh.',
+    location: 'Location B',
+    tags: ['Climate Change', 'Research'],
+    mediaType: 'none',
+    mediaSource: '',
+    upvotes: 4,
+  },
+  {
+    key: 12,
+    author: 'J. Frink',
+    description: 'Study of average temperature increase in Asia.',
+    location: 'Location A',
+    tags: ['Temperature', 'Climate Change'],
+    mediaType: 'image',
+    mediaSource: 'https://i.imgur.com/b6BQJPc.jpeg',
+    upvotes: 12,
+  },
+]
+
+const renderPost = ({item}) => {
+  return (
+    <Post 
+    author={item.author} 
+    description={item.description} 
+    location={item.location}
+    tags={item.tags}
+    mediaType={item.mediaType}
+    mediaSource={item.mediaSource} 
+    upvotes={item.upvotes}
+    />
+  )
+}
 
 // TODO: Move styling to styles.js
 // TODO: Add navigator for home button and top navigation bar.
@@ -52,10 +104,9 @@ function HomeScreen({navigation}) {
       </View>
       <View style={{flex:1, width: '100%'}}>
         <FlatList
-          data={[
-            p1, p2
-          ]}
-          renderItem={({item}) => item.renderPost()}
+          data={posts}
+          renderItem={renderPost}
+          keyExtractor={(item) => item.key}
         />
       </View>
       

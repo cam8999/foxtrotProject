@@ -1,4 +1,4 @@
-import {StyleSheet} from 'react-native';
+import {ColorPropType, StyleSheet} from 'react-native';
 
 import * as Colours from './colours';
 
@@ -8,17 +8,23 @@ export const AppStyle = StyleSheet.create({
   },
   post: {
     borderRadius: 15,
-    borderWidth: 1,
-    borderColor: 'black',
     overflow:'hidden',
-    margin: 5,
+    marginTop: 10,
+    backgroundColor: 'white',
   },
   postHeader: {
-    padding: 5,
-    backgroundColor: '#E0E0E0',
+    padding: 10,
+    backgroundColor: 'white',
+    fontWeight: 'bold',
+  },
+  postTags: {
+    padding: 10,
+    backgroundColor: '#E6E6E6',
+    color: '#545454',
+    fontStyle: 'italic',
   },
   postTail: {
-    padding: 5,
+    padding: 10,
     backgroundColor: 'white',
   },
 });
