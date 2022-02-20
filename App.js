@@ -8,11 +8,12 @@ import LoginNavigator from './src/navigations/LoginNavigator';
 const rootStack = createStackNavigator();
 
 export default function App() {
+  console.log("test");
   return (
-    <NavigationContainer> 
+    <NavigationContainer>
       <rootStack.Navigator
         initialRouteName='App'
-        screenOptions = {() => ({
+        screenOptions={() => ({
           headerShown: false,
         })}
       >
