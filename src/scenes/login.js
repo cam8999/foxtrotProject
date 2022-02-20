@@ -5,21 +5,9 @@ import { initializeApp } from "firebase/app";
 import { PhoneAuthProvider, getAuth, signInWithCredential } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
+import { checkSignInStatus } from '../navigations/AppNavigator';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDyFygporWON-sAA5rJ17xbiTXi-vJhtm8",
-  authDomain: "foxtrotproject-678f5.firebaseapp.com",
-  projectId: "foxtrotproject-678f5",
-  storageBucket: "foxtrotproject-678f5.appspot.com",
-  messagingSenderId: "698723331692",
-  appId: "1:698723331692:web:5279b9249b96148331f249",
-  databaseURL: "https://foxtrotproject-678f5-default-rtdb.europe-west1.firebasedatabase.app/"
-};
-
-
-export const FirebaseApp = initializeApp(firebaseConfig);
-export const FirebaseAuth = getAuth(FirebaseApp);
-export const FirebaseDB = getDatabase(FirebaseApp);
+import { FirebaseApp, FirebaseAuth, FirebaseDB } from '../firebase-config';
 
 
 function LoginScreen({ navigation }) {
@@ -42,16 +30,23 @@ function LoginScreen({ navigation }) {
   }
 
   async function confirmCode() {
-    const userCredential = await signInWithCredential(
-      FirebaseAuth,
-      PhoneAuthProvider.credential(verificationId, code)
-    );
-    console.log(userCredential);
+    try {
+      const userCredential = await signInWithCredential(
+        FirebaseAuth,
+        PhoneAuthProvider.credential(verificationId, code)
+      );
+    } catch (error) {
+      console.log("Invalid code");
+    }
+
+    //console.log(userCredential);
+    checkSignInStatus();
   }
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <View nativeId="recap"></View>
+      <Button onPress={checkSignInStatus} title="Check Sign In">Check sign in</Button>
       <FirebaseRecaptchaVerifierModal
         ref={recaptchaVerifier}
         firebaseConfig={FirebaseApp.options}
