@@ -27,6 +27,11 @@ export const AppStyle = StyleSheet.create({
     padding: 10,
     backgroundColor: 'white',
   },
+  postUpvoteBar: {
+    color: '#C0C0C0',
+    padding: 10,
+    paddingTop: 5,
+  },
 });
 
 export default Colours;

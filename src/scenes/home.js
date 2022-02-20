@@ -4,6 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import {AppStyle} from '../styles';
 import Colours from '../styles'
+import { TouchableHighlight } from 'react-native-gesture-handler';
 
 
 class Post extends React.Component{
@@ -13,6 +14,8 @@ class Post extends React.Component{
     this.state = {
       mediaWidth: 0,
       mediaHeight: 0,
+      postUpvoted: this.props.postUpvoted,
+      upvotes: this.props.upvotes,
     }
   }
 
@@ -23,6 +26,12 @@ class Post extends React.Component{
         this.setState({mediaWidth: displayWidth, mediaHeight: ((h * displayWidth) / w)})
       })
     }
+  }
+
+  onUpvotePressed = () => {
+    {this.state.postUpvoted ? 
+      this.setState({postUpvoted: false, upvotes: this.state.upvotes-1})
+      : this.setState({postUpvoted: true, upvotes: this.state.upvotes+1})}
   }
 
   render() {
@@ -39,13 +48,18 @@ class Post extends React.Component{
           /> 
         : null}
         <Text style={AppStyle.postTags}>
-          Tags: {this.props.tags.join(", ")}
+          Tags: {this.props.tags.join(', ')}
         </Text>
         <Text style={AppStyle.postTail}>
           {this.props.description}
         </Text>
-        <Text style={AppStyle.postTail}> 
-        <Ionicons name="heart" size={16} color={Colours.PRIMARY}/> {this.props.upvotes} upvotes
+        <Text style={AppStyle.postUpvoteBar}> 
+          <TouchableHighlight onPress = {this.onUpvotePressed} underlayColor='white'>
+            {this.state.postUpvoted ?
+              <Ionicons name="heart" size={16} color={Colours.PRIMARY}/>
+            : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY}/>}
+          </TouchableHighlight>
+        {''} {this.state.upvotes} upvotes
         </Text>
       </View>
     )
@@ -62,6 +76,7 @@ const posts = [
     mediaType: 'none',
     mediaSource: '',
     upvotes: 4,
+    postUpvoted: true,
   },
   {
     key: 12,
@@ -72,6 +87,7 @@ const posts = [
     mediaType: 'image',
     mediaSource: 'https://i.imgur.com/b6BQJPc.jpeg',
     upvotes: 12,
+    postUpvoted: false,
   },
 ]
 
@@ -85,6 +101,7 @@ const renderPost = ({item}) => {
     mediaType={item.mediaType}
     mediaSource={item.mediaSource} 
     upvotes={item.upvotes}
+    postUpvoted={item.postUpvoted}
     />
   )
 }
