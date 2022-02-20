@@ -5,7 +5,7 @@ import { initializeApp } from "firebase/app";
 import { PhoneAuthProvider, getAuth, signInWithCredential } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
-import { checkSignInStatus } from '../navigations/AppNavigator';
+import { checkSignInStatus } from '../../App';
 
 import { FirebaseApp, FirebaseAuth, FirebaseDB } from '../firebase-config';
 
@@ -35,18 +35,19 @@ function LoginScreen({ navigation }) {
         FirebaseAuth,
         PhoneAuthProvider.credential(verificationId, code)
       );
+      navigation.navigate('Home');
     } catch (error) {
       console.log("Invalid code");
     }
 
     //console.log(userCredential);
-    checkSignInStatus();
+    //checkSignInStatus();
   }
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <View nativeId="recap"></View>
-      <Button onPress={checkSignInStatus} title="Check Sign In">Check sign in</Button>
+      {/* <Button onPress={checkSignInStatus} title="Check Sign In">Check sign in</Button> */}
       <FirebaseRecaptchaVerifierModal
         ref={recaptchaVerifier}
         firebaseConfig={FirebaseApp.options}
