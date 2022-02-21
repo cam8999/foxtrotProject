@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "698723331692",
+    "project_id": "foxtrotproject-678f5",
+    "storage_bucket": "foxtrotproject-678f5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:698723331692:android:36a1217228bee59931f249",
+        "android_client_info": {
+          "package_name": "com.foxtrot.project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "698723331692-5v7040c1df4o0sne63l5hqj42sid3166.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDN9EYX4C7VAfUCfT-4qRUnILD0BEC5tts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "698723331692-5v7040c1df4o0sne63l5hqj42sid3166.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

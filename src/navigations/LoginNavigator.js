@@ -7,6 +7,9 @@ const loginStack = createStackNavigator();
 const LoginNavigator = () => (
   <loginStack.Navigator
     initialRouteName={'Login'}
+    screenOptions={() => ({
+      headerShown: false,
+    })}
   >
     <loginStack.Screen name='Login' component={LoginScreen} />
   </loginStack.Navigator>
