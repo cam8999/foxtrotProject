@@ -7,7 +7,9 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { HomeScreen, LoginScreen, MapScreen, ProfileScreen } from "./src/scenes";
 import Colours from './src/styles'
 
-import { FirebaseAuth } from './src/firebase-config';
+import { FirebaseAuth, FirebaseDB, db, getUserDoc } from './src/firebase-config';
+
+import { doc, getDoc } from 'firebase/firestore'
 
 // const rootStack = createStackNavigator();
 
@@ -35,12 +37,14 @@ export default function App() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
 
+
   // Handle user state changes
   function onAuthStateChanged(user) {
     setUser(user);
     if (initializing) setInitializing(false);
     console.log("Auth Prints User");
     checkSignInStatus();
+    getUserDoc(user);
     console.log(user);
   }
   useEffect(() => {
