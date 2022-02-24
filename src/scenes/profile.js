@@ -11,6 +11,8 @@ function ProfileScreen({ navigation }) {
   // It is not always necessarily equal to the username held at the database.
   // For that look at user.displayName
 
+  const [userLocation, setUserLocation] = useState("");
+
   // Handle user state changes
   function onAuthStateChanged(user) {
     setUser(user);

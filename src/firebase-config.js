@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDyFygporWON-sAA5rJ17xbiTXi-vJhtm8",
@@ -16,3 +17,24 @@ const firebaseConfig = {
 export const FirebaseApp = initializeApp(firebaseConfig);
 export const FirebaseAuth = getAuth(FirebaseApp);
 export const FirebaseDB = getDatabase(FirebaseApp);
+export const db = getFirestore();
+
+export async function getUserDoc(user) {            //If a user object is provided it will return the corresponding data snap.
+    if (user) {
+        const docRef = doc(db, 'Users', user.uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            console.log("Document data:", docSnap.data());
+            return docSnap;
+        } else {
+            setDoc(doc(db, "Users", user.uid), {
+            });
+            docSnap = await getDoc(docRef);
+            console.log(docSnap);
+            return docSnap;
+        }
+    } else {
+        return undefined;
+    }
+}
