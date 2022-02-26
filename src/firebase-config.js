@@ -38,3 +38,9 @@ export async function getUserDoc(user) {            //If a user object is provid
         return undefined;
     }
 }
+
+export async function setUserDoc(user, params) {
+    if (user) {
+        setDoc(doc(db, "Users", user.uid), params, { merge: true });
+    }
+}
