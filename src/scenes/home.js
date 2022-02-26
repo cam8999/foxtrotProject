@@ -6,6 +6,7 @@ import {AppStyle} from '../styles';
 import Colours from '../styles'
 import { TouchableHighlight } from 'react-native-gesture-handler';
 
+import SearchBar from './search';
 
 class Post extends React.Component{
 
@@ -106,22 +107,51 @@ const renderPost = ({item}) => {
   )
 }
 
+const filterPosts = (posts, query) => {
+  if (!query) {
+      return posts;
+  }
+ 
+  return posts.filter((post) => {
+      const postName = post.description.toLowerCase();
+      return postName.includes(query);
+  });
+};
+//TODO: Use the info given by the radio buttons
+//TODO: replace it with database querying
+
+
+
 // TODO: Move styling to styles.js
 // TODO: Add navigator for home button and top navigation bar.
 // TODO: Replace home button with TouchableHighlight and Icon
 function HomeScreen({navigation}) {
+
+  const { search } = window.location;
+  const query = new URLSearchParams(search).get('s');
+  
+  
+
   return (
     <View style={{ flex:1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor:'#C0C0C0' }}>
+
+      
       <View style={{justifyContent: 'center', alignItems: 'center', height:80, width: '100%', backgroundColor:Colours.PRIMARY}}>
+
+        
+
+      <SearchBar />
+
         <Button
           icon={<Ionicons name='home' color='red' size='15'/>}
           title='home'
           onPress={() => Alert.alert('Home button pressed')}
         />
+
       </View>
       <View style={{flex:1, width: '100%'}}>
         <FlatList
-          data={posts}
+          data={filterPosts(posts, query)}
           renderItem={renderPost}
           keyExtractor={(item) => item.key}
         />
