@@ -1,3 +1,7 @@
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+
+
 
 const SearchBar = () => ( 
     <form action="/" method="get" >
@@ -55,8 +59,9 @@ const SearchBar = () => (
        />
 
        <button type="submit" value="Submit" >Search</button>
-       {/*TODO: make it work*/}
-       <button type="reset" type="submit" value="Reset">Reset</button>
+       <button type="reset" type="submit" value="Reset" id="reset"
+        size = "0"
+       >Reset</button>
    </form>
 );
 

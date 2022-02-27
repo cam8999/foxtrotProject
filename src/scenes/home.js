@@ -114,7 +114,7 @@ const filterPosts = (posts, query) => {
  
   return posts.filter((post) => {
       const postName = post.description.toLowerCase();
-      return postName.includes(query);
+      return postName.includes(query.toLowerCase());
   });
 };
 //TODO: Use the info given by the radio buttons
@@ -128,9 +128,14 @@ const filterPosts = (posts, query) => {
 function HomeScreen({navigation}) {
 
   const { search } = window.location;
-  const query = new URLSearchParams(search).get('s');
+  const query = new URLSearchParams(search);
   
-  
+  const display = filterPosts(posts, query.get('s'));
+
+  var resultsHeader = "Search results"
+  if (!query.get('s')) resultsHeader="Top posts"
+  if(display.length ==0) resultsHeader="No results"
+ 
 
   return (
     <View style={{ flex:1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor:'#C0C0C0' }}>
@@ -138,20 +143,24 @@ function HomeScreen({navigation}) {
       
       <View style={{justifyContent: 'center', alignItems: 'center', height:80, width: '100%', backgroundColor:Colours.PRIMARY}}>
 
-        
+      
 
       <SearchBar />
 
         <Button
           icon={<Ionicons name='home' color='red' size='15'/>}
           title='home'
-          onPress={() => Alert.alert('Home button pressed')}
+          onPress={() => document.getElementById('reset').click()}
         />
 
       </View>
+
+      <Text> {resultsHeader}</Text>
+
+
       <View style={{flex:1, width: '100%'}}>
         <FlatList
-          data={filterPosts(posts, query)}
+          data={display}
           renderItem={renderPost}
           keyExtractor={(item) => item.key}
         />
