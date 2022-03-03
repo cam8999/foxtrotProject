@@ -1,13 +1,20 @@
-import React from 'react';
-import {Dimensions, Image, View, Text, FlatList, Button, Alert} from 'react-native';
+import React, {useRef, useEffect, Component} from 'react';
+import { Dimensions, Image, View, Text, FlatList, Button, Alert , WebView} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import {AppStyle} from '../styles';
+import { AppStyle } from '../styles';
 import Colours from '../styles'
 import { TouchableHighlight } from 'react-native-gesture-handler';
+import { getUser, togglePostUpvote } from '../firebase-config';
+
+import { Searchbar } from 'react-native-paper';
+
+import { Button as Button2, Menu, Divider, Provider } from 'react-native-paper';
+import { RadioButton } from 'react-native-paper';
 
 
-class Post extends React.Component{
+
+class Post extends React.Component {
 
   constructor(props) {
     super(props);
@@ -23,43 +30,45 @@ class Post extends React.Component{
     if (this.props.mediaType == 'image') {
       Image.getSize(this.props.mediaSource, (w, h) => {
         const displayWidth = Dimensions.get('window').width
-        this.setState({mediaWidth: displayWidth, mediaHeight: ((h * displayWidth) / w)})
+        this.setState({ mediaWidth: displayWidth, mediaHeight: ((h * displayWidth) / w) })
       })
     }
   }
 
   onUpvotePressed = () => {
-    {this.state.postUpvoted ? 
-      this.setState({postUpvoted: false, upvotes: this.state.upvotes-1})
-      : this.setState({postUpvoted: true, upvotes: this.state.upvotes+1})}
+    {
+      this.state.postUpvoted ?
+        this.setState({ postUpvoted: false, upvotes: this.state.upvotes - 1 })
+        : this.setState({ postUpvoted: true, upvotes: this.state.upvotes + 1 })
+    }
   }
 
   render() {
     return (
       <View style={AppStyle.post}>
         <Text style={AppStyle.postHeader}>
-          {this.props.author}, 
+          {this.props.author},
           <Text style={AppStyle.primary}> {this.props.location}</Text>
         </Text>
-        {this.props.mediaType == 'image' ? 
-         <Image
-          style={{width: this.state.mediawidth, height: this.state.mediaHeight}} 
-          source={{uri: this.props.mediaSource}} 
-          /> 
-        : null}
+        {this.props.mediaType == 'image' ?
+          <Image
+            style={{ width: this.state.mediawidth, height: this.state.mediaHeight }}
+            source={{ uri: this.props.mediaSource }}
+          />
+          : null}
         <Text style={AppStyle.postTags}>
           Tags: {this.props.tags.join(', ')}
         </Text>
         <Text style={AppStyle.postTail}>
           {this.props.description}
         </Text>
-        <Text style={AppStyle.postUpvoteBar}> 
-          <TouchableHighlight onPress = {this.onUpvotePressed} underlayColor='white'>
+        <Text style={AppStyle.postUpvoteBar}>
+          <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>
             {this.state.postUpvoted ?
-              <Ionicons name="heart" size={16} color={Colours.PRIMARY}/>
-            : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY}/>}
+              <Ionicons name="heart" size={16} color={Colours.PRIMARY} />
+              : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY} />}
           </TouchableHighlight>
-        {''} {this.state.upvotes} upvotes
+          {''} {this.state.upvotes} upvotes
         </Text>
       </View>
     )
@@ -91,42 +100,148 @@ const posts = [
   },
 ]
 
-const renderPost = ({item}) => {
+const renderPost = ({ item }) => {
   return (
-    <Post 
-    author={item.author} 
-    description={item.description} 
-    location={item.location}
-    tags={item.tags}
-    mediaType={item.mediaType}
-    mediaSource={item.mediaSource} 
-    upvotes={item.upvotes}
-    postUpvoted={item.postUpvoted}
+    <Post
+      author={item.author}
+      description={item.description}
+      location={item.location}
+      tags={item.tags}
+      mediaType={item.mediaType}
+      mediaSource={item.mediaSource}
+      upvotes={item.upvotes}
+      postUpvoted={item.postUpvoted}
     />
   )
 }
 
+async function Test() {
+  user = await getUser();
+  togglePostUpvote('zHOYCAQRtvvGDgchSxFp', user);
+}
+
+const filterPosts = (posts, query) => {
+  if (!query) {
+      return posts;
+  }
+ 
+  return posts.filter((post) => {
+      const postName = post.description.toLowerCase();
+      return postName.includes(query);
+  });
+};
+var qposts = posts
 // TODO: Move styling to styles.js
 // TODO: Add navigator for home button and top navigation bar.
 // TODO: Replace home button with TouchableHighlight and Icon
-function HomeScreen({navigation}) {
+function HomeScreen({ navigation }) {
+
+  
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const onChangeSearch = query => setSearchQuery(query);
+  const [checked, setChecked] = React.useState('gen');
+  
+
+
+
+  function filt () 
+  {
+
+    
+      qposts = filterPosts(posts, searchQuery.toLowerCase());
+     
+      onChangeSearch("");
+      
+      
+  
+  }
+ 
+
+
   return (
-    <View style={{ flex:1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor:'#C0C0C0' }}>
-      <View style={{justifyContent: 'center', alignItems: 'center', height:80, width: '100%', backgroundColor:Colours.PRIMARY}}>
+
+      
+      <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
+        
+    <View style={{  height: 50, width: '100%', backgroundColor: Colours.PRIMARY }}>
+      
+    <View style={{ width:"20%", flexDirection: "row"}}>
+      <RadioButton.Item
+        value="general"
+        label = "General"
+        status={ checked === 'gen' ? 'checked' : 'unchecked' }
+        onPress={() => setChecked('gen')}
+      />
+      <RadioButton.Item
+        label="Type"
+        value="type"
+        status={ checked === 'type' ? 'checked' : 'unchecked' }
+        onPress={() => setChecked('type')}
+      />
+
+<RadioButton.Item
+        
+        color='black'
+        value="Title"
+        label = "Title"
+        status={ checked === 'title' ? 'checked' : 'unchecked' }
+        onPress={() => setChecked('title')}
+      />
+      <RadioButton.Item
+        label="Location"
+        value="location"
+        status={ checked === 'loc' ? 'checked' : 'unchecked' }
+        onPress={() => setChecked('loc')}
+      />
+    </View>
+    
+    </View>
+
+<View style={{ justifyContent: 'center', alignItems: 'center', height: 50, width: '100%', backgroundColor: Colours.PRIMARY, flexDirection: "row" }}>
+
+
+<Searchbar
+       
+        placeholder="Search"
+        onChangeText={onChangeSearch}
+        value={searchQuery}
+      />
+
+
+<Button
+          icon={<Ionicons name='home' color='red' size='15' />}
+          title='Search'
+          onPress={()=>{filt()}}
+        />
+
+  </View>
+      <View style={{ justifyContent: 'center', alignItems: 'center', height: 50, width: '100%', backgroundColor: Colours.PRIMARY }}>
+      
+
         <Button
-          icon={<Ionicons name='home' color='red' size='15'/>}
+          icon={<Ionicons name='home' color='red' size='15' />}
           title='home'
           onPress={() => Alert.alert('Home button pressed')}
         />
       </View>
-      <View style={{flex:1, width: '100%'}}>
+
+      <View style={{ justifyContent: 'center', alignItems: 'center', height: 20, width: '100%' }}>
+      
+
+      <Text>{qposts.length ==0 ? "No results" : ""}</Text>
+      </View>
+
+     
+      <View style={{justifyContent: 'center',  flex: 1, width: '100%' }}>
+     
         <FlatList
-          data={posts}
+          data={qposts}
           renderItem={renderPost}
           keyExtractor={(item) => item.key}
+          
         />
       </View>
-      
+
     </View>
   );
 }
