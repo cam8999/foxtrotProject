@@ -1,8 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';;
-import { Text, View, TouchableOpacity, TextInput, Button } from 'react-native';
+import { Text, View, TouchableOpacity, TextInput, Button, Pressable } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { FirebaseAuth, FirebaseDB } from '../firebase-config';
 import { updateProfile } from 'firebase/auth';
+import { AppStyle } from '../styles';
+import { TouchableHighlight } from 'react-native-gesture-handler';
+import Colours from '../styles'
 
 function ProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
@@ -10,6 +14,7 @@ function ProfileScreen({ navigation }) {
   const [userName, setUserName] = useState("");     // The name that the user can change. 
   // It is not always necessarily equal to the username held at the database.
   // For that look at user.displayName
+  const [editMode, setEditMode] = useState(false);
 
   const [userLocation, setUserLocation] = useState("");
 
@@ -20,6 +25,11 @@ function ProfileScreen({ navigation }) {
     setUserName(user.displayName);
 
   }
+
+  function onEditModeChanged() {
+    if (editMode) {setEditMode(false); ChangeName();} else {setEditMode(true);}
+  }
+
   useEffect(() => {
     const subscriber = FirebaseAuth.onAuthStateChanged(onAuthStateChanged);
     console.log(subscriber);
@@ -43,16 +53,47 @@ function ProfileScreen({ navigation }) {
   if (user) {
     return (
 
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Profile!</Text>
-        <TextInput
-          placeholder={user.displayName == "" ? "Name" : user.displayName}
-          onChangeText={setUserName}
-        />
-        <TouchableOpacity onPress={ChangeName}>
-          <Text>Change Name</Text>
-        </TouchableOpacity>
-        <Button title='Sign out' onPress={signOut}></Button>
+      <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
+        <View style={{ justifyContent: 'center', alignItems: 'center', height: 80, width: '100%', backgroundColor: Colours.PRIMARY }}>
+          <Button
+            icon={<Ionicons name='home' color='red' size='15' />}
+            title='home'
+            onPress={() => Alert.alert('Home button pressed')}
+          />
+        </View>
+        <View style={AppStyle.profile}>
+          <View style={AppStyle.profileHeader}>
+            <TextInput
+              style={AppStyle.title}
+              defaultValue={user.displayName == "" ? "Name" : user.displayName}
+              onChangeText={setUserName}
+              editable={editMode}
+            />
+          </View>
+          <View style={{flexDirection: 'row'}}>
+            <View style={[AppStyle.profileComponent, {flex: 4, marginRight: 3}]}>
+              <Text>Community Position</Text>
+            </View>
+            <View style={[AppStyle.profileComponent, {flex: 1}]}>
+              <Text>Age</Text>
+            </View>
+          </View>
+          <Text style={AppStyle.profileDescription}>
+            User description...
+          </Text>
+        </View>
+        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
+        <Pressable style={[AppStyle.button]} onPress={onEditModeChanged}>
+          <Text style={AppStyle.buttonTitle}>
+            {editMode ? 
+              'Save Changes'
+            : 'Edit Profile'}
+          </Text>
+        </Pressable>
+        <Pressable style={AppStyle.button} onPress={signOut}>
+          <Text style={AppStyle.buttonTitle}>Sign Out</Text>
+        </Pressable>
+        </View>
       </View>
     );
   } else {
