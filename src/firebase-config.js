@@ -2,6 +2,8 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection } from "firebase/firestore";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, list } from "firebase/storage";
+import { readFile } from "fs/promises";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDyFygporWON-sAA5rJ17xbiTXi-vJhtm8",
@@ -18,6 +20,7 @@ export const FirebaseApp = initializeApp(firebaseConfig);
 export const FirebaseAuth = getAuth(FirebaseApp);
 export const FirebaseDB = getDatabase(FirebaseApp);
 export const db = getFirestore();
+export const FirebaseStorage = getStorage(FirebaseApp);
 
 export async function getUserDoc(user) {            //If a user object is provided it will return the corresponding data.
     if (user) {
@@ -108,4 +111,37 @@ export async function togglePostUpvote(postId, user) {
     }
     setUserDoc({ 'upvotedPosts': upvotedPosts }, user);
     setPostDoc({ 'Upvoters': upvoters, 'Upvotes': upvotes }, postId);
+}
+
+/* 
+{
+  files:
+    [{
+      name: "",
+      type: "",
+      uri: "",
+    },]
+}
+*/
+
+export async function uploadFilesToDB(files, postId) {
+    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + postId);
+    files.forEach(file => {
+        const imgRef = ref(folderRef, file.name);
+        const metadata = {
+            contentType: files.type,
+        }
+        const byteArray = await readFile(files.uri);
+        uploadBytesResumable(imgRef, byteArray, metadata);
+    });
+}
+
+//returns array downloadurl for now (as a string)
+// need to have limit on size of number of files uploaded, otherwise listAll consumes too many resources
+export async function getFilesForPost(postId) {
+    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + postId);
+    var fileUrls = [];
+    const listResult = await listAll(folderRef);
+    listResult.items.forEach(file => fileUrls.push(await getDownloadURL(file)));
+    return listResult;
 }
