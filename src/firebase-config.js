@@ -3,7 +3,7 @@ import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection } from "firebase/firestore";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, list } from "firebase/storage";
-import { readFile } from "fs/promises";
+import { readAsStringAsync } from "expo-file-system";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDyFygporWON-sAA5rJ17xbiTXi-vJhtm8",
@@ -126,14 +126,14 @@ export async function togglePostUpvote(postId, user) {
 
 export async function uploadFilesToDB(files, postId) {
     const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + postId);
-    files.forEach(file => {
+    for (const file of files) {
         const imgRef = ref(folderRef, file.name);
         const metadata = {
             contentType: files.type,
         }
-        const byteArray = await readFile(files.uri);
+        const byteArray = await readAsStringAsync(files.uri);
         uploadBytesResumable(imgRef, byteArray, metadata);
-    });
+    }
 }
 
 //returns array downloadurl for now (as a string)
@@ -142,6 +142,6 @@ export async function getFilesForPost(postId) {
     const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + postId);
     var fileUrls = [];
     const listResult = await listAll(folderRef);
-    listResult.items.forEach(file => fileUrls.push(await getDownloadURL(file)));
+    for (file of listResult) fileUrls.push(await getDownloadURL(file));
     return listResult;
 }
