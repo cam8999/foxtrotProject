@@ -57,11 +57,7 @@ function ProfileScreen({ navigation }) {
 
       <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
         <View style={{ justifyContent: 'center', alignItems: 'center', height: 80, width: '100%', backgroundColor: Colours.PRIMARY }}>
-          <Button
-            icon={<Ionicons name='home' color='red' size='15' />}
-            title='home'
-            onPress={() => Alert.alert('Home button pressed')}
-          />
+
         </View>
         <View style={AppStyle.profile}>
           <View style={AppStyle.profileHeader}>
@@ -74,15 +70,15 @@ function ProfileScreen({ navigation }) {
             />
           </View>
 
-          <View style={{flexDirection: 'row'}}>
-            <View style={[AppStyle.profileComponent, {flex: 4, marginRight: 3}]}>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={[AppStyle.profileComponent, { flex: 4, marginRight: 3 }]}>
               <TextInput
                 defaultValue={''}
                 editable={editMode}
                 placeholder={'Community Position'}
               />
             </View>
-            <View style={[AppStyle.profileComponent, {flex: 1}]}>
+            <View style={[AppStyle.profileComponent, { flex: 1 }]}>
               <TextInput
                 defaultValue={''}
                 editable={editMode}
@@ -98,19 +94,19 @@ function ProfileScreen({ navigation }) {
             placeholder={'User description...'}
           />
         </View>
-        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
+        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
           <Pressable style={[AppStyle.button]} onPress={onEditModeChanged}>
             <Text style={AppStyle.buttonTitle}>
-              {editMode ? 
+              {editMode ?
                 'Save Changes'
-              : 'Edit Profile'}
+                : 'Edit Profile'}
             </Text>
           </Pressable>
           <Pressable style={AppStyle.button} onPress={signOut}>
             <Text style={AppStyle.buttonTitle}>Sign Out</Text>
           </Pressable>
         </View>
-        <View style={{width:'100%'}}>
+        <View style={{ width: '100%' }}>
           <FlatList
           //TODO: Render posts by the user
           />
