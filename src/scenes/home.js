@@ -222,7 +222,7 @@ function HomeScreen({ navigation }) {
         <Button
           icon={<Ionicons name='home' color='red' size='15' />}
           title='home'
-          onPress={Test}
+          onPress={() => Alert.alert('Home button pressed')}
         />
       </View>
 
