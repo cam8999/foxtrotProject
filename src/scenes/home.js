@@ -1,11 +1,11 @@
-import React, {useRef, useEffect, Component} from 'react';
-import { Dimensions, Image, View, Text, FlatList, Button, Alert , WebView} from 'react-native';
+import React, { useRef, useEffect, Component } from 'react';
+import { Dimensions, Image, View, Text, FlatList, Button, Alert, WebView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { AppStyle } from '../styles';
 import Colours from '../styles'
 import { TouchableHighlight } from 'react-native-gesture-handler';
-import { getUser, togglePostUpvote } from '../firebase-config';
+import { getUser, uploadPostToDB, deletePost } from '../firebase-config';
 
 import { Searchbar } from 'react-native-paper';
 
@@ -116,18 +116,18 @@ const renderPost = ({ item }) => {
 }
 
 async function Test() {
-  user = await getUser();
-  togglePostUpvote('zHOYCAQRtvvGDgchSxFp', user);
+  let user1 = await getUser();
+  deletePost('JMWj1gD8pryNNcSBxRWv', user1);
 }
 
 const filterPosts = (posts, query) => {
   if (!query) {
-      return posts;
+    return posts;
   }
- 
+
   return posts.filter((post) => {
-      const postName = post.description.toLowerCase();
-      return postName.includes(query);
+    const postName = post.description.toLowerCase();
+    return postName.includes(query);
   });
 };
 var qposts = posts
@@ -136,87 +136,86 @@ var qposts = posts
 // TODO: Replace home button with TouchableHighlight and Icon
 function HomeScreen({ navigation }) {
 
-  
+
   const [searchQuery, setSearchQuery] = React.useState('');
   const onChangeSearch = query => setSearchQuery(query);
   const [checked, setChecked] = React.useState('gen');
-  
 
 
 
-  function filt () 
-  {
 
-    
-      qposts = filterPosts(posts, searchQuery.toLowerCase());
-     
-      onChangeSearch("");
-      
-      
-  
+  function filt() {
+
+
+    qposts = filterPosts(posts, searchQuery.toLowerCase());
+
+    onChangeSearch("");
+
+
+
   }
- 
+
 
 
   return (
 
-      
-      <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
-        
-    <View style={{  height: 50, width: '100%', backgroundColor: Colours.PRIMARY }}>
-      
-    <View style={{ width:"20%", flexDirection: "row"}}>
-      <RadioButton.Item
-        value="general"
-        label = "General"
-        status={ checked === 'gen' ? 'checked' : 'unchecked' }
-        onPress={() => setChecked('gen')}
-      />
-      <RadioButton.Item
-        label="Type"
-        value="type"
-        status={ checked === 'type' ? 'checked' : 'unchecked' }
-        onPress={() => setChecked('type')}
-      />
 
-<RadioButton.Item
-        
-        color='black'
-        value="Title"
-        label = "Title"
-        status={ checked === 'title' ? 'checked' : 'unchecked' }
-        onPress={() => setChecked('title')}
-      />
-      <RadioButton.Item
-        label="Location"
-        value="location"
-        status={ checked === 'loc' ? 'checked' : 'unchecked' }
-        onPress={() => setChecked('loc')}
-      />
-    </View>
-    
-    </View>
+    <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
 
-<View style={{ justifyContent: 'center', alignItems: 'center', height: 50, width: '100%', backgroundColor: Colours.PRIMARY, flexDirection: "row" }}>
+      <View style={{ height: 50, width: '100%', backgroundColor: Colours.PRIMARY }}>
 
+        <View style={{ width: "20%", flexDirection: "row" }}>
+          <RadioButton.Item
+            value="general"
+            label="General"
+            status={checked === 'gen' ? 'checked' : 'unchecked'}
+            onPress={() => setChecked('gen')}
+          />
+          <RadioButton.Item
+            label="Type"
+            value="type"
+            status={checked === 'type' ? 'checked' : 'unchecked'}
+            onPress={() => setChecked('type')}
+          />
 
-<Searchbar
-       
-        placeholder="Search"
-        onChangeText={onChangeSearch}
-        value={searchQuery}
-      />
+          <RadioButton.Item
+
+            color='black'
+            value="Title"
+            label="Title"
+            status={checked === 'title' ? 'checked' : 'unchecked'}
+            onPress={() => setChecked('title')}
+          />
+          <RadioButton.Item
+            label="Location"
+            value="location"
+            status={checked === 'loc' ? 'checked' : 'unchecked'}
+            onPress={() => setChecked('loc')}
+          />
+        </View>
+
+      </View>
+
+      <View style={{ justifyContent: 'center', alignItems: 'center', height: 50, width: '100%', backgroundColor: Colours.PRIMARY, flexDirection: "row" }}>
 
 
-<Button
-          icon={<Ionicons name='home' color='red' size='15' />}
-          title='Search'
-          onPress={()=>{filt()}}
+        <Searchbar
+
+          placeholder="Search"
+          onChangeText={onChangeSearch}
+          value={searchQuery}
         />
 
-  </View>
+
+        <Button
+          icon={<Ionicons name='home' color='red' size='15' />}
+          title='Search'
+          onPress={() => { filt() }}
+        />
+
+      </View>
       <View style={{ justifyContent: 'center', alignItems: 'center', height: 50, width: '100%', backgroundColor: Colours.PRIMARY }}>
-      
+
 
         <Button
           icon={<Ionicons name='home' color='red' size='15' />}
@@ -226,19 +225,19 @@ function HomeScreen({ navigation }) {
       </View>
 
       <View style={{ justifyContent: 'center', alignItems: 'center', height: 20, width: '100%' }}>
-      
 
-      <Text>{qposts.length ==0 ? "No results" : ""}</Text>
+
+        <Text>{qposts.length == 0 ? "No results" : ""}</Text>
       </View>
 
-     
-      <View style={{justifyContent: 'center',  flex: 1, width: '100%' }}>
-     
+
+      <View style={{ justifyContent: 'center', flex: 1, width: '100%' }}>
+
         <FlatList
           data={qposts}
           renderItem={renderPost}
           keyExtractor={(item) => item.key}
-          
+
         />
       </View>
 

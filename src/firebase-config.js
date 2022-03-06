@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
-import { getFirestore, doc, getDoc, setDoc, addDoc, collection } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, deleteDoc } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDyFygporWON-sAA5rJ17xbiTXi-vJhtm8",
@@ -40,7 +40,7 @@ export async function getUserDoc(user) {            //If a user object is provid
 }
 
 export async function getPostDoc(postId) {            //If a post id is provided it will return the corresponding data.
-    if (user) {
+    if (postId) {
         const docRef = doc(db, 'Posts', postId);
         const docSnap = await getDoc(docRef);
 
@@ -50,6 +50,18 @@ export async function getPostDoc(postId) {            //If a post id is provided
         } else {
             return undefined;
         }
+    } else {
+        return undefined;
+    }
+}
+
+export async function getPostIDs() {
+    const docRef = doc(db, 'Posts', 'PostIDs');
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+        //console.log("Document data:", docSnap.data());
+        return docSnap.data().IDs;
     } else {
         return undefined;
     }
@@ -80,6 +92,9 @@ export async function uploadPostToDB(postJSON, user) {
         console.log("Upload logs");
         console.log(userPostData);
         setUserDoc({ 'Posts': userPostData }, user);
+        postIDs = await getPostIDs();
+        postIDs.push(postRef.id);
+        setDoc(doc(db, "Posts", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
     }
 }
 
@@ -108,4 +123,19 @@ export async function togglePostUpvote(postId, user) {
     }
     setUserDoc({ 'upvotedPosts': upvotedPosts }, user);
     setPostDoc({ 'Upvoters': upvoters, 'Upvotes': upvotes }, postId);
+}
+
+export async function deletePost(postId, user) {
+    if (user) {
+        const userDoc = await getUserDoc(user);
+        let postIDs = await getPostIDs();
+        postIDs = postIDs.filter(e => e !== postId);
+        let userPosts = userDoc.Posts;
+        if (userPosts.includes(postId)) {
+            userPosts = userPosts.filter(e => e !== postId);
+            setUserDoc({ 'Posts': userPosts }, user);
+            setDoc(doc(db, "Posts", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
+            deleteDoc(doc(db, "Posts", postId));
+        }
+    }
 }
