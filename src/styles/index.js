@@ -6,6 +6,17 @@ export const AppStyle = StyleSheet.create({
   primary: {
     color: Colours.PRIMARY,
   },
+  topBar: {
+    padding: 10,
+    paddingLeft: 5,
+    paddingTop: 20,
+    paddingBottom: 5,
+    width: '100%',
+    backgroundColor: Colours.PRIMARY,
+  },
+  searchBar: {
+    borderRadius: 10,
+  },
   post: {
     borderRadius: 15,
     overflow:'hidden',
