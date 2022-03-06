@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
-import { getFirestore, doc, getDoc, setDoc, addDoc, collection, deleteDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, deleteDoc, query, where, getDocs } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDyFygporWON-sAA5rJ17xbiTXi-vJhtm8",
@@ -95,6 +95,7 @@ export async function uploadPostToDB(postJSON, user) {
         postIDs = await getPostIDs();
         postIDs.push(postRef.id);
         setDoc(doc(db, "Posts", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
+        setPostDoc({ 'ID': postRef.id }, postRef.id);
     }
 }
 
@@ -138,4 +139,16 @@ export async function deletePost(postId, user) {
             deleteDoc(doc(db, "Posts", postId));
         }
     }
+}
+
+export async function getPostsByLocation(location) {
+    const q = query(collection(db, "Posts"), where("Location", "==", location));
+
+    const querySnapshot = await getDocs(q);
+    let postsArray = [];
+    querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        postsArray.push(doc.data());
+    });
+    return postsArray;
 }
