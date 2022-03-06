@@ -5,8 +5,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { AppStyle } from '../styles';
 import Colours from '../styles'
 import { TouchableHighlight } from 'react-native-gesture-handler';
-import { getUser, uploadPostToDB, deletePost, getPostsByLocation } from '../firebase-config';
+
+import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername } from '../firebase-config';
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
+
 import { Searchbar } from 'react-native-paper';
 
 import { Button as Button2, Menu, Divider, Provider } from 'react-native-paper';
@@ -117,7 +119,7 @@ const renderPost = ({ item }) => {
 
 async function Test() {
   let user1 = await getUser();
-  let posts = await getPostsByLocation('Tbilisi', 10, true);
+  let posts = await getPostsByUsername('John', 10, true);
   //uploadPostToDB({ 'TT': 'TT' }, user1);
   console.log(posts);
 }

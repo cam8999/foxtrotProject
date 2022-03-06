@@ -142,13 +142,7 @@ export async function deletePost(postId, user) {
     }
 }
 
-export async function getPostsByLocation(location, limitVal = 100, orderByUpvotes = false) {
-    let q;
-    if (!orderByUpvotes) {
-        q = query(collection(db, "Posts"), where("Location", "==", location), orderBy('Timestamp', 'desc'), limit(limitVal));
-    } else {
-        q = query(collection(db, "Posts"), where("Location", "==", location), orderBy('Upvotes', 'desc'), limit(limitVal));
-    }
+async function snapshotToArray(q) {
     const querySnapshot = await getDocs(q);
     let postsArray = [];
     querySnapshot.forEach((doc) => {
@@ -158,6 +152,16 @@ export async function getPostsByLocation(location, limitVal = 100, orderByUpvote
     return postsArray;
 }
 
+export async function getPostsByLocation(location, limitVal = 100, orderByUpvotes = false) {
+    let q;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), where("Location", "==", location), orderBy('Timestamp', 'desc'), limit(limitVal));
+    } else {
+        q = query(collection(db, "Posts"), where("Location", "==", location), orderBy('Upvotes', 'desc'), limit(limitVal));
+    }
+    return snapshotToArray(q);
+}
+
 export async function getTopPosts(limitVal = 100, orderByUpvotes = false) {
     let q;
     if (!orderByUpvotes) {
@@ -165,11 +169,42 @@ export async function getTopPosts(limitVal = 100, orderByUpvotes = false) {
     } else {
         q = query(collection(db, "Posts"), orderBy('Upvotes', 'desc'), limit(limitVal));
     }
-    const querySnapshot = await getDocs(q);
-    let postsArray = [];
+    return snapshotToArray(q);
+}
+
+export async function getPostsByTitle(title, limitVal = 100, orderByUpvotes = false) {
+    let q;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), where("Title", "==", title), orderBy('Timestamp', 'desc'), limit(limitVal));
+    } else {
+        q = query(collection(db, "Posts"), where("Title", "==", title), orderBy('Upvotes', 'desc'), limit(limitVal));
+    }
+    return snapshotToArray(q);
+}
+
+export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false) {
+    let q;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), where("Tags", "array-contains", tag), orderBy('Timestamp', 'desc'), limit(limitVal));
+    } else {
+        q = query(collection(db, "Posts"), where("Tags", "array-contains", tag), orderBy('Upvotes', 'desc'), limit(limitVal));
+    }
+    return snapshotToArray(q);
+}
+
+export async function getPostsByUsername(username, limitVal = 100, orderByUpvotes = false) {
+    let userQuery = query(collection(db, "Users"), where("Username", "==", username), limit(1));
+    const querySnapshot = await getDocs(userQuery);
+    let userUID = "";
     querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
-        postsArray.push(doc.data());
+        userUID = doc.id;
     });
-    return postsArray;
+    let q;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), where("userUID", "==", userUID), orderBy('Timestamp', 'desc'), limit(limitVal));
+    } else {
+        q = query(collection(db, "Posts"), where("userUID", "==", userUID), orderBy('Upvotes', 'desc'), limit(limitVal));
+    }
+    return snapshotToArray(q);
 }

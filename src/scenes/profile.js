@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';;
 import { Text, View, TouchableOpacity, TextInput, Button, Pressable, FlatList } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { FirebaseAuth, FirebaseDB } from '../firebase-config';
+import { FirebaseAuth, FirebaseDB, getUser, setUserDoc } from '../firebase-config';
 import { updateProfile } from 'firebase/auth';
 import { AppStyle } from '../styles';
 import { TouchableHighlight } from 'react-native-gesture-handler';
@@ -27,7 +27,7 @@ function ProfileScreen({ navigation }) {
   }
 
   function onEditModeChanged() {
-    if (editMode) {setEditMode(false); ChangeName();} else {setEditMode(true);}
+    if (editMode) { setEditMode(false); ChangeName(); } else { setEditMode(true); }
   }
 
   useEffect(() => {
@@ -40,6 +40,8 @@ function ProfileScreen({ navigation }) {
     updateProfile(FirebaseAuth.currentUser, {
       displayName: userName
     }).then(() => {
+      let userRef = getUser();
+      setUserDoc({ 'Username': userName }, user);
       console.log("Profile updated");
     }).catch((error) => {
       console.log("error");
@@ -71,6 +73,7 @@ function ProfileScreen({ navigation }) {
               placeholder={'Name'}
             />
           </View>
+
           <View style={{flexDirection: 'row'}}>
             <View style={[AppStyle.profileComponent, {flex: 4, marginRight: 3}]}>
               <TextInput
