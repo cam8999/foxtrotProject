@@ -191,3 +191,20 @@ export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false)
     }
     return snapshotToArray(q);
 }
+
+export async function getPostsByUsername(username, limitVal = 100, orderByUpvotes = false) {
+    let userQuery = query(collection(db, "Users"), where("Username", "==", username), limit(1));
+    const querySnapshot = await getDocs(userQuery);
+    let userUID = "";
+    querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        userUID = doc.id;
+    });
+    let q;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), where("userUID", "==", userUID), orderBy('Timestamp', 'desc'), limit(limitVal));
+    } else {
+        q = query(collection(db, "Posts"), where("userUID", "==", userUID), orderBy('Upvotes', 'desc'), limit(limitVal));
+    }
+    return snapshotToArray(q);
+}

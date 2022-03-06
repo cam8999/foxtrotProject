@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';;
 import { Text, View, TouchableOpacity, TextInput, Button, Pressable } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { FirebaseAuth, FirebaseDB } from '../firebase-config';
+import { FirebaseAuth, FirebaseDB, getUser, setUserDoc } from '../firebase-config';
 import { updateProfile } from 'firebase/auth';
 import { AppStyle } from '../styles';
 import { TouchableHighlight } from 'react-native-gesture-handler';
@@ -27,7 +27,7 @@ function ProfileScreen({ navigation }) {
   }
 
   function onEditModeChanged() {
-    if (editMode) {setEditMode(false); ChangeName();} else {setEditMode(true);}
+    if (editMode) { setEditMode(false); ChangeName(); } else { setEditMode(true); }
   }
 
   useEffect(() => {
@@ -40,6 +40,8 @@ function ProfileScreen({ navigation }) {
     updateProfile(FirebaseAuth.currentUser, {
       displayName: userName
     }).then(() => {
+      let userRef = getUser();
+      setUserDoc({ 'Username': userName }, user);
       console.log("Profile updated");
     }).catch((error) => {
       console.log("error");
@@ -70,11 +72,11 @@ function ProfileScreen({ navigation }) {
               editable={editMode}
             />
           </View>
-          <View style={{flexDirection: 'row'}}>
-            <View style={[AppStyle.profileComponent, {flex: 4, marginRight: 3}]}>
+          <View style={{ flexDirection: 'row' }}>
+            <View style={[AppStyle.profileComponent, { flex: 4, marginRight: 3 }]}>
               <Text>Community Position</Text>
             </View>
-            <View style={[AppStyle.profileComponent, {flex: 1}]}>
+            <View style={[AppStyle.profileComponent, { flex: 1 }]}>
               <Text>Age</Text>
             </View>
           </View>
@@ -82,17 +84,17 @@ function ProfileScreen({ navigation }) {
             User description...
           </Text>
         </View>
-        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
-        <Pressable style={[AppStyle.button]} onPress={onEditModeChanged}>
-          <Text style={AppStyle.buttonTitle}>
-            {editMode ? 
-              'Save Changes'
-            : 'Edit Profile'}
-          </Text>
-        </Pressable>
-        <Pressable style={AppStyle.button} onPress={signOut}>
-          <Text style={AppStyle.buttonTitle}>Sign Out</Text>
-        </Pressable>
+        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
+          <Pressable style={[AppStyle.button]} onPress={onEditModeChanged}>
+            <Text style={AppStyle.buttonTitle}>
+              {editMode ?
+                'Save Changes'
+                : 'Edit Profile'}
+            </Text>
+          </Pressable>
+          <Pressable style={AppStyle.button} onPress={signOut}>
+            <Text style={AppStyle.buttonTitle}>Sign Out</Text>
+          </Pressable>
         </View>
       </View>
     );

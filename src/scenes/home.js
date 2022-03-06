@@ -5,7 +5,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { AppStyle } from '../styles';
 import Colours from '../styles'
 import { TouchableHighlight } from 'react-native-gesture-handler';
-import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag } from '../firebase-config';
+import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername } from '../firebase-config';
 
 import { Searchbar } from 'react-native-paper';
 
@@ -117,7 +117,7 @@ const renderPost = ({ item }) => {
 
 async function Test() {
   let user1 = await getUser();
-  let posts = await getPostsByLocation('Tbilisi', 10, true);
+  let posts = await getPostsByUsername('John', 10, true);
   //uploadPostToDB({ 'TT': 'TT' }, user1);
   console.log(posts);
 }
@@ -222,7 +222,7 @@ function HomeScreen({ navigation }) {
         <Button
           icon={<Ionicons name='home' color='red' size='15' />}
           title='home'
-          onPress={Test}
+          onPress={() => Alert.alert('Home button pressed')}
         />
       </View>
 
