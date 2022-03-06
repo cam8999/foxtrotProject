@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
-import { getFirestore, doc, getDoc, setDoc, addDoc, collection, deleteDoc, query, where, getDocs } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, deleteDoc, query, where, getDocs, Timestamp, orderBy, limit } from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDyFygporWON-sAA5rJ17xbiTXi-vJhtm8",
@@ -56,7 +56,7 @@ export async function getPostDoc(postId) {            //If a post id is provided
 }
 
 export async function getPostIDs() {
-    const docRef = doc(db, 'Posts', 'PostIDs');
+    const docRef = doc(db, 'PostIDs', 'PostIDs');
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
@@ -85,6 +85,7 @@ export async function uploadPostToDB(postJSON, user) {
         postJSON.userUID = user.uid;
         postJSON.Upvotes = 0;
         postJSON.Upvoters = 0;
+        postJSON.Timestamp = Timestamp.now();
         let userPostData = userDoc.Posts;
         let postRef = await addDoc(collection(db, 'Posts'), postJSON);
         if (!userPostData) userPostData = []
@@ -94,7 +95,7 @@ export async function uploadPostToDB(postJSON, user) {
         setUserDoc({ 'Posts': userPostData }, user);
         postIDs = await getPostIDs();
         postIDs.push(postRef.id);
-        setDoc(doc(db, "Posts", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
+        setDoc(doc(db, "PostIDs", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
         setPostDoc({ 'ID': postRef.id }, postRef.id);
     }
 }
@@ -135,15 +136,35 @@ export async function deletePost(postId, user) {
         if (userPosts.includes(postId)) {
             userPosts = userPosts.filter(e => e !== postId);
             setUserDoc({ 'Posts': userPosts }, user);
-            setDoc(doc(db, "Posts", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
+            setDoc(doc(db, "PostIDs", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
             deleteDoc(doc(db, "Posts", postId));
         }
     }
 }
 
-export async function getPostsByLocation(location) {
-    const q = query(collection(db, "Posts"), where("Location", "==", location));
+export async function getPostsByLocation(location, limitVal = 100, orderByUpvotes = false) {
+    let q;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), where("Location", "==", location), orderBy('Timestamp', 'desc'), limit(limitVal));
+    } else {
+        q = query(collection(db, "Posts"), where("Location", "==", location), orderBy('Upvotes', 'desc'), limit(limitVal));
+    }
+    const querySnapshot = await getDocs(q);
+    let postsArray = [];
+    querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        postsArray.push(doc.data());
+    });
+    return postsArray;
+}
 
+export async function getTopPosts(limitVal = 100, orderByUpvotes = false) {
+    let q;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), orderBy('Timestamp', 'desc'), limit(limitVal));
+    } else {
+        q = query(collection(db, "Posts"), orderBy('Upvotes', 'desc'), limit(limitVal));
+    }
     const querySnapshot = await getDocs(q);
     let postsArray = [];
     querySnapshot.forEach((doc) => {

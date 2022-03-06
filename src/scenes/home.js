@@ -117,7 +117,8 @@ const renderPost = ({ item }) => {
 
 async function Test() {
   let user1 = await getUser();
-  let posts = await getPostsByLocation('Tbilisi');
+  let posts = await getPostsByLocation('Tbilisi', 10, true);
+  //uploadPostToDB({ 'TT': 'TT' }, user1);
   console.log(posts);
 }
 
