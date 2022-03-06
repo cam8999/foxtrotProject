@@ -33,6 +33,7 @@ export async function checkSignInStatus() {
 export default function App() {
   //console.log("test");
 
+  
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';;
-import { Text, View, TouchableOpacity, TextInput, Button, Pressable } from 'react-native';
+import { Text, View, TouchableOpacity, TextInput, Button, Pressable, FlatList } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { FirebaseAuth, FirebaseDB, getUser, setUserDoc } from '../firebase-config';
@@ -70,31 +70,50 @@ function ProfileScreen({ navigation }) {
               defaultValue={user.displayName == "" ? "Name" : user.displayName}
               onChangeText={setUserName}
               editable={editMode}
+              placeholder={'Name'}
             />
           </View>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={[AppStyle.profileComponent, { flex: 4, marginRight: 3 }]}>
-              <Text>Community Position</Text>
+
+          <View style={{flexDirection: 'row'}}>
+            <View style={[AppStyle.profileComponent, {flex: 4, marginRight: 3}]}>
+              <TextInput
+                defaultValue={''}
+                editable={editMode}
+                placeholder={'Community Position'}
+              />
             </View>
-            <View style={[AppStyle.profileComponent, { flex: 1 }]}>
-              <Text>Age</Text>
+            <View style={[AppStyle.profileComponent, {flex: 1}]}>
+              <TextInput
+                defaultValue={''}
+                editable={editMode}
+                placeholder={'Age'}
+                keyboardType={'number-pad'}
+              />
             </View>
           </View>
-          <Text style={AppStyle.profileDescription}>
-            User description...
-          </Text>
+          <TextInput
+            style={AppStyle.profileDescription}
+            defaultValue={''}
+            editable={editMode}
+            placeholder={'User description...'}
+          />
         </View>
-        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
+        <View style={{flexDirection: 'row', width: '100%', justifyContent: 'space-between'}}>
           <Pressable style={[AppStyle.button]} onPress={onEditModeChanged}>
             <Text style={AppStyle.buttonTitle}>
-              {editMode ?
+              {editMode ? 
                 'Save Changes'
-                : 'Edit Profile'}
+              : 'Edit Profile'}
             </Text>
           </Pressable>
           <Pressable style={AppStyle.button} onPress={signOut}>
             <Text style={AppStyle.buttonTitle}>Sign Out</Text>
           </Pressable>
+        </View>
+        <View style={{width:'100%'}}>
+          <FlatList
+          //TODO: Render posts by the user
+          />
         </View>
       </View>
     );
