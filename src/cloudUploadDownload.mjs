@@ -1,7 +1,7 @@
 //import { FirebaseApp } from "./firebase-config";
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { readFile } from "fs/promises";
+import { readAsStringAsync } from "expo-file-system";
 import { v4 as generateRandomId } from 'uuid';
 import { fileTypeFromBuffer } from 'file-type';
 
@@ -25,7 +25,7 @@ const proofOfConceptRef = ref(ref(FirebaseStorage), 'ProofOfConcept');
 // generateRandomId() generates UUID
 async function uploadFile(filepath, postId) { // need to figure out how image and videos are uploaded
     const imgTitle = generateRandomId(); //not checking duplicates occur as it costs per check & chance is extremely low.
-    const byteArray = await readFile(filepath);
+    const byteArray = await readAsStringAsync(filepath);
     const fileExtension = await fileTypeFromBuffer(byteArray);
     const imgRef = ref(proofOfConceptRef, imgTitle + '.' + fileExtension.ext);
     const metadata = {

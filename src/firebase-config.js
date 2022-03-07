@@ -2,6 +2,8 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, deleteDoc, query, where, getDocs, Timestamp, orderBy, limit } from "firebase/firestore";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, list } from "firebase/storage";
+import { readAsStringAsync } from "expo-file-system";
 
 const firebaseConfig = {
     apiKey: "AIzaSyDyFygporWON-sAA5rJ17xbiTXi-vJhtm8",
@@ -18,6 +20,7 @@ export const FirebaseApp = initializeApp(firebaseConfig);
 export const FirebaseAuth = getAuth(FirebaseApp);
 export const FirebaseDB = getDatabase(FirebaseApp);
 export const db = getFirestore();
+export const FirebaseStorage = getStorage(FirebaseApp);
 
 export async function getUserDoc(user) {            //If a user object is provided it will return the corresponding data.
     if (user) {
@@ -129,6 +132,7 @@ export async function togglePostUpvote(postId, user) {
     setPostDoc({ 'Upvoters': upvoters, 'Upvotes': upvotes }, postId);
 }
 
+
 export async function deletePost(postId, user) {
     if (user) {
         const userDoc = await getUserDoc(user);
@@ -219,4 +223,40 @@ export async function getPostsByUsername(username, limitVal = 100, orderByUpvote
         q = query(collection(db, "Posts"), where("userUID", "==", userUID), orderBy('Upvotes', 'desc'), limit(limitVal));
     }
     return snapshotToArray(q);
+}
+
+/* 
+{
+  files:
+    [{
+      name: "",
+      type: "",
+      uri: "",
+    },]
+}
+*/
+
+export async function uploadFilesToDB(files, postId, userId) {
+    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + userId + '/' + postId);
+    for (const file of files) {
+        const imgRef = ref(folderRef, file.name);
+        const metadata = {
+            contentType: files.type,
+        }
+        const byteArray = await readAsStringAsync(files.uri);
+        const uploadTask = uploadBytesResumable(imgRef, byteArray, metadata);
+        // TODO: Deal with file not uploading (do it at form or in )
+        uploadTask.catch(console.log("Error: file cannot be added to the server right now. Please try again shortly.")); 
+        
+    }
+}
+
+//returns array downloadurl for now (as a string)
+// need to have limit on size of number of files uploaded, otherwise listAll consumes too many resources
+export async function getFilesForPost(postId, userId) {
+    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + userId + '/' + postId);
+    var fileUrls = [];
+    const listResult = await listAll(folderRef);
+    for (file of listResult) fileUrls.push(await getDownloadURL(file));
+    return listResult;
 }

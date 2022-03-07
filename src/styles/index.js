@@ -1,4 +1,4 @@
-import {ColorPropType, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 
 import * as Colours from './colours';
 

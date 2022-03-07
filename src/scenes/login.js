@@ -1,13 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';;
-import { Text, View, TouchableOpacity, TextInput, Pressable } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { initializeApp } from "firebase/app";
-import { PhoneAuthProvider, getAuth, signInWithCredential } from "firebase/auth";
-import { getDatabase } from "firebase/database";
+import React, { useState, useRef } from 'react';
+import { PhoneAuthProvider, signInWithCredential } from "firebase/auth";
+import { Text, View, TextInput, Pressable } from 'react-native';
 import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
-import { checkSignInStatus } from '../../App';
 
-import { FirebaseApp, FirebaseAuth, FirebaseDB } from '../firebase-config';
+import { FirebaseApp, FirebaseAuth } from '../firebase-config';
 import { AppStyle } from '../styles';
 
 
