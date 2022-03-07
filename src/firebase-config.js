@@ -124,22 +124,23 @@ export async function togglePostUpvote(postId, user) {
 }
 */
 
-export async function uploadFilesToDB(files, postId) {
-    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + postId);
+export async function uploadFilesToDB(files, postId, userId) {
+    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + userId + '/' + postId);
     for (const file of files) {
         const imgRef = ref(folderRef, file.name);
         const metadata = {
             contentType: files.type,
         }
         const byteArray = await readAsStringAsync(files.uri);
-        uploadBytesResumable(imgRef, byteArray, metadata);
+        const uploadTask = uploadBytesResumable(imgRef, byteArray, metadata);
+        // TODO: Deal with file not uploading
     }
 }
 
 //returns array downloadurl for now (as a string)
 // need to have limit on size of number of files uploaded, otherwise listAll consumes too many resources
-export async function getFilesForPost(postId) {
-    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + postId);
+export async function getFilesForPost(postId, userId) {
+    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + userId + '/' + postId);
     var fileUrls = [];
     const listResult = await listAll(folderRef);
     for (file of listResult) fileUrls.push(await getDownloadURL(file));
