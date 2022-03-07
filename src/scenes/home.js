@@ -154,77 +154,67 @@ function HomeScreen({ navigation }) {
   const onChangeSearch = query => setSearchQuery(query);
   const [checked, setChecked] = React.useState('gen');
 
-  function filt () {
+
+
+
+  function filt() {
+
+
     qposts = filterPosts(posts, searchQuery.toLowerCase());
+
     onChangeSearch("");
+
+
+
   }
- 
 
-  return ( 
-    <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}> 
-      
-      {/* Header Bar */} 
-      <View style={{  height: 50, width: '100%', backgroundColor: Colours.PRIMARY }}>
-        <View style={{ width:"20%", flexDirection: "row"}}>
-          <RadioButton.Item
-            value="general"
-            label = "General"
-            status={ checked === 'gen' ? 'checked' : 'unchecked' }
-            onPress={() => setChecked('gen')}
-          />
-          <RadioButton.Item
-            label="Type"
-            value="type"
-            status={ checked === 'type' ? 'checked' : 'unchecked' }
-            onPress={() => setChecked('type')}
-          />
-
-          <RadioButton.Item
-            color='black'
-            value="Title"
-            label = "Title"
-            status={ checked === 'title' ? 'checked' : 'unchecked' }
-            onPress={() => setChecked('title')}
-          />
-
-          <RadioButton.Item
-            label="Location"
-            value="location"
-            status={ checked === 'loc' ? 'checked' : 'unchecked' }
-            onPress={() => setChecked('loc')}
-          />
+  return (
+    <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
+      <View style={AppStyle.topBar}>
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ flex: 1, padding: 10, justifyContent: 'center', alignItems: 'center' }}>
+            <TouchableHighlight onPress={() => Alert.alert('Home button pressed')} underlayColor={Colours.PRIMARY}>
+              <Ionicons name="home" size={25} color={'white'} />
+            </TouchableHighlight>
+          </View>
+          <View style={{ flex: 10 }}>
+            <Searchbar
+              style={AppStyle.searchBar}
+              placeholder="Search"
+              onChangeText={onChangeSearch}
+              value={searchQuery}
+              onIconPress={() => { filt() }}
+            />
+          </View>
+        </View>
+        <View style={{ paddingTop: 10, paddingLeft: 10, flexDirection: 'row' }}>
+          <Text style={{ color: 'white', flex: 2 }}>Search by:</Text>
+          <RadioForm formHorizontal={true} style={{ justifyContent: 'space-around', flex: 9 }}>
+            {searchOptionList.map((l, v) => (
+              <RadioButton key={v}>
+                <RadioButtonInput
+                  obj={l}
+                  index={v}
+                  isSelected={checked === v}
+                  onPress={() => setChecked(v)}
+                  buttonSize={10}
+                  buttonInnerColor={'white'}
+                  buttonOuterColor={'white'}
+                />
+                <RadioButtonLabel
+                  obj={l}
+                  index={v}
+                  onPress={() => setChecked(v)}
+                  labelWrapStyle={{ marginHorizontal: 5 }}
+                  labelStyle={{ color: 'white' }}
+                />
+              </RadioButton>
+            ))}
+          </RadioForm>
         </View>
       </View>
-
-      <View style={{ justifyContent: 'center', alignItems: 'center', height: 50, width: '100%', backgroundColor: Colours.PRIMARY, flexDirection: "row" }}>
-        <Searchbar
-          placeholder="Search"
-          onChangeText={onChangeSearch}
-          value={searchQuery}
-        />
-
-
-        <Button
-          icon={<Ionicons name='search' color='red' size='15' />}
-          title='Search'
-          onPress={()=>{filt()}}
-        />
-      </View>
-
-      <View style={{ justifyContent: 'center', alignItems: 'center', height: 50, width: '100%', backgroundColor: Colours.PRIMARY }}>
-        <Button
-          icon={<Ionicons name='home' color='red' size='15' />}
-          title='home'
-          onPress={() => Alert.alert('Home button pressed')}
-        />
-      </View>
-
-      <View style={{ justifyContent: 'center', alignItems: 'center', height: 20, width: '100%' }}>
-        <Text>{qposts.length ==0 ? "No results" : ""}</Text>
-      </View>
-
-     
-      <View style={{justifyContent: 'center',  flex: 1, width: '100%' }}>
+      <View style={{ justifyContent: 'center', flex: 1, width: '100%' }}>
+        <Text>{qposts.length == 0 ? "No results" : ""}</Text>
         <FlatList
           data={qposts}
           renderItem={renderPost}
@@ -234,5 +224,6 @@ function HomeScreen({ navigation }) {
     </View>
   );
 }
+
 
 export default HomeScreen;
