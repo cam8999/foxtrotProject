@@ -6,8 +6,8 @@ import { AppStyle } from '../styles';
 import Colours from '../styles'
 import { TouchableHighlight } from 'react-native';
 
-import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername } from '../firebase-config';
-import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
+import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername, getPostsByUserUID } from '../firebase-config';
+import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
 import { Searchbar } from 'react-native-paper';
 
@@ -119,7 +119,7 @@ const renderPost = ({ item }) => {
 
 async function Test() {
   let user1 = await getUser();
-  let posts = await getPostsByUsername('John', 10, true);
+  let posts = await getPostsByUserUID('John', 10, false);
   //uploadPostToDB({ 'TT': 'TT' }, user1);
   console.log(posts);
 }
@@ -166,18 +166,18 @@ function HomeScreen({ navigation }) {
 
   }
 
-
+  Test();
 
   return (
     <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
       <View style={AppStyle.topBar}>
-        <View style={{flexDirection: 'row'}}>
-          <View style={{flex:1, padding:10, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ flexDirection: 'row' }}>
+          <View style={{ flex: 1, padding: 10, justifyContent: 'center', alignItems: 'center' }}>
             <TouchableHighlight onPress={() => Alert.alert('Home button pressed')} underlayColor={Colours.PRIMARY}>
               <Ionicons name="home" size={25} color={'white'} />
             </TouchableHighlight>
           </View>
-          <View style={{flex: 10}}>
+          <View style={{ flex: 10 }}>
             <Searchbar
               style={AppStyle.searchBar}
               placeholder="Search"
@@ -187,15 +187,15 @@ function HomeScreen({ navigation }) {
             />
           </View>
         </View>
-        <View style={{paddingTop: 10, paddingLeft: 10, flexDirection: 'row'}}>
-          <Text style={{color:'white', flex:2}}>Search by:</Text>
-          <RadioForm formHorizontal={true} style={{justifyContent:'space-around', flex:9}}>
-            {searchOptionList.map((l,v) => (
+        <View style={{ paddingTop: 10, paddingLeft: 10, flexDirection: 'row' }}>
+          <Text style={{ color: 'white', flex: 2 }}>Search by:</Text>
+          <RadioForm formHorizontal={true} style={{ justifyContent: 'space-around', flex: 9 }}>
+            {searchOptionList.map((l, v) => (
               <RadioButton key={v}>
-                <RadioButtonInput 
+                <RadioButtonInput
                   obj={l}
                   index={v}
-                  isSelected={checked===v}
+                  isSelected={checked === v}
                   onPress={() => setChecked(v)}
                   buttonSize={10}
                   buttonInnerColor={'white'}
@@ -205,8 +205,8 @@ function HomeScreen({ navigation }) {
                   obj={l}
                   index={v}
                   onPress={() => setChecked(v)}
-                  labelWrapStyle={{marginHorizontal: 5}}
-                  labelStyle={{color: 'white'}}
+                  labelWrapStyle={{ marginHorizontal: 5 }}
+                  labelStyle={{ color: 'white' }}
                 />
               </RadioButton>
             ))}

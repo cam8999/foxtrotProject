@@ -97,7 +97,9 @@ export async function uploadPostToDB(postJSON, user) {
         postIDs.push(postRef.id);
         setDoc(doc(db, "PostIDs", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
         setPostDoc({ 'ID': postRef.id }, postRef.id);
+        return postRef.id;
     }
+    throw 'User is not logged in!';
 }
 
 export async function getUser() {
@@ -178,6 +180,16 @@ export async function getPostsByTitle(title, limitVal = 100, orderByUpvotes = fa
         q = query(collection(db, "Posts"), where("Title", "==", title), orderBy('Timestamp', 'desc'), limit(limitVal));
     } else {
         q = query(collection(db, "Posts"), where("Title", "==", title), orderBy('Upvotes', 'desc'), limit(limitVal));
+    }
+    return snapshotToArray(q);
+}
+
+export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = false) {
+    let q;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), where("userUID", "==", uid), orderBy('Timestamp', 'desc'), limit(limitVal));
+    } else {
+        q = query(collection(db, "Posts"), where("userUID", "==", uid), orderBy('Upvotes', 'desc'), limit(limitVal));
     }
     return snapshotToArray(q);
 }
