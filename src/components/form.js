@@ -1,11 +1,11 @@
 import React from 'react';
-import {View, Text, TextInput, Button, Image} from 'react-native';
+import { View, Text, TextInput, Button, Image, Pressable, Divider } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import FastImage from 'react-native-fast-image';
 import * as Location from 'expo-location';
-import { RadioButton } from 'react-native-paper';
+import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
 import Colours from '../styles';
 
@@ -79,6 +79,11 @@ class LinearForm extends React.Component {
    * @returns {ReactNative View[]} - The list of components
    */
   renderFieldsIntoComponents() {
+    var locationRadioProps = [
+      {label: 'GPS', value: 0, tag: 'gps'},
+      {label: 'Address Lookup', value: 1,  tag: 'address'},
+      {label: 'Latitude-Longitude', value: 2,  tag: 'latlong'},
+    ];
     const formComponents = [];
     let counter = 0;
     for (const field of this.state.fields) {
@@ -107,14 +112,15 @@ class LinearForm extends React.Component {
         case LinearForm.FieldTypes.GalleryUpload: {
           item = 
             <View key={counter} style={this.state.stylesheet.field}>
-              <View style={this.state.stylesheet.button}>
-                <Button
-                  title="Upload Images or Videos"
-                  onPress={this.handleGalleryUpload}
-                  color={Colours.PRIMARY}
-                  accessibilityLabel="Click to upload images or videos"
-                />
-              </View>
+              <Pressable 
+                accessibilityLabel="Click to upload images or videos" 
+                style={this.state.stylesheet.button} 
+                onPress={this.handleGalleryUpload}
+              >
+                <Text style={this.state.stylesheet.buttonTitle}>
+                  Upload Images or Videos
+                </Text>
+              </Pressable>
               <View style={this.state.stylesheet.mediaPreview}>
                 {this.state.galleryUploads.map(
                   upload => <Image style={this.state.stylesheet.imagePreview} source={{uri: upload.uri}}/>
@@ -127,14 +133,15 @@ class LinearForm extends React.Component {
         case LinearForm.FieldTypes.DocumentUpload: {
           item =
             <View key={counter} style={this.state.stylesheet.field}>
-              <View style={this.state.stylesheet.button}>
-                <Button
-                  title="Upload Other Files"
-                  onPress={this.handleDocumentUpload}
-                  color={Colours.PRIMARY}
-                  accessibilityLabel="Click to upload other files like PDFs"
-                />
-              </View>
+              <Pressable
+                accessibilityLabel="Click to upload other files like PDFs"
+                style={this.state.stylesheet.button}
+                onPress={this.handleDocumentUpload}
+              >
+                <Text style={this.state.stylesheet.buttonTitle}>
+                  Upload Other Files
+                </Text>
+              </Pressable>
               <View style={this.state.stylesheet.mediaPreview}>
                 {this.state.documentUploads.map(upload => <Text style={this.state.stylesheet.text}>{upload.name}</Text>)}
               </View>
@@ -145,27 +152,31 @@ class LinearForm extends React.Component {
         case LinearForm.FieldTypes.Location: {
           item = 
             <View key={counter} style={this.state.stylesheet.field}>
-              <View style={this.state.stylesheet.radioButtons}>
-                <Text>GPS</Text>
-                <RadioButton
-                  value="GPS"
-                  status={ this.state.chosenMethodComponent === 'gps' ? 'checked' : 'unchecked' }
-                  onPress={() => this.setState({chosenMethodComponent: 'gps'})}
-                />
-                <Text>Address Lookup</Text>
-                <RadioButton
-                  value="Address Lookup"
-                  status={ this.state.chosenMethodComponent === 'address' ? 'checked' : 'unchecked' }
-                  onPress={() => this.setState({chosenMethodComponent: 'address'})}
-                />
-                <Text>Latitude-Longitude</Text>
-                <RadioButton
-                  value="Latitude-Longitude"
-                  status={ this.state.chosenMethodComponent === 'latlong' ? 'checked' : 'unchecked' }
-                  onPress={() => this.setState({chosenMethodComponent: 'latlong'})}
-                />
-              </View>
-              {this.getLocationMethodComponent(this.state.chosenMethodComponent)}
+              <Text style={this.state.stylesheet.text}>
+                Choose location specification method: {"\n"}
+              </Text>
+              <RadioForm formHorizontal={false} style={this.state.stylesheet.radioForm}>
+                {locationRadioProps.map((item) => (
+                  <RadioButton labelHorizontal={true} key={item.value}>
+                    <RadioButtonInput
+                      obj={item}
+                      index={item.value}
+                      isSelected={this.state.locationMethod === item.tag}
+                      onPress={() => this.setState({locationMethod: item.tag})}
+                      buttonSize={15}
+                      buttonInnerColor={Colours.PRIMARY}
+                      buttonOuterColor={Colours.PRIMARY}
+                    />
+                    <RadioButtonLabel
+                      obj={item}
+                      index={item.value}
+                      onPress={() => this.setState({locationMethod: item.tag})}
+                      labelStyle={this.state.stylesheet.text}
+                    />
+                  </RadioButton>
+                ))}
+              </RadioForm>
+              {this.getLocationMethodComponent(this.state.locationMethod)}
               <Text style={this.state.stylesheet.text}>
                 Latitude: {this.state.location.latitude} Longitude: {this.state.location.longitude}
               </Text>
@@ -290,23 +301,21 @@ class LinearForm extends React.Component {
         case 'gps': {
           if (this.state.locating) {
             chosenMethodComponent = 
-              <View style={this.state.stylesheet.button}>
-                <Button
-                  title="Locating..."
-                  disabled={true}
-                  color={Colours.PRIMARY}
-                />
-              </View>
+              <Pressable
+                style={this.state.stylesheet.button}
+                disabled={true}
+              >
+                <Text style={this.state.stylesheet.buttonTitle}>Locating...</Text>
+              </Pressable>
           } else {
             chosenMethodComponent = 
-            <View style={this.state.stylesheet.button}>
-              <Button
-                title="Locate Me"
-                onPress={this.locateDevice}
-                color={Colours.PRIMARY}
-                accessibilityLabel="Click to locate this device using GPS"
-              />
-            </View>
+            <Pressable
+              style={this.state.stylesheet.button}
+              accessibilityLabel="Click to locate this device using GPS"
+              onPress={this.locateDevice}
+            >
+              <Text style={this.state.stylesheet.buttonTitle}>Locate Me</Text>
+            </Pressable>
           }
           
           break;
@@ -322,13 +331,12 @@ class LinearForm extends React.Component {
                 onChangeText={addr => this.setState({enteredAddress: addr})}
                 style={this.state.stylesheet.textInput}
               />
-              <View style={this.state.stylesheet.button}>
-                <Button
-                  title="Looking Up..."
-                  disabled={true}
-                  color={Colours.PRIMARY}
-                />
-              </View>
+              <Pressable
+                style={this.state.stylesheet.button}
+                disabled={true}
+              >
+                <Text style={this.state.stylesheet.buttonTitle}>Looking Up...</Text>
+              </Pressable>
               
             </>
           } else {
@@ -340,14 +348,13 @@ class LinearForm extends React.Component {
                 onChangeText={addr => this.setState({enteredAddress: addr})}
                 style={this.state.stylesheet.textInput}
               />
-              <View style={this.state.stylesheet.button}>
-                <Button
-                  title="Lookup"
-                  onPress={this.lookupAddress}
-                  color={Colours.PRIMARY}
-                  accessibilityLabel="Click to lookup the entered address"
-                />
-              </View>
+              <Pressable
+                style={this.state.stylesheet.button}
+                onPress={this.lookupAddress}
+                accessibilityLabel="Click to lookup the entered address"
+              >
+                <Text style={this.state.stylesheet.buttonTitle}>Lookup</Text>
+              </Pressable>
             </>
           }
           break;
@@ -457,15 +464,14 @@ class LinearForm extends React.Component {
         <ScrollView>
           {this.renderFieldsIntoComponents()}
           <View style={this.state.stylesheet.field}>
-            <View style={this.state.stylesheet.button}>
-              <Button
-                title={buttonText}
+              <Pressable
+                style={this.state.stylesheet.button}
                 disabled={this.state.submitted || this.state.submitting}
                 onPress={this.submitForm}
-                color={Colours.PRIMARY}
                 accessibilityLabel="Click to submit the form"
-              />
-            </View>
+              >
+                <Text style={this.state.stylesheet.buttonTitle}>{buttonText}</Text>
+              </Pressable>
             <Text style={this.state.stylesheet.errorMessage}>{this.state.errorMsg}</Text>
           </View>
         </ScrollView>
