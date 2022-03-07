@@ -69,7 +69,6 @@ function ProfileScreen({ navigation }) {
               placeholder={'Name'}
             />
           </View>
-
           <View style={{ flexDirection: 'row' }}>
             <View style={[AppStyle.profileComponent, { flex: 4, marginRight: 3 }]}>
               <TextInput

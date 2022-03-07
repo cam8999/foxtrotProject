@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';;
-import { Text, View, TouchableOpacity, TextInput, Button } from 'react-native';
-
+import { Text, View, TouchableOpacity, TextInput, Pressable } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { initializeApp } from "firebase/app";
 import { PhoneAuthProvider, getAuth, signInWithCredential } from "firebase/auth";
 import { getDatabase } from "firebase/database";
@@ -8,6 +8,7 @@ import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
 import { checkSignInStatus } from '../../App';
 
 import { FirebaseApp, FirebaseAuth, FirebaseDB } from '../firebase-config';
+import { AppStyle } from '../styles';
 
 
 function LoginScreen({ navigation }) {
@@ -54,27 +55,32 @@ function LoginScreen({ navigation }) {
         attemptInvisibleVerification={true}
       />
 
-      {/* Phone Number Input */}
-      <TextInput
-        placeholder="Phone Number"
-        onChangeText={setPhoneNumber}
-        keyboardType="phone-pad"
-        autoCompleteType="tel"
-      />
-
-      <TouchableOpacity nativeId="recaptcha" onPress={() => signInWithPhoneNumber(phoneNumber)}>
-        <Text>Send Verification</Text>
-      </TouchableOpacity>
-      {/* Verification Code Input */}
-      <TextInput
-        placeholder="Confirmation Code"
-        onChangeText={setCode}
-        keyboardType="number-pad"
-      />
-      <TouchableOpacity onPress={confirmCode}>
-        <Text>Sign in</Text>
-      </TouchableOpacity>
-
+      <View style={AppStyle.loginContainer}>
+        <Text style={AppStyle.title}>Sign In</Text>
+        <View style={{flexDirection: 'row'}}>
+          <TextInput
+            placeholder="Phone Number"
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
+            autoCompleteType="tel"
+            style={[AppStyle.textInput, {flex: 3}]}
+          />
+          <Pressable style={AppStyle.button} onPress={() => signInWithPhoneNumber(phoneNumber)}>
+            <Text style={AppStyle.buttonTitle}>Send Verification</Text>
+          </Pressable>
+        </View>
+        <View style={{flexDirection: 'row'}}>
+          <TextInput
+            placeholder="Confirmation Code"
+            onChangeText={setCode}
+            keyboardType="number-pad"
+            style={[AppStyle.textInput, {flex: 2}]}
+          />
+          <Pressable style={AppStyle.button} onPress={confirmCode}>
+            <Text style={AppStyle.buttonTitle}>Sign In</Text>
+          </Pressable>
+        </View>
+      </View>
     </View>
   )
 }

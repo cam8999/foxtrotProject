@@ -58,7 +58,8 @@ export const AppStyle = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'black'
+    color: 'black',
+    padding: 10,
   },
   profileComponent: {
     marginTop: 3,
@@ -84,6 +85,17 @@ export const AppStyle = StyleSheet.create({
   buttonTitle: {
     fontWeight: 'bold',
     color: 'white',
+  },
+  loginContainer: {
+    width: '100%',
+    backgroundColor: 'white',
+    borderRadius: 10,
+    flexDirection: 'column',
+    padding: 10,
+    justifyContent: 'flex-start'
+  },
+  textInput: {
+    padding: 10,
   },
 });
 
