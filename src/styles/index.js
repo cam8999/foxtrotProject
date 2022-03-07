@@ -1,4 +1,4 @@
-import {ColorPropType, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 
 import * as Colours from './colours';
 
@@ -74,6 +74,37 @@ export const AppStyle = StyleSheet.create({
     fontWeight: 'bold',
     color: 'white',
   },
+});
+
+
+export const FormStyle = StyleSheet.create({
+  container: {
+    flex: 1, 
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white'
+  },
+
+  heading: {
+    fontWeight: 'bold',
+    fontSize: 24,
+  },
+
+  subheading: {
+    fontSize: 18,
+  },
+
+  uploadedImage: {
+    width: 80,
+    height: 80
+  },
+
+  mediaPreview: {
+    flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  }
 });
 
 export default Colours;
