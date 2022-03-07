@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { HomeScreen, LoginScreen, MapScreen, ProfileScreen } from "./src/scenes";
+import { HomeScreen, LoginScreen, MapScreen, ProfileScreen, UploadScreen } from "./src/scenes";
 import Colours from './src/styles'
 
 import { FirebaseAuth, FirebaseDB, db, getUserDoc } from './src/firebase-config';
@@ -54,76 +54,39 @@ export default function App() {
     return subscriber; // unsubscribe on unmount
   }, []);
 
-  if (user) {       // TODO: make some sort of variable for appTabs.Navigator options so no redundancy necessary.
-    return (
-      <NavigationContainer>
+  return (
+    <NavigationContainer>
+      <appTabs.Navigator
+        initialRouteName={'Home'}
+        screenOptions={({ route }) => ({
+          headerShown: false,
+          tabBarShowLabel: false,
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
 
-        <appTabs.Navigator
-          initialRouteName={'Home'}
-          screenOptions={({ route }) => ({
-            headerShown: false,
-            tabBarShowLabel: false,
-            tabBarIcon: ({ focused, color, size }) => {
-              let iconName;
+            switch (route.name) {
+              case 'Map': iconName = 'location'; break;
+              case 'Home': iconName = 'home'; break;
+              case 'Upload': iconName = 'add-circle'; break;
+              case 'Profile': iconName = 'person'; break;
+              case 'Login': iconName = 'log-in'; break;
+              default: iconName = '';
+            }
 
-              switch (route.name) {
-                case 'Map': iconName = 'location'; break;
-                case 'Home': iconName = 'add-circle'; break;
-                case 'Profile': iconName = 'person'; break;
-                case 'Login': iconName = 'log-in'; break;
-                default: iconName = '';
-              }
+            return <Ionicons name={iconName} size={focused ? size + 10 : size} color='white' />;
+          },
+          tabBarStyle: {
+            height: 80,
+            backgroundColor: Colours.PRIMARY,
+          },
+        })}
+      >
 
-              return <Ionicons name={iconName} size={focused ? size + 10 : size} color='white' />;
-            },
-            tabBarStyle: {
-              height: 80,
-              backgroundColor: Colours.PRIMARY,
-            },
-          })}
-        >
-
-          <appTabs.Screen name="Map" component={MapScreen} />
-          <appTabs.Screen name="Home" component={HomeScreen} />
-          <appTabs.Screen name="Profile" component={ProfileScreen} />
-        </appTabs.Navigator>
-      </NavigationContainer>
-    )
-  } else {
-    return (
-      <NavigationContainer>
-
-        <appTabs.Navigator
-          initialRouteName={'Home'}
-          screenOptions={({ route }) => ({
-            headerShown: false,
-            tabBarShowLabel: false,
-            tabBarIcon: ({ focused, color, size }) => {
-              let iconName;
-
-              switch (route.name) {
-                case 'Map': iconName = 'location'; break;
-                case 'Home': iconName = 'add-circle'; break;
-                case 'Profile': iconName = 'person'; break;
-                case 'Login': iconName = 'log-in'; break;
-                default: iconName = '';
-              }
-
-              return <Ionicons name={iconName} size={focused ? size + 10 : size} color='white' />;
-            },
-            tabBarStyle: {
-              height: 80,
-              backgroundColor: Colours.PRIMARY,
-            },
-          })}
-        >
-
-          <appTabs.Screen name="Map" component={MapScreen} />
-          <appTabs.Screen name="Home" component={HomeScreen} />
-          <appTabs.Screen name="Login" component={LoginScreen} />
-        </appTabs.Navigator>
-      </NavigationContainer>
-    )
-  }
-
+        <appTabs.Screen name="Map" component={MapScreen} />
+        <appTabs.Screen name="Home" component={HomeScreen} />
+        <appTabs.Screen name="Upload" component={UploadScreen} />
+        <appTabs.Screen name="Profile" component={user ? ProfileScreen : LoginScreen} />
+      </appTabs.Navigator>
+    </NavigationContainer>
+  )
 }
