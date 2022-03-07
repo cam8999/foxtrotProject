@@ -222,8 +222,8 @@ export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = fa
 
 export async function getPostsByCoordinates(coordinates, limitVal = 100, orderByUpvotes = false) {
     let q;
-    let latitude = coordinates.latitude;
-    let longitude = coordinates.longitude;
+    let latitude = coordinates.Latitude;
+    let longitude = coordinates.Longitude;
     if (!orderByUpvotes) {
         q = query(collection(db, "Posts"), where("Latitude", ">=", latitude - 1 / 6), where("Latitude", "<=", latitude + 1 / 6));
 
@@ -273,7 +273,7 @@ export async function getPostsByUsername(username, limitVal = 100, orderByUpvote
 */
 
 export async function uploadFilesToDB(files, postId, userId) {
-    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + userId + '/' + postId);
+    const folderRef = ref(ref(FirebaseStorage), 'PostFiles/' + userId + '/' + postId);
     for (const file of files) {
         const imgRef = ref(folderRef, file.name);
         const metadata = {
@@ -282,15 +282,15 @@ export async function uploadFilesToDB(files, postId, userId) {
         const byteArray = await readAsStringAsync(files.uri);
         const uploadTask = uploadBytesResumable(imgRef, byteArray, metadata);
         // TODO: Deal with file not uploading (do it at form or in )
-        uploadTask.catch(console.log("Error: file cannot be added to the server right now. Please try again shortly.")); 
-        
+        uploadTask.catch(console.log("Error: file cannot be added to the server right now. Please try again shortly."));
+
     }
 }
 
 //returns array downloadurl for now (as a string)
 // need to have limit on size of number of files uploaded, otherwise listAll consumes too many resources
 export async function getFilesForPost(postId, userId) {
-    const folderRef = ref(ref(FirebaseStorage),'PostFiles/' + userId + '/' + postId);
+    const folderRef = ref(ref(FirebaseStorage), 'PostFiles/' + userId + '/' + postId);
     var fileUrls = [];
     const listResult = await listAll(folderRef);
     for (file of listResult) fileUrls.push(await getDownloadURL(file));

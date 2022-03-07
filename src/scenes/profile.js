@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';;
-import { Text, View, TouchableOpacity, TextInput, Button, Pressable, FlatList, Alert,  } from 'react-native';
+import { Text, View, TouchableOpacity, TextInput, Button, Pressable, FlatList, Alert, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { FirebaseAuth, FirebaseDB, getUser, setUserDoc } from '../firebase-config';
@@ -40,8 +40,8 @@ function ProfileScreen({ navigation }) {
     updateProfile(FirebaseAuth.currentUser, {
       displayName: userName
     }).then(() => {
-      let userRef = getUser();
-      setUserDoc({ 'Username': userName }, user);
+      let userRef = await getUser();
+      setUserDoc({ 'Username': userName }, userRef);
       console.log("Profile updated");
     }).catch((error) => {
       console.log("error");
