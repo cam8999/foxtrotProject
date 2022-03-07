@@ -6,7 +6,7 @@ import { AppStyle } from '../styles';
 import Colours from '../styles'
 import { TouchableHighlight } from 'react-native';
 
-import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername, getPostsByUserUID } from '../firebase-config';
+import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername, getPostsByUserUID, getPostsByCoordinates } from '../firebase-config';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
 import { Searchbar } from 'react-native-paper';
@@ -119,7 +119,7 @@ const renderPost = ({ item }) => {
 
 async function Test() {
   let user1 = await getUser();
-  let posts = await getPostsByUserUID('John', 10, false);
+  let posts = await getPostsByCoordinates({ 'latitude': 10.03, 'longitude': 10.03 }, 10, false);
   //uploadPostToDB({ 'TT': 'TT' }, user1);
   console.log(posts);
 }
@@ -166,6 +166,7 @@ function HomeScreen({ navigation }) {
 
   }
 
+  //Test();
   return (
     <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
       <View style={AppStyle.topBar}>

@@ -154,6 +154,28 @@ async function snapshotToArray(q) {
     return postsArray;
 }
 
+async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes) {
+    const querySnapshot = await getDocs(q);
+    let postsArray = [];
+    querySnapshot.forEach((doc) => {
+        // doc.data() is never undefined for query doc snapshots
+        if (doc.data().Longitude >= longitude - 1 / 3 && doc.data().Longitude <= longitude + 1 / 3) {
+            postsArray.push(doc.data());
+        }
+    });
+    if (orderByUpvotes) {
+        postsArray.sort(function (a, b) {
+            return b.Upvotes - a.Upvotes;
+        });
+    } else {
+        postsArray.sort(function (a, b) {
+            return (b.Timestamp.seconds - a.Timestamp.seconds);
+        });
+    }
+
+    return postsArray;
+}
+
 export async function getPostsByLocation(location, limitVal = 100, orderByUpvotes = false) {
     let q;
     if (!orderByUpvotes) {
@@ -192,6 +214,20 @@ export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = fa
         q = query(collection(db, "Posts"), where("userUID", "==", uid), orderBy('Upvotes', 'desc'), limit(limitVal));
     }
     return snapshotToArray(q);
+}
+
+export async function getPostsByCoordinates(coordinates, limitVal = 100, orderByUpvotes = false) {
+    let q;
+    let latitude = coordinates.latitude;
+    let longitude = coordinates.longitude;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), where("Latitude", ">=", latitude - 1 / 6), where("Latitude", "<=", latitude + 1 / 6));
+
+    } else {
+        q = query(collection(db, "Posts"), where("Latitude", ">=", latitude - 1 / 6), where("Latitude", "<=", latitude + 1 / 6));
+
+    }
+    return snapshotToArrayCoordinates(q, longitude, orderByUpvotes);
 }
 
 export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false) {
