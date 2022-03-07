@@ -7,15 +7,41 @@ import FastImage from 'react-native-fast-image';
 import * as Location from 'expo-location';
 import { RadioButton } from 'react-native-paper';
 
-import Colours, {FormStyle} from '../styles';
+import Colours from '../styles';
 
+// TODO: Data sanitisation/necessitation
+// TODO: Maximum uploads = 10
+// TODO: Add optional personal info
+// TODO: Stylise
 
-
+/*
+ * A form component containing provided fields in a linear column.
+ * @param fields - A list of fields of type LinearForm.FieldTypes to construct the form from.
+ * @param documentUploadTypes - A list of MIME types which can be uploaded in the form.
+ * @param onSubmit {JSON => bool} - A function called with the form data on submit. Must return success value.
+ * @param stylesheet - A stylesheet the form should use.
+ */
 class LinearForm extends React.Component {
+
+  // An enum of all supported field types.
+  static FieldTypes = {
+    Text: 'text',  // text: "text to display"
+    Question: 'question',  // prompt: "text to display" 
+    GalleryUpload: 'gallery-upload',
+    DocumentUpload: 'document-upload',
+    Location: 'location',
+    Heading: 'heading',  // text: "text to display"
+    Subheading: 'sub-heading', // text: "text to display"
+    Seperator: 'seperator',
+  }
 
   constructor(props) {
     super(props);
     this.state = {
+      fields: this.props.fields,
+      textInputs: new Map(),  // A map of prompts to corresponding text input
+      onSubmit: this.props.onSubmit,  // Function to return form JSON ddata to
+
       galleryUploads: [],  // List of uploaded picture and video objects
       documentUploads: [],  // List of uploaded documents of types specified in props.documentUploadTypes
       haveMediaLibraryPermission: false,  // Permission to access photo library needed for ImagePicker
@@ -26,112 +52,145 @@ class LinearForm extends React.Component {
       enteredAddress: "",
       geolocationAccuracy: Location.Accuracy.Balanced,  // Accuracy to lookup location to. See https://docs.expo.dev/versions/latest/sdk/location/#accuracy
       locating: false,
+
+      submitted: false,
+      submitting: false,
+
+      stylesheet: this.props.stylesheet,
+      errorMsg: "Missing Fields",  // Error message to display to user
     };
 
     // Make state accessible through this from all functions
     this.renderFieldsIntoComponents = this.renderFieldsIntoComponents.bind(this);
+    this.onChangeTextInput = this.onChangeTextInput.bind(this);
     this.ensureMediaLibraryAccess = this.ensureMediaLibraryAccess.bind(this);
     this.handleGalleryUpload = this.handleGalleryUpload.bind(this);
     this.handleDocumentUpload = this.handleDocumentUpload.bind(this);
     this.getLocationMethodComponent = this.getLocationMethodComponent.bind(this);
     this.locateDevice = this.locateDevice.bind(this);
     this.lookupAddress = this.lookupAddress.bind(this);
+    this.submitForm = this.submitForm.bind(this);
     this.render = this.render.bind(this);
   }
 
 
+  /*
+   * Constructs a list of view components from state.fields.
+   * @returns {ReactNative View[]} - The list of components
+   */
   renderFieldsIntoComponents() {
     const formComponents = [];
     let counter = 0;
-    for (const field of this.props.fields) {
+    for (const field of this.state.fields) {
+      var item;
       switch (field.type) {
-        case 'text': {
+        case LinearForm.FieldTypes.Text: {
           item = 
-            <View key={counter}>
-              <Text>{field.prompt}</Text>
-              <TextInput onChangeText={this.onChangeTextInput} style={{borderWidth:1}}/>
+            <View key={counter} style={this.state.stylesheet.field}>
+              <Text style={this.state.stylesheet.text}>{field.text}</Text>
             </View>
           break;
         }
 
-        case 'gallery-upload': {
+        case LinearForm.FieldTypes.Question: {
           item = 
-            <View key={counter}>
-              <Button
-                title="Upload Images or Videos"
-                onPress={this.handleGalleryUpload}
-                //disabled={this.state.canRequestMediaLibraryAccess || this.state.haveMediaLibraryPermission}
-                color={Colours.PRIMARY}
-                accessibilityLabel="Click to upload images or videos"
-              />
-              <View style={FormStyle.mediaPreview}>
-                {this.state.galleryUploads.map(upload => <Image style={FormStyle.uploadedImage} source={{uri: upload.uri}}/>)}
+            <View key={counter} style={this.state.stylesheet.field}>
+              <Text style={this.state.stylesheet.text}>{field.prompt}</Text>
+              <TextInput 
+                style={this.state.stylesheet.textInput}
+                onChangeText={answer => this.onChangeTextInput(field.prompt, answer)}
+                />
+            </View>
+          break;
+        }
+
+        case LinearForm.FieldTypes.GalleryUpload: {
+          item = 
+            <View key={counter} style={this.state.stylesheet.field}>
+              <View style={this.state.stylesheet.button}>
+                <Button
+                  title="Upload Images or Videos"
+                  onPress={this.handleGalleryUpload}
+                  color={Colours.PRIMARY}
+                  accessibilityLabel="Click to upload images or videos"
+                />
+              </View>
+              <View style={this.state.stylesheet.mediaPreview}>
+                {this.state.galleryUploads.map(
+                  upload => <Image style={this.state.stylesheet.imagePreview} source={{uri: upload.uri}}/>
+                )}
               </View>
             </View>
           break;
         }
 
-        case 'document-upload': {
+        case LinearForm.FieldTypes.DocumentUpload: {
           item =
-            <View key={counter}>
-              <Button
-                title="Upload Other Files"
-                onPress={this.handleDocumentUpload}
-                color={Colours.PRIMARY}
-                accessibilityLabel="Click to upload other files like PDFs"
-              />
-              <View style={FormStyle.mediaPreview}>
-                {this.state.documentUploads.map(upload => <Text>{upload.name}</Text>)}
+            <View key={counter} style={this.state.stylesheet.field}>
+              <View style={this.state.stylesheet.button}>
+                <Button
+                  title="Upload Other Files"
+                  onPress={this.handleDocumentUpload}
+                  color={Colours.PRIMARY}
+                  accessibilityLabel="Click to upload other files like PDFs"
+                />
+              </View>
+              <View style={this.state.stylesheet.mediaPreview}>
+                {this.state.documentUploads.map(upload => <Text style={this.state.stylesheet.text}>{upload.name}</Text>)}
               </View>
             </View>
           break;
         }
 
-        case 'location': {
+        case LinearForm.FieldTypes.Location: {
           item = 
-            <View key={counter}>
-              <Text>GPS</Text>
-              <RadioButton
-                value="GPS"
-                status={ this.state.chosenMethodComponent === 'gps' ? 'checked' : 'unchecked' }
-                onPress={() => this.setState({chosenMethodComponent: 'gps'})}
-              />
-              <Text>Address Lookup</Text>
-              <RadioButton
-                value="Address Lookup"
-                status={ this.state.chosenMethodComponent === 'address' ? 'checked' : 'unchecked' }
-                onPress={() => this.setState({chosenMethodComponent: 'address'})}
-              />
-              <Text>Latitude-Longitude</Text>
-              <RadioButton
-                value="Latitude-Longitude"
-                status={ this.state.chosenMethodComponent === 'latlong' ? 'checked' : 'unchecked' }
-                onPress={() => this.setState({chosenMethodComponent: 'latlong'})}
-              />
+            <View key={counter} style={this.state.stylesheet.field}>
+              <View style={this.state.stylesheet.radioButtons}>
+                <Text>GPS</Text>
+                <RadioButton
+                  value="GPS"
+                  status={ this.state.chosenMethodComponent === 'gps' ? 'checked' : 'unchecked' }
+                  onPress={() => this.setState({chosenMethodComponent: 'gps'})}
+                />
+                <Text>Address Lookup</Text>
+                <RadioButton
+                  value="Address Lookup"
+                  status={ this.state.chosenMethodComponent === 'address' ? 'checked' : 'unchecked' }
+                  onPress={() => this.setState({chosenMethodComponent: 'address'})}
+                />
+                <Text>Latitude-Longitude</Text>
+                <RadioButton
+                  value="Latitude-Longitude"
+                  status={ this.state.chosenMethodComponent === 'latlong' ? 'checked' : 'unchecked' }
+                  onPress={() => this.setState({chosenMethodComponent: 'latlong'})}
+                />
+              </View>
               {this.getLocationMethodComponent(this.state.chosenMethodComponent)}
-              <Text>Latitude: {this.state.location.latitude} Longitude: {this.state.location.longitude}</Text>
+              <Text style={this.state.stylesheet.text}>
+                Latitude: {this.state.location.latitude} Longitude: {this.state.location.longitude}
+              </Text>
             </View>
           break;
         }
 
-        case 'heading': {
+        case LinearForm.FieldTypes.Heading: {
           item = 
-            <View key={counter}>
-              <Text style={FormStyle.heading}>{field.text}</Text>
+            <View key={counter} style={this.state.stylesheet.field}>
+              <Text style={this.state.stylesheet.heading}>{field.text}</Text>
             </View>
           break;
         }
 
-        case 'sub-heading': {
+        case LinearForm.FieldTypes.Subheading: {
           item = 
-            <View key={counter}>
-              <Text style={FormStyle.subheading}>{field.text}</Text>
+            <View key={counter} style={this.state.stylesheet.field}>
+              <Text style={this.state.stylesheet.subheading}>{field.text}</Text>
             </View>
           break;
         }
 
-        case 'seperator': {
-          item = <View key={counter}></View> //TODO: Implement styling
+        case LinearForm.FieldTypes.Seperator: {
+          item = <View key={counter} style={this.state.stylesheet.seperator} /> //TODO: Implement styling
         }
 
         default:
@@ -139,18 +198,28 @@ class LinearForm extends React.Component {
       }
       if (item) {
         counter += 1;
-        formComponents.push(item)
+        formComponents.push(item);
       }
     }
     return formComponents;
   }
 
 
-  onChangeTextInput() {
-    return null;
+  /*
+   * Takes a text input and stores the inputted answer in state.textInputs
+   * @param prompt - the corresponding prompt text for the input
+   * @param answer - the inputted answer
+   */
+  onChangeTextInput(prompt, answer) {
+    this.state.textInputs.set(prompt, answer)
+    console.log(prompt + ": " + answer)
   }
 
 
+  /*
+   * Checks to see if the app has media library access rights, and if not requests them.
+   * @returns {boolean} - Whether the app has access or not.
+   */
   async ensureMediaLibraryAccess() {
     if (this.state.haveMediaLibraryPermission) return true;
     if (!this.state.canRequestMediaLibraryAccess) return false;
@@ -167,6 +236,9 @@ class LinearForm extends React.Component {
   }
 
 
+  /*
+   * Open ImagePicker and store a single chosen image/video in state.galleryUploads
+   */
   async handleGalleryUpload() {
     if (!this.ensureMediaLibraryAccess()) {
       console.log("Need media library access permissions to upload image.");
@@ -182,11 +254,13 @@ class LinearForm extends React.Component {
         const galleryUploads = state.galleryUploads.push(image);
         return galleryUploads;
       })
-      console.log("Uploaded image " + image.name);
     }
   }
 
 
+  /*
+   * Open DocumentPicker and store a single chosen document of type props.documentUploadTypes in state.documentUploads
+   */
   async handleDocumentUpload() {
     let pickerOptions = {};
     if (this.props.documentUploadTypes) pickerOptions.type = this.props.documentUploadTypes;
@@ -201,34 +275,43 @@ class LinearForm extends React.Component {
         const documentUploads = state.documentUploads.push(image);
         return documentUploads;
       })
-      console.log("Uploaded document " + image.name);
     }
   }
 
 
+  /*
+   * Produces the view component for the location acquisition method.
+   * @param method - the chosen location acquisition method.
+   * @return {ReactNative View} - the constructed view component.
+   */
   getLocationMethodComponent(method) {
     let chosenMethodComponent;
       switch(method) {
         case 'gps': {
           if (this.state.locating) {
             chosenMethodComponent = 
-              <Button
-                title="Locating..."
-                disabled={true}
-                color={Colours.PRIMARY}
-              />
+              <View style={this.state.stylesheet.button}>
+                <Button
+                  title="Locating..."
+                  disabled={true}
+                  color={Colours.PRIMARY}
+                />
+              </View>
           } else {
             chosenMethodComponent = 
+            <View style={this.state.stylesheet.button}>
               <Button
                 title="Locate Me"
                 onPress={this.locateDevice}
                 color={Colours.PRIMARY}
                 accessibilityLabel="Click to locate this device using GPS"
               />
+            </View>
           }
           
           break;
         }
+
         case 'address': {
           if (this.state.locating) {
             chosenMethodComponent = 
@@ -237,12 +320,16 @@ class LinearForm extends React.Component {
                 placeholder="Address"
                 autoComplete='postal-address'
                 onChangeText={addr => this.setState({enteredAddress: addr})}
+                style={this.state.stylesheet.textInput}
               />
-              <Button
-                title="Looking Up..."
-                disabled={true}
-                color={Colours.PRIMARY}
-              />
+              <View style={this.state.stylesheet.button}>
+                <Button
+                  title="Looking Up..."
+                  disabled={true}
+                  color={Colours.PRIMARY}
+                />
+              </View>
+              
             </>
           } else {
             chosenMethodComponent = 
@@ -251,27 +338,33 @@ class LinearForm extends React.Component {
                 placeholder="Address"
                 autoComplete='postal-address'
                 onChangeText={addr => this.setState({enteredAddress: addr})}
+                style={this.state.stylesheet.textInput}
               />
-              <Button
-                title="Lookup"
-                onPress={this.lookupAddress}
-                color={Colours.PRIMARY}
-                accessibilityLabel="Click to lookup the entered address"
-              />
+              <View style={this.state.stylesheet.button}>
+                <Button
+                  title="Lookup"
+                  onPress={this.lookupAddress}
+                  color={Colours.PRIMARY}
+                  accessibilityLabel="Click to lookup the entered address"
+                />
+              </View>
             </>
           }
           break;
         }
+
         case 'latlong': {
           chosenMethodComponent = 
             <>
               <TextInput
                 placeholder="Latitude"
                 onChangeText={lat => this.setState({location: {latitude: lat, longitude: this.state.location.longitude}})}
+                style={this.state.stylesheet.textInput}
               />
               <TextInput
                 placeholder="Longitude"
                 onChangeText={long => this.setState({location: {latitude: this.state.location.latitude, longitude: long}})}
+                style={this.state.stylesheet.textInput}
               />
             </>
           break;
@@ -281,6 +374,9 @@ class LinearForm extends React.Component {
   }
 
 
+  /*
+   * Geolocate device using expo-location and store result in state.location
+   */
   async locateDevice() {
     let currPermission = await Location.requestForegroundPermissionsAsync();
     if (currPermission.granted) {
@@ -292,6 +388,9 @@ class LinearForm extends React.Component {
   }
 
 
+  /*
+   * Looks up address stored in state.enteredAdress using expo-location and store result in state.location
+   */
   async lookupAddress() {
     let currPermission = await Location.requestForegroundPermissionsAsync();
     if (currPermission.granted) {
@@ -305,11 +404,70 @@ class LinearForm extends React.Component {
   }
 
 
+  /*
+   * Take inputted data and format into JSON object, then pass to onSubmit()
+   */
+  submitForm() {
+    let formJSON = {};
+    let textualData = [];
+    for (const field of this.state.fields) {
+      if (field.type == LinearForm.FieldTypes.Question) {
+        // Handle special input fields
+        let answer = this.state.textInputs.get(field.prompt);
+        if (!answer) answer = "";
+        switch (field.id) {
+          case 'title':
+            formJSON.title = answer;
+            break;
+          case 'summary':
+            formJSON.summary = answer;
+            break;
+          case 'author':
+            formJSON.author = answer;
+            break;
+          case 'tags':
+            formJSON.title = answer;
+            break;
+          default:
+            textualData.push({prompt: field.prompt, answer: answer});
+        }
+      }
+    }
+    formJSON.textualData = textualData;
+    formJSON.location = this.state.location;
+    if (this.state.galleryUploads.length > 0) formJSON.media = this.state.galleryUploads;
+    if (this.state.documentUploads.length > 0) formJSON.documents = this.state.documentUploads;
+
+    this.setState({submitting: true});
+    const success = this.props.onSubmit(formJSON);  // Return form data to user defined function.
+    if (success) this.setState({submitted: true});
+    else this.setState({errorMessage: "Failed to upload post. Try Again"})
+    this.setState({submitting: false});
+  }
+
+
   render() {
+    let buttonText = "";
+    if (this.state.submitting) buttonText = "Submitting...";
+    else if (this.state.submitted) buttonText = "Submitted!";
+    else buttonText = "Submit";
+
     return (
-      <View style={FormStyle.container}>
+      <View style={this.state.stylesheet.container}>
         <ScrollView>
           {this.renderFieldsIntoComponents()}
+          <View style={this.state.stylesheet.field}>
+            <View style={this.state.stylesheet.button}>
+              <Button
+                title={buttonText}
+                disabled={this.state.submitted || this.state.submitting}
+                onPress={this.submitForm}
+                color={Colours.PRIMARY}
+                accessibilityLabel="Click to submit the form"
+              />
+            </View>
+            <Text style={this.state.stylesheet.errorMessage}>{this.state.errorMsg}</Text>
+          </View>
         </ScrollView>
       </View>
     )
