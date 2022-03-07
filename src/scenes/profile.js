@@ -40,8 +40,8 @@ function ProfileScreen({ navigation }) {
     updateProfile(FirebaseAuth.currentUser, {
       displayName: userName
     }).then(() => {
-      let userRef = await getUser();
-      setUserDoc({ 'Username': userName }, userRef);
+      let userRef = getUser();
+      setUserDoc({ 'Username': userName }, user);
       console.log("Profile updated");
     }).catch((error) => {
       console.log("error");
