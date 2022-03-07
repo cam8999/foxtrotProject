@@ -6,6 +6,13 @@ export const AppStyle = StyleSheet.create({
   primary: {
     color: Colours.PRIMARY,
   },
+  homeContainer: {
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#C0C0C0',
+  },
   topBar: {
     padding: 5,
     paddingTop: 20,
@@ -13,9 +20,28 @@ export const AppStyle = StyleSheet.create({
     width: '100%',
     backgroundColor: Colours.PRIMARY,
   },
+  searchBarContainer: {
+
+  },
   searchBar: {
     borderRadius: 10,
     elevation: 0,
+  },
+  homeButton: {
+    flex: 1,
+    padding: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  radioButtonContainer: {
+    paddingTop: 10,
+    paddingLeft: 10,
+    flexDirection: 'row'
+  },
+  postContainer: {
+    justifyContent: 'center',
+    flex: 1,
+    width: '100%'
   },
   post: {
     borderRadius: 15,
