@@ -166,8 +166,6 @@ function HomeScreen({ navigation }) {
 
   }
 
-  Test();
-
   return (
     <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
       <View style={AppStyle.topBar}>
