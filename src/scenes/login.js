@@ -72,7 +72,7 @@ function LoginScreen({ navigation }) {
         keyboardType="number-pad"
       />
       <TouchableOpacity onPress={confirmCode}>
-        <Text>Send Verification</Text>
+        <Text>Sign in</Text>
       </TouchableOpacity>
 
     </View>

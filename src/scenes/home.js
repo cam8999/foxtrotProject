@@ -4,7 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { AppStyle } from '../styles';
 import Colours from '../styles'
-import { TouchableHighlight } from 'react-native-gesture-handler';
+import { TouchableHighlight } from 'react-native';
 
 import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername } from '../firebase-config';
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
@@ -169,8 +169,6 @@ function HomeScreen({ navigation }) {
 
 
   return (
-
-
     <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
       <View style={AppStyle.topBar}>
         <View style={{flexDirection: 'row'}}>
@@ -189,8 +187,9 @@ function HomeScreen({ navigation }) {
             />
           </View>
         </View>
-        <View style={{paddingTop: 10}}>
-          <RadioForm formHorizontal={true} style={{justifyContent:'space-around'}}>
+        <View style={{paddingTop: 10, paddingLeft: 10, flexDirection: 'row'}}>
+          <Text style={{color:'white', flex:2}}>Search by:</Text>
+          <RadioForm formHorizontal={true} style={{justifyContent:'space-around', flex:9}}>
             {searchOptionList.map((l,v) => (
               <RadioButton key={v}>
                 <RadioButtonInput 
@@ -206,7 +205,7 @@ function HomeScreen({ navigation }) {
                   obj={l}
                   index={v}
                   onPress={() => setChecked(v)}
-                  labelWrapStyle={{marginLeft: 10}}
+                  labelWrapStyle={{marginHorizontal: 5}}
                   labelStyle={{color: 'white'}}
                 />
               </RadioButton>
@@ -214,24 +213,14 @@ function HomeScreen({ navigation }) {
           </RadioForm>
         </View>
       </View>
-
-      <View style={{ justifyContent: 'center', alignItems: 'center', height: 20, width: '100%' }}>
-
-
-        <Text>{qposts.length == 0 ? "No results" : ""}</Text>
-      </View>
-
-
       <View style={{ justifyContent: 'center', flex: 1, width: '100%' }}>
-
+        <Text>{qposts.length == 0 ? "No results" : ""}</Text>
         <FlatList
           data={qposts}
           renderItem={renderPost}
           keyExtractor={(item) => item.key}
-
         />
       </View>
-
     </View>
   );
 }

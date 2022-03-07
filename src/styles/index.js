@@ -7,15 +7,15 @@ export const AppStyle = StyleSheet.create({
     color: Colours.PRIMARY,
   },
   topBar: {
-    padding: 10,
-    paddingLeft: 5,
+    padding: 5,
     paddingTop: 20,
-    paddingBottom: 5,
+    paddingRight: 10,
     width: '100%',
     backgroundColor: Colours.PRIMARY,
   },
   searchBar: {
     borderRadius: 10,
+    elevation: 0,
   },
   post: {
     borderRadius: 15,
