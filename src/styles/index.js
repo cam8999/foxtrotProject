@@ -32,15 +32,13 @@ export const AppStyle = StyleSheet.create({
   radioButtonContainer: {
     paddingTop: 10, paddingLeft: 10, flexDirection: 'row',
   },
-  postContainer: {
-    justifyContent: 'center',
-    flex: 1,
-    width: '100%',
+  postsContainer: {
+    margin: 15,
+    justifyContent: 'flex-start',
   },
   post: {
     borderRadius: 15,
     overflow:'hidden',
-    marginTop: 10,
     backgroundColor: 'white',
   },
   postHeader: {

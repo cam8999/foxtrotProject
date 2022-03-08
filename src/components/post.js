@@ -64,11 +64,12 @@ class Post extends React.Component {
 
 
   componentDidMount = () => {
+    const displayWidth = Dimensions.get('window').width - 30;
+    this.setState({ mediaWidth: displayWidth });
     if (this.state.summaryImageURI) {
       Image.getSize(
         this.state.summaryImageURI,
         (w, h) => {
-          const displayWidth = Dimensions.get('window').width;
           this.setState({ mediaWidth: displayWidth, mediaHeight: ((h * displayWidth) / w) });
         }
       )
@@ -86,7 +87,7 @@ class Post extends React.Component {
 
   render() {
     if (this.state.renderSummary) return (
-      <View style={AppStyle.post}>
+      <View style={[AppStyle.post, {width: this.state.mediaWidth}]}>
         <Text style={AppStyle.postHeader}>
           {this.props.author},
           <Text style={AppStyle.primary}> {this.props.location.name}</Text>

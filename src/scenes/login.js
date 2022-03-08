@@ -42,7 +42,7 @@ function LoginScreen({ navigation }) {
   }
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center", margin: 15, }}>
       <View nativeId="recap"></View>
       {/* <Button onPress={checkSignInStatus} title="Check Sign In">Check sign in</Button> */}
       <FirebaseRecaptchaVerifierModal
