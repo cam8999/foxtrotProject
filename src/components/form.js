@@ -455,8 +455,8 @@ class LinearForm extends React.Component {
       }
     }
     formJSON.textualData = textualData;
-    formJSON.location = this.state.location;
-    formJSON.location.address = this.state.enteredAddress;
+    formJSON.coordinates = this.state.location;
+    formJSON.location = this.state.enteredAddress;
     if (this.state.galleryUploads.length > 0) formJSON.media = this.state.galleryUploads;
     if (this.state.documentUploads.length > 0) formJSON.documents = this.state.documentUploads;
 

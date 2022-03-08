@@ -23,9 +23,10 @@ function HomeScreen({route, navigation }) {
   const [focusedPost, setFocusedPost] = useState();
 
   useEffect(() => {
-    if (route.postsToDisplay) setPosts(route.postsToDisplay)
-    else filterPosts('', null);  // Fill posts with getTopPosts()
-  }, []);
+    console.log(route);
+    if (route.params) setPosts([route.params.postsToDisplay])
+    //else filterPosts('', null);  // Fill posts with getTopPosts()
+  }, [route.params]);
 
   async function addFilesToPost(post) {
     const isImage = URI => URI.endswith('.jpg') || URI.endswith('.png') || URI.endswith('.jpeg');
@@ -76,7 +77,7 @@ function HomeScreen({route, navigation }) {
       <View style={AppStyle.postsContainer}>
         <Text>{posts.length == 0 ? "No results" : ""}</Text>
         <FlatList
-          data={Post.examplePosts}
+          data={posts}
           renderItem={({item}) => renderPostAsButton(item)}
           keyExtractor={item => item.id}
         />

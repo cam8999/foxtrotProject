@@ -4,7 +4,7 @@ import {StyleSheet} from 'react-native';
 import {Dimensions} from 'react-native';
 import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
-import './global.js'
+import Post from '../components/post.js';
 
 
 
@@ -49,13 +49,13 @@ function MapScreen({navigation}) {
       onRegionChangeComplete={(region) => setRegion(region)}
       >
 
-      {global.posts.map(marker => (
+      {Post.examplePosts.map(marker => (
           <Marker
-              coordinate={marker.coordinate}
-              key = {marker.key}
+              coordinate={marker.coordinates}
+              key = {marker.id}
               title = {marker.author}
               description={marker.description}
-              onPress={(e) => {e.stopPropagation(); global.qposts = [marker];  navigation.navigate("Home");}}
+              onPress={(e) => {e.stopPropagation(); navigation.navigate("Home", {postsToDisplay: marker});}}
           />
       ))}
 
