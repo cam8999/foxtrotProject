@@ -12,7 +12,7 @@ import Colours from '../styles';
 // TODO: Data sanitisation/necessitation
 // TODO: Maximum uploads = 10
 // TODO: Add optional personal info
-// TODO: Stylise
+// TODO: Reverse geolocate address
 
 /*
  * A form component containing provided fields in a linear column.
@@ -426,7 +426,7 @@ class LinearForm extends React.Component {
             formJSON.author = answer;
             break;
           case 'tags':
-            formJSON.title = answer;
+            formJSON.tags = answer.split(',').map(t => t.trim().toLowerCase());
             break;
           default:
             textualData.push({prompt: field.prompt, answer: answer});
@@ -435,6 +435,7 @@ class LinearForm extends React.Component {
     }
     formJSON.textualData = textualData;
     formJSON.location = this.state.location;
+    formJSON.location.address = this.state.enteredAddress;
     if (this.state.galleryUploads.length > 0) formJSON.media = this.state.galleryUploads;
     if (this.state.documentUploads.length > 0) formJSON.documents = this.state.documentUploads;
 

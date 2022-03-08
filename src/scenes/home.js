@@ -1,8 +1,8 @@
-import { React, useState } from 'react';
-import { View, Text, FlatList } from 'react-native';
+import { React, useState, useEffect} from 'react';
+import { View, Text, FlatList, Pressable, Button } from 'react-native';
 
 
-import { getUser, getTopPosts, getPostsByUserUID, getPostsByLocation, getPostsByUsername, getPostsByTitle } from '../firebase-config';
+import { getUser, getTopPosts, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost } from '../firebase-config';
 import Post from '../components/post';
 import TopBar from '../components/topbar';
 import { AppStyle } from '../styles';
@@ -10,52 +10,92 @@ import { AppStyle } from '../styles';
 
 async function Test() {
   let user1 = await getUser();
-  let posts = await getPostsByUserUID('John', 10, false);
+  let posts = await getPostsByUsername('John', 10, false);
   //uploadPostToDB({ 'TT': 'TT' }, user1);
   console.log(posts);
 }
 
 
-function HomeScreen({ navigation }) {
-
+function HomeScreen({route, navigation }) {
   const [posts, setPosts] = useState([]);
-  const [queryPosts, setQueryPosts] = useState([]);
+  const [focused, setFocused] = useState(false);
+  const [focusedPost, setFocusedPost] = useState();
 
+  useEffect(() => {
+    if (route.postsToDisplay) setPosts(route.postsToDisplay)
+    else filterPosts('', null);  // Fill posts with getTopPosts()
+  }, []);
 
-  const filterPosts = (query, queryType) => {
-    if (query == "") setQueryPosts(posts);
+  async function addFilesToPost(post) {
+    const isImage = URI => URI.endswith('.jpg') || URI.endswith('.png') || URI.endswith('.jpeg');
+    if (post.hasFiles) {
+      let URIs = await getFilesForPost(post, post.UserUID);
+      let imageURIs = URIs.items.filter(URI => isImage(URI.toLowerCase()));
+      let otherURIs = URIs.items.filter(URI => !isImage(URI.toLowerCase()));
+      post.media = imageURIs.map(URI => {uri: URI});
+      post.documents = otherURIs.map(URI => {uri: URI});
+    }
+    return post;
+  }
+
+  async function filterPosts(query, queryType) {
+    let promise;
+    if (query == '') promise = getTopPosts();
     else {
       switch (queryType) {
         case 'Tags':
-          setQueryPosts(getPostsByTag(query));
+          promise = getPostsByTag(query);
         case 'Location':
-          setQueryPosts(getPostsByLocation(query));
+          promise = getPostsByLocation(query);
         case 'Username':
-          setQueryPosts(getPostsByUsername(query));
+          promise = getPostsByUsername(query);
         case 'Title':  // Default to title
         default:
-          setQueryPosts(getPostsByTitle(query));
+          promise = getPostsByTitle(query);
       }
     }
-  };
+    let downloadedPosts = await promise;
+    Promise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
+    console.log(posts);
+  }
 
-  return (
+  const renderPostAsButton = item =>
+    <Pressable
+      onPress={() => {setFocusedPost(item); setFocused(true)}}
+    >
+      <Post {...item} summary={true}/>
+    </Pressable>
+
+  const renderFeed = () => 
     <View style={AppStyle.homeContainer}>
       <TopBar
         navigation={navigation}
         onSearch={filterPosts}
       />
       <View style={AppStyle.postsContainer}>
-        <Text>{queryPosts.length == 0 ? "No results" : ""}</Text>
+        <Text>{posts.length == 0 ? "No results" : ""}</Text>
         <FlatList
           data={Post.examplePosts}
-          renderItem={Post.renderPostFromItem}
-          keyExtractor={(item) => item.key}
+          renderItem={({item}) => renderPostAsButton(item)}
+          keyExtractor={item => item.id}
         />
       </View>
     </View>
-  );
-}
 
+  const renderFocusedPost = (post) =>
+    <View style={AppStyle.homeContainer}>
+      <View style={AppStyle.topBar}>
+        <Button
+          title="Back"
+          onPress={() => setFocused(false)}
+        />
+      </View>
+      <View style={{...AppStyle.postsContainer, height:'100%'}}>
+        <Post {...post} summary={false}/>
+      </View>
+    </View>
+
+  return focused ? renderFocusedPost(focusedPost) : renderFeed();
+}
 
 export default HomeScreen;

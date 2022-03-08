@@ -3,6 +3,7 @@ import { Dimensions, Image, View, Text, TouchableHighlight } from 'react-native'
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import { getUser } from '../firebase-config';
 import Colours, { AppStyle } from '../styles';
 
 
@@ -10,47 +11,64 @@ class Post extends React.Component {
 
   static examplePosts = [
     {
-      key: 10,
+      id: 10,
+      UserUID: '43627846',
+      title: "Climate Change in Bangladesh",
       author: 'H. Simpson',
       description: 'Research on the effects of Climate Change in Bangladesh.',
-      location: 'Location B',
-      tags: ['Climate Change', 'Research'],
-      mediaType: 'none',
-      mediaSource: '',
+      location: {name: 'Location B', latitude: '15', longitude: '21'},
+      tags: ['climate change', 'research'],
+      textualData: [{prompt: 'How was the information gathered?', answer: 'Observation'},],
+      hasFiles: false,
+      media: [],
+      documents: [],
       upvotes: 4,
-      postUpvoted: true,
+      upvoters: [],
     },
     {
-      key: 12,
+      id: 12,
+      UserUID: '1421326',
       author: 'J. Frink',
       description: 'Study of average temperature increase in Asia.',
-      location: 'Location A',
-      tags: ['Temperature', 'Climate Change'],
-      mediaType: 'image',
-      mediaSource: 'https://i.imgur.com/b6BQJPc.jpeg',
-      upvotes: 12,
-      postUpvoted: false,
+      location: {name: 'Location A', latitude: '13', longitude: '40'},
+      tags: ['temperature', 'climate change'],
+      textualData: [{prompt: 'Who could this benefit?', answer: 'Other indigenous peoples.'},],
+      hasFiles: true,
+      media: [{uri: 'https://i.imgur.com/b6BQJPc.jpeg', name:'people'},],
+      documents: [],
+      upvotes: 13,
+      upvoters: [],
     },
   ];
 
   constructor(props) {
     super(props);
     this.state = {
+      postUpvoted: true,
+      upvotes: this.props.upvotes,
+      renderSummary: this.props.summary,
+
+      summaryImageURI: (this.props.media && this.props.media.length > 0) ? this.props.media[0].uri : null,
       mediaWidth: 0,
       mediaHeight: 0,
-      postUpvoted: this.props.postUpvoted,
-      upvotes: this.props.upvotes,
+    }
+    
+    this.render = this.render.bind(this);
+  }
+
+
+  componentDidMount = () => {
+    if (this.state.summaryImageURI) {
+      Image.getSize(
+        this.state.summaryImageURI,
+        (w, h) => {
+          const displayWidth = Dimensions.get('window').width;
+          this.setState({ mediaWidth: displayWidth, mediaHeight: ((h * displayWidth) / w) });
+        }
+      )
     }
   }
 
-  componentDidMount() {
-    if (this.props.mediaType == 'image') {
-      Image.getSize(this.props.mediaSource, (w, h) => {
-        const displayWidth = Dimensions.get('window').width
-        this.setState({ mediaWidth: displayWidth, mediaHeight: ((h * displayWidth) / w) })
-      })
-    }
-  }
 
   onUpvotePressed = () => {
     {
@@ -60,35 +78,24 @@ class Post extends React.Component {
     }
   }
 
-
-  static renderPostFromItem = ({ item }) => {
-    return (
-      <Post
-        author={item.author}
-        description={item.description}
-        location={item.location}
-        tags={item.tags}
-        mediaType={item.mediaType}
-        mediaSource={item.mediaSource}
-        upvotes={item.upvotes}
-        postUpvoted={item.postUpvoted}
-      />
-    )
-  }
-
   render() {
-    return (
+    if (this.state.renderSummary) return (
       <View style={AppStyle.post}>
         <Text style={AppStyle.postHeader}>
           {this.props.author},
-          <Text style={AppStyle.primary}> {this.props.location}</Text>
+          <Text style={AppStyle.primary}> {this.props.location.name}</Text>
         </Text>
-        {this.props.mediaType == 'image' ?
-          <Image
-            style={{ width: this.state.mediawidth, height: this.state.mediaHeight }}
-            source={{ uri: this.props.mediaSource }}
-          />
-          : null}
+        {
+          (this.props.media && this.props.media.length > 0) ?
+            <Image
+              style={{ 
+                width: this.state.mediaWidth,
+                height: this.state.mediaHeight, 
+              }}
+              source={{ uri: this.props.media[0].uri }}
+            />
+            : null
+        }
         <Text style={AppStyle.postTags}>
           Tags: {this.props.tags.join(', ')}
         </Text>
@@ -104,7 +111,49 @@ class Post extends React.Component {
           {''} {this.state.upvotes} upvotes
         </Text>
       </View>
-    )
+      );
+    else return (
+      <View style={AppStyle.post}>
+        <Text style={AppStyle.postHeader}>
+          {this.props.author},
+          <Text style={AppStyle.primary}> {this.props.location.name}</Text>
+        </Text>
+        {
+          (this.props.media && this.props.media.length > 0) ?
+            this.props.media.map(image => 
+              <Image
+                style={{ 
+                  width: this.state.mediaWidth,
+                  height: this.state.mediaHeight, 
+                }}
+                source={image.uri}
+            />
+            )
+            : null
+        }
+        <Text style={AppStyle.postTags}>
+          Tags: {this.props.tags.join(', ')}
+        </Text>
+        <Text style={AppStyle.postTail}>
+          {this.props.description}
+        </Text>
+        {
+          this.props.textualData.map(text =>
+            <>
+              <Text style={AppStyle.postTail}>{text.prompt} {text.answer}</Text>
+            </>
+          )
+        }
+        <Text style={AppStyle.postUpvoteBar}>
+          <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>
+            {this.state.postUpvoted ?
+              <Ionicons name="heart" size={16} color={Colours.PRIMARY} />
+              : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY} />}
+          </TouchableHighlight>
+          {''} {this.state.upvotes} upvotes
+        </Text>
+      </View>
+    );
   }
 }
 
