@@ -7,7 +7,6 @@ export const AppStyle = StyleSheet.create({
     color: Colours.PRIMARY,
   },
   homeContainer: {
-    flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
@@ -15,33 +14,28 @@ export const AppStyle = StyleSheet.create({
   },
   topBar: {
     padding: 5,
-    paddingTop: 20,
+    paddingTop: 120,
     paddingRight: 10,
     width: '100%',
     backgroundColor: Colours.PRIMARY,
   },
   searchBarContainer: {
-
+    flex: 10
   },
   searchBar: {
     borderRadius: 10,
     elevation: 0,
   },
   homeButton: {
-    flex: 1,
-    padding: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flex: 1, padding: 10, justifyContent: 'center', alignItems: 'center',
   },
   radioButtonContainer: {
-    paddingTop: 10,
-    paddingLeft: 10,
-    flexDirection: 'row'
+    paddingTop: 10, paddingLeft: 10, flexDirection: 'row',
   },
   postContainer: {
     justifyContent: 'center',
     flex: 1,
-    width: '100%'
+    width: '100%',
   },
   post: {
     borderRadius: 15,

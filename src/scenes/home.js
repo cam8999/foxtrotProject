@@ -15,30 +15,29 @@ async function Test() {
   console.log(posts);
 }
 
-const filterPosts = (query, queryType) => {
-  if (query == "") setQueryPosts(posts);
-  else {
-    switch (queryType) {
-      case 'Tags':
-        setQueryPosts(getPostsByTag(query));
-      case 'Location':
-        setQueryPosts(getPostsByLocation(query));
-      case 'Username':
-        setQueryPosts(getPostsByUsername(query));
-      case 'Title':  // Default to title
-      default:
-        setQueryPosts(getPostsByTitle(query));
-    }
-  }
-  return posts.filter((post) => {
-    const postName = post.description.toLowerCase();
-    return postName.includes(query);
-  });
-};
 
 function HomeScreen({ navigation }) {
+
   const [posts, setPosts] = useState([]);
   const [queryPosts, setQueryPosts] = useState([]);
+
+
+  const filterPosts = (query, queryType) => {
+    if (query == "") setQueryPosts(posts);
+    else {
+      switch (queryType) {
+        case 'Tags':
+          setQueryPosts(getPostsByTag(query));
+        case 'Location':
+          setQueryPosts(getPostsByLocation(query));
+        case 'Username':
+          setQueryPosts(getPostsByUsername(query));
+        case 'Title':  // Default to title
+        default:
+          setQueryPosts(getPostsByTitle(query));
+      }
+    }
+  };
 
   return (
     <View style={AppStyle.homeContainer}>
@@ -49,8 +48,8 @@ function HomeScreen({ navigation }) {
       <View style={AppStyle.postsContainer}>
         <Text>{queryPosts.length == 0 ? "No results" : ""}</Text>
         <FlatList
-          data={queryPosts}
-          renderItem={Post.examplePosts}
+          data={Post.examplePosts}
+          renderItem={Post.renderPostFromItem}
           keyExtractor={(item) => item.key}
         />
       </View>
