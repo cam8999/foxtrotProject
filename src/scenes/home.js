@@ -1,100 +1,13 @@
-import React, { useRef, useEffect, Component, useState  } from 'react';
-import { Dimensions, Image, View, Text, FlatList, Button, Alert, } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 
+import { React, useState, useEffect} from 'react';
+import { View, Text, FlatList, Pressable, Button } from 'react-native';
+
+
+import { getUser, getTopPosts, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost } from '../firebase-config';
+import Post from '../components/post';
+import TopBar from '../components/topbar';
 import { AppStyle } from '../styles';
-import Colours from '../styles'
-import { TouchableHighlight } from 'react-native';
 
-import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername, getPostsByUserUID, getPostsByCoordinates, getTopPosts } from '../firebase-config';
-import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
-
-import { Searchbar } from 'react-native-paper';
-
-import { Button as Button2, Menu, Divider, Provider } from 'react-native-paper';
-import { color } from 'react-native-elements/dist/helpers';
-import { useIsFocused } from "@react-navigation/core";
-
-import './global.js'
-
-
-class Post extends React.Component {
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      mediaWidth: 0,
-      mediaHeight: 0,
-      postUpvoted: this.props.postUpvoted,
-      upvotes: this.props.upvotes,
-    }
-  }
-
-  componentDidMount() {
-    if (this.props.mediaType == 'image') {
-      Image.getSize(this.props.mediaSource, (w, h) => {
-        const displayWidth = Dimensions.get('window').width
-        this.setState({ mediaWidth: displayWidth, mediaHeight: ((h * displayWidth) / w) })
-      })
-    }
-  }
-
-  onUpvotePressed = () => {
-    {
-      this.state.postUpvoted ?
-        this.setState({ postUpvoted: false, upvotes: this.state.upvotes - 1 })
-        : this.setState({ postUpvoted: true, upvotes: this.state.upvotes + 1 })
-    }
-  }
-
-  render() {
-    return (
-      <View style={AppStyle.post}>
-        <Text style={AppStyle.postHeader}>
-          {this.props.author},
-          <Text style={AppStyle.primary}> {this.props.location}</Text>
-        </Text>
-        {this.props.mediaType == 'image' ?
-          <Image
-            style={{ width: this.state.mediawidth, height: this.state.mediaHeight }}
-            source={{ uri: this.props.mediaSource }}
-          />
-          : null}
-        <Text style={AppStyle.postTags}>
-          Tags: {this.props.tags.join(', ')}
-        </Text>
-        <Text style={AppStyle.postTail}>
-          {this.props.description}
-        </Text>
-        <Text style={AppStyle.postUpvoteBar}>
-          <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>
-            {this.state.postUpvoted ?
-              <Ionicons name="heart" size={16} color={Colours.PRIMARY} />
-              : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY} />}
-          </TouchableHighlight>
-          {''} {this.state.upvotes} upvotes
-        </Text>
-      </View>
-    )
-  }
-}
-
-
-
-const renderPost = ({ item }) => {
-  return (
-    <Post
-      author={item.author}
-      description={item.description}
-      location={item.location}
-      tags={item.tags}
-      mediaType={item.mediaType}
-      mediaSource={item.mediaSource}
-      upvotes={item.upvotes}
-      postUpvoted={item.postUpvoted}
-    />
-  )
-}
 
 async function Test() {
   let user1 = await getUser();
@@ -104,117 +17,86 @@ async function Test() {
 }
 
 
-const filterPosts = (posts, query) => {
-  if (!query) {
-    return posts;
-  }
-
-  return posts.filter((post) => {
-    const postName = post.description.toLowerCase();
-    return postName.includes(query);
-  });
-};
-global.qposts = global.posts;
-
-// TODO: Move styling to styles.js
-// TODO: Add navigator for home button and top navigation bar.
-// TODO: Replace home button with TouchableHighlight and Icon
-
-const searchOptionList = [
-  { label: 'General', value: 'gen', },
-  { label: 'Type', value: 'type', },
-  { label: 'Title', value: 'title', },
-  { label: 'Location', value: 'loc', },
-];
-
-
-
-
-
-function HomeScreen({ navigation }) {
-
-  const isFocused = useIsFocused();
+function HomeScreen({route, navigation }) {
+  const [posts, setPosts] = useState([]);
+  const [focused, setFocused] = useState(false);
+  const [focusedPost, setFocusedPost] = useState();
 
   useEffect(() => {
-    
-  }, [isFocused]);
+    if (route.postsToDisplay) setPosts(route.postsToDisplay)
+    else filterPosts('', null);  // Fill posts with getTopPosts()
+  }, []);
 
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const onChangeSearch = query => setSearchQuery(query);
-  const [checked, setChecked] = React.useState('gen');
-
-
-
-
-  function filt() {
-
-
-    global.qposts = filterPosts(global.posts, searchQuery.toLowerCase());
-
-    onChangeSearch("");
-
-   
-
-
+  async function addFilesToPost(post) {
+    const isImage = URI => URI.endswith('.jpg') || URI.endswith('.png') || URI.endswith('.jpeg');
+    if (post.hasFiles) {
+      let URIs = await getFilesForPost(post, post.UserUID);
+      let imageURIs = URIs.items.filter(URI => isImage(URI.toLowerCase()));
+      let otherURIs = URIs.items.filter(URI => !isImage(URI.toLowerCase()));
+      post.media = imageURIs.map(URI => {uri: URI});
+      post.documents = otherURIs.map(URI => {uri: URI});
+    }
+    return post;
   }
 
-   
-  return (
-    <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
-      <View style={AppStyle.topBar}>
-        <View style={{ flexDirection: 'row' }}>
-          <View style={{ flex: 1, padding: 10, justifyContent: 'center', alignItems: 'center' }}>
-            <TouchableHighlight onPress={() => Alert.alert('Home button pressed')} underlayColor={Colours.PRIMARY}>
-              <Ionicons name="home" size={25} color={'white'} />
-            </TouchableHighlight>
-          </View>
-          <View style={{ flex: 10 }}>
-            <Searchbar
-              style={AppStyle.searchBar}
-              placeholder="Search"
-              onChangeText={onChangeSearch}
-              value={searchQuery}
-              onIconPress={() => { filt() }}
-            />
-          </View>
-        </View>
-        <View style={{ paddingTop: 10, paddingLeft: 10, flexDirection: 'row' }}>
-          <Text style={{ color: 'white', flex: 2 }}>Search by:</Text>
-          <RadioForm formHorizontal={true} style={{ justifyContent: 'space-around', flex: 9 }}>
-            {searchOptionList.map((l, v) => (
-              <RadioButton key={v}>
-                <RadioButtonInput
-                  obj={l}
-                  index={v}
-                  isSelected={checked === v}
-                  onPress={() => setChecked(v)}
-                  buttonSize={10}
-                  buttonInnerColor={'white'}
-                  buttonOuterColor={'white'}
-                />
-                <RadioButtonLabel
-                  obj={l}
-                  index={v}
-                  onPress={() => setChecked(v)}
-                  labelWrapStyle={{ marginHorizontal: 5 }}
-                  labelStyle={{ color: 'white' }}
-                />
-              </RadioButton>
-            ))}
-          </RadioForm>
-        </View>
-      </View>
-      <View style={{ justifyContent: 'center', flex: 1, width: '100%' }}>
-        <Text>{qposts.length == 0 ? "No results" : ""}</Text>
+  async function filterPosts(query, queryType) {
+    let promise;
+    if (query == '') promise = getTopPosts();
+    else {
+      switch (queryType) {
+        case 'Tags':
+          promise = getPostsByTag(query);
+        case 'Location':
+          promise = getPostsByLocation(query);
+        case 'Username':
+          promise = getPostsByUsername(query);
+        case 'Title':  // Default to title
+        default:
+          promise = getPostsByTitle(query);
+      }
+    }
+    let downloadedPosts = await promise;
+    Promise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
+    console.log(posts);
+  }
+
+  const renderPostAsButton = item =>
+    <Pressable
+      onPress={() => {setFocusedPost(item); setFocused(true)}}
+    >
+      <Post {...item} summary={true}/>
+    </Pressable>
+
+  const renderFeed = () => 
+    <View style={AppStyle.homeContainer}>
+      <TopBar
+        navigation={navigation}
+        onSearch={filterPosts}
+      />
+      <View style={AppStyle.postsContainer}>
+        <Text>{posts.length == 0 ? "No results" : ""}</Text>
         <FlatList
-          data={global.qposts}
-          renderItem={renderPost}
-          keyExtractor={(item) => item.key}
+          data={Post.examplePosts}
+          renderItem={({item}) => renderPostAsButton(item)}
+          keyExtractor={item => item.id}
         />
       </View>
     </View>
-  );
-}
 
+  const renderFocusedPost = (post) =>
+    <View style={AppStyle.homeContainer}>
+      <View style={AppStyle.topBar}>
+        <Button
+          title="Back"
+          onPress={() => setFocused(false)}
+        />
+      </View>
+      <View style={{...AppStyle.postsContainer, height:'100%'}}>
+        <Post {...post} summary={false}/>
+      </View>
+    </View>
+
+  return focused ? renderFocusedPost(focusedPost) : renderFeed();
+}
 
 export default HomeScreen;
