@@ -1,3 +1,4 @@
+
 import { React, useState, useEffect} from 'react';
 import { View, Text, FlatList, Pressable, Button } from 'react-native';
 
@@ -10,7 +11,7 @@ import { AppStyle } from '../styles';
 
 async function Test() {
   let user1 = await getUser();
-  let posts = await getPostsByUsername('John', 10, false);
+  let posts = await getPostsByCoordinates({ 'latitude': 10.03, 'longitude': 10.03 }, 10, false);
   //uploadPostToDB({ 'TT': 'TT' }, user1);
   console.log(posts);
 }

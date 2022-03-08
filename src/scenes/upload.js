@@ -77,33 +77,60 @@ export const UploadFormStyle = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white'
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    width: '100%',
   },
 
   field: {
-
+    padding: 10,
   },
 
   heading: {
     fontWeight: 'bold',
     fontSize: 24,
+    margin: 5,
   },
 
   subheading: {
     fontSize: 18,
+    margin: 5,
+    color: Colours.PRIMARY,
+    fontWeight: 'bold',
   },
 
   text: {
+    margin: 5,
+  },
 
+  radioForm: {
+    margin: 5,
+    padding: 10,
   },
 
   textInput: {
     borderWidth: 1,
+    borderRadius: 5,
+    borderColor: '#C0C0C0',
+    margin: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 8,
   },
 
   button: {
-    color: Colours.PRIMARY,
-    padding: 5,
+    backgroundColor: Colours.PRIMARY,
+    paddingVertical: 7,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    elevation: 0,
+    margin: 10,
+    alignSelf: 'flex-start',
+  },
+
+  buttonTitle: {
+    fontWeight: 'bold',
+    color: 'white',
   },
 
   imagePreview: {
@@ -119,11 +146,13 @@ export const UploadFormStyle = StyleSheet.create({
 
   errorMessage: {
     color: 'red',
+    margin: 5,
   },
 
   seperator: {
 
   },
+
 });
 
 // TODO: Replace placeholder with actual header bar
