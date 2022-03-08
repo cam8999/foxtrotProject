@@ -70,16 +70,21 @@ export const AppStyle = StyleSheet.create({
     width: '100%',
   },
   profileHeader: {
-    padding: 10,
+    padding: 15,
     backgroundColor: 'white',
     width: '100%',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    alignContent: 'center',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'black',
     padding: 10,
+  },
+  subtitle: {
+    fontWeight: 'bold',
+    color: Colours.PRIMARY,
   },
   profileComponent: {
     marginTop: 3,
