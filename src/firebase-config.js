@@ -158,7 +158,7 @@ async function snapshotToArray(q) {
     return postsArray;
 }
 
-async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes) {
+async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal) {
     const querySnapshot = await getDocs(q);
     let postsArray = [];
     querySnapshot.forEach((doc) => {
@@ -176,8 +176,11 @@ async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes) {
             return (b.Timestamp.seconds - a.Timestamp.seconds);
         });
     }
-
-    return postsArray;
+    if (postsArray.length > limitVal + 1) {
+        return postsArray.slice(0, limitVal);
+    } else {
+        return postsArray;
+    }
 }
 
 export async function getPostsByLocation(location, limitVal = 100, orderByUpvotes = false) {
@@ -231,7 +234,7 @@ export async function getPostsByCoordinates(coordinates, limitVal = 100, orderBy
         q = query(collection(db, "Posts"), where("Latitude", ">=", latitude - 1 / 6), where("Latitude", "<=", latitude + 1 / 6));
 
     }
-    return snapshotToArrayCoordinates(q, longitude, orderByUpvotes);
+    return snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal);
 }
 
 export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false) {
@@ -240,6 +243,16 @@ export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false)
         q = query(collection(db, "Posts"), where("Tags", "array-contains", tag), orderBy('Timestamp', 'desc'), limit(limitVal));
     } else {
         q = query(collection(db, "Posts"), where("Tags", "array-contains", tag), orderBy('Upvotes', 'desc'), limit(limitVal));
+    }
+    return snapshotToArray(q);
+}
+
+export async function getPostsByAttribute(attributeName, attribute, limitVal = 100, orderByUpvotes = false) {
+    let q;
+    if (!orderByUpvotes) {
+        q = query(collection(db, "Posts"), where(attributeName, "==", attribute), orderBy('Timestamp', 'desc'), limit(limitVal));
+    } else {
+        q = query(collection(db, "Posts"), where(attributeName, "==", attribute), orderBy('Upvotes', 'desc'), limit(limitVal));
     }
     return snapshotToArray(q);
 }
