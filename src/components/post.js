@@ -18,7 +18,11 @@ class Post extends React.Component {
       description: 'Research on the effects of Climate Change in Bangladesh.',
       location: {name: 'Location B', latitude: '15', longitude: '21'},
       tags: ['climate change', 'research'],
-      textualData: [{prompt: 'How was the information gathered?', answer: 'Observation'},],
+      textualData: [{
+        prompt: 'How successful were the actions taken?', answer: 'Very'},
+        {prompt: 'How was the success evaluated?', answer: 'Quantitive data gathering through questionaires.'},
+        {prompt: 'Are there any other factors which could explain the success?', answer: 'Higher average precipitation the last few years. Less crop loss.'}
+      ],
       hasFiles: false,
       media: [],
       documents: [],

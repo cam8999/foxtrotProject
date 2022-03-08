@@ -55,9 +55,10 @@ class LinearForm extends React.Component {
 
       submitted: false,
       submitting: false,
+      missingFields: [],
 
       stylesheet: this.props.stylesheet,
-      errorMsg: "Missing Fields",  // Error message to display to user
+      errorMsg: '',  // Error message to display to user
     };
 
     // Make state accessible through this from all functions
@@ -98,11 +99,14 @@ class LinearForm extends React.Component {
         }
 
         case LinearForm.FieldTypes.Question: {
+          let inputStyle;
+          if (this.state.missingFields.includes(field.prompt)) inputStyle = {...this.state.stylesheet.textInput, borderColor: 'red'};
+          else inputStyle = {...this.state.stylesheet.textInput};
           item = 
             <View key={counter} style={this.state.stylesheet.field}>
               <Text style={this.state.stylesheet.text}>{field.prompt}</Text>
               <TextInput 
-                style={this.state.stylesheet.textInput}
+                style={inputStyle}
                 onChangeText={answer => this.onChangeTextInput(field.prompt, answer)}
                 />
             </View>
@@ -417,17 +421,27 @@ class LinearForm extends React.Component {
   submitForm() {
     let formJSON = {};
     let textualData = [];
+    this.setState({missingFields: [], errorMsg: ''});
     for (const field of this.state.fields) {
       if (field.type == LinearForm.FieldTypes.Question) {
-        // Handle special input fields
         let answer = this.state.textInputs.get(field.prompt);
-        if (!answer) answer = "";
+        if (!answer && field.required) {
+          this.setState({errorMsg : 'Missing required fields'});
+          this.setState(state => {
+            const missing = state.missingFields.push(field.prompt);
+            return missing;
+          })
+          continue;
+        } else if (!answer) {
+          answer = '';
+        }
+        // Handle special input fields
         switch (field.id) {
           case 'title':
             formJSON.title = answer;
             break;
-          case 'summary':
-            formJSON.summary = answer;
+          case 'description':
+            formJSON.description = answer;
             break;
           case 'author':
             formJSON.author = answer;
@@ -436,7 +450,7 @@ class LinearForm extends React.Component {
             formJSON.tags = answer.split(',').map(t => t.trim().toLowerCase());
             break;
           default:
-            textualData.push({prompt: field.prompt, answer: answer});
+            if (answer) textualData.push({prompt: field.prompt, answer: answer});
         }
       }
     }
@@ -446,11 +460,13 @@ class LinearForm extends React.Component {
     if (this.state.galleryUploads.length > 0) formJSON.media = this.state.galleryUploads;
     if (this.state.documentUploads.length > 0) formJSON.documents = this.state.documentUploads;
 
-    this.setState({submitting: true});
-    const success = this.props.onSubmit(formJSON);  // Return form data to user defined function.
-    if (success) this.setState({submitted: true});
-    else this.setState({errorMessage: "Failed to upload post. Try Again"})
-    this.setState({submitting: false});
+    if (!this.state.missingFields) {
+      this.setState({submitting: true});
+      const success = this.props.onSubmit(formJSON);  // Return form data to user defined function.
+      if (success) this.setState({submitted: true});
+      else this.setState({errorMessage: "Failed to upload post. Try Again"})
+      this.setState({submitting: false});
+    }
   }
 
 
