@@ -1,36 +1,13 @@
 import React from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, Alert} from 'react-native';
 import {StyleSheet} from 'react-native';
 import {Dimensions} from 'react-native';
 import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
+import './global.js'
 
-const posts = [
-  {
-    key: 10,
-    author: 'H. Simpson',
-    description: 'Research on the effects of Climate Change in Bangladesh.',
-    location: 'Location B',
-    coordinate: { latitude : 23.810331,  longitude : 90.412521 },
-    tags: ['Climate Change', 'Research'],
-    mediaType: 'none',
-    mediaSource: '',
-    upvotes: 4,
-    postUpvoted: true,
-  },
-  {
-    key: 12,
-    author: 'J. Frink',
-    description: 'Study of average temperature increase in Asia.',
-    location: 'Location A',
-    coordinate: { latitude : 28.613939,  longitude : 77.209023 },
-    tags: ['Temperature', 'Climate Change'],
-    mediaType: 'image',
-    mediaSource: 'https://i.imgur.com/b6BQJPc.jpeg',
-    upvotes: 12,
-    postUpvoted: false,
-  },
-]
+
+
 
 
 
@@ -72,12 +49,13 @@ function MapScreen({navigation}) {
       onRegionChangeComplete={(region) => setRegion(region)}
       >
 
-      {posts.map(marker => (
+      {global.posts.map(marker => (
           <Marker
               coordinate={marker.coordinate}
               key = {marker.key}
               title = {marker.author}
               description={marker.description}
+              onPress={(e) => {e.stopPropagation(); global.qposts = [marker];  navigation.navigate("Home");}}
           />
       ))}
 

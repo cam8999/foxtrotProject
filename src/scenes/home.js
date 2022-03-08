@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, Component } from 'react';
+import React, { useRef, useEffect, Component, useState  } from 'react';
 import { Dimensions, Image, View, Text, FlatList, Button, Alert, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -6,14 +6,16 @@ import { AppStyle } from '../styles';
 import Colours from '../styles'
 import { TouchableHighlight } from 'react-native';
 
-import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername, getPostsByUserUID, getPostsByCoordinates } from '../firebase-config';
+import { getUser, uploadPostToDB, deletePost, getPostsByLocation, getPostsByTag, getPostsByUsername, getPostsByUserUID, getPostsByCoordinates, getTopPosts } from '../firebase-config';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
 import { Searchbar } from 'react-native-paper';
 
 import { Button as Button2, Menu, Divider, Provider } from 'react-native-paper';
 import { color } from 'react-native-elements/dist/helpers';
+import { useIsFocused } from "@react-navigation/core";
 
+import './global.js'
 
 
 class Post extends React.Component {
@@ -77,30 +79,7 @@ class Post extends React.Component {
   }
 }
 
-const posts = [
-  {
-    key: 10,
-    author: 'H. Simpson',
-    description: 'Research on the effects of Climate Change in Bangladesh.',
-    location: 'Location B',
-    tags: ['Climate Change', 'Research'],
-    mediaType: 'none',
-    mediaSource: '',
-    upvotes: 4,
-    postUpvoted: true,
-  },
-  {
-    key: 12,
-    author: 'J. Frink',
-    description: 'Study of average temperature increase in Asia.',
-    location: 'Location A',
-    tags: ['Temperature', 'Climate Change'],
-    mediaType: 'image',
-    mediaSource: 'https://i.imgur.com/b6BQJPc.jpeg',
-    upvotes: 12,
-    postUpvoted: false,
-  },
-]
+
 
 const renderPost = ({ item }) => {
   return (
@@ -124,6 +103,7 @@ async function Test() {
   console.log(posts);
 }
 
+
 const filterPosts = (posts, query) => {
   if (!query) {
     return posts;
@@ -134,8 +114,7 @@ const filterPosts = (posts, query) => {
     return postName.includes(query);
   });
 };
-var qposts = posts
-
+global.qposts = global.posts;
 
 // TODO: Move styling to styles.js
 // TODO: Add navigator for home button and top navigation bar.
@@ -148,7 +127,17 @@ const searchOptionList = [
   { label: 'Location', value: 'loc', },
 ];
 
+
+
+
+
 function HomeScreen({ navigation }) {
+
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    
+  }, [isFocused]);
 
   const [searchQuery, setSearchQuery] = React.useState('');
   const onChangeSearch = query => setSearchQuery(query);
@@ -160,15 +149,16 @@ function HomeScreen({ navigation }) {
   function filt() {
 
 
-    qposts = filterPosts(posts, searchQuery.toLowerCase());
+    global.qposts = filterPosts(global.posts, searchQuery.toLowerCase());
 
     onChangeSearch("");
 
+   
 
 
   }
 
-  //Test();
+   
   return (
     <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
       <View style={AppStyle.topBar}>
@@ -217,7 +207,7 @@ function HomeScreen({ navigation }) {
       <View style={{ justifyContent: 'center', flex: 1, width: '100%' }}>
         <Text>{qposts.length == 0 ? "No results" : ""}</Text>
         <FlatList
-          data={qposts}
+          data={global.qposts}
           renderItem={renderPost}
           keyExtractor={(item) => item.key}
         />
