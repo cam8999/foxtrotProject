@@ -9,12 +9,12 @@ export const AppStyle = StyleSheet.create({
   homeContainer: {
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    alignItems: 'center',
     backgroundColor: '#C0C0C0',
+    width: '100%',
+    height: '100%',
   },
   topBar: {
-    paddingLeft: 5,
-    paddingRight: 10,
+    paddingHorizontal: 15,
     paddingTop: Constants.statusBarHeight + 10,
     paddingBottom: 10,
     width: '100%',

@@ -56,11 +56,6 @@ TopBar = ({navigation, onSearch}) => {
   return (
     <View style={AppStyle.topBar}>
      <View style={{ flexDirection: 'row' }}>
-        <View style={AppStyle.homeButton}>
-          <TouchableHighlight onPress={() => Alert.alert('Home button pressed')} underlayColor={Colours.PRIMARY}>
-            <Ionicons name="home" size={25} color={'white'} />
-          </TouchableHighlight>
-        </View>
         <View style={AppStyle.searchBarContainer}>
           <Searchbar
             style={AppStyle.searchBar}

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';;
 import { Text, View, ScrollView, TouchableOpacity, TextInput, Button, Pressable, FlatList, Alert, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { FirebaseAuth, FirebaseDB, getUser, setUserDoc, getUserDoc, getPostsByUsername } from '../firebase-config';
+import { FirebaseAuth, FirebaseDB, getUser, setUserDoc, getUserDoc, getPostsByUserUID } from '../firebase-config';
 import { updateProfile } from 'firebase/auth';
 import { AppStyle } from '../styles';
 import Colours from '../styles'
@@ -31,7 +31,7 @@ function ProfileScreen({ navigation }) {
       setUserPosition(doc.Position);
       setUserDescription(doc.Description);
     }).then(
-    getPostsByUsername(user.displayName, 10).then((posts) => {
+    getPostsByUserUID(user.uid, 10).then((posts) => {
       setUserPosts(posts);
     }));
     if (initializing) setInitializing(false);
@@ -75,7 +75,7 @@ function ProfileScreen({ navigation }) {
     return (
       <>
         <View style={AppStyle.topBar}>
-          <View style={{ marginHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between' }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <TouchableOpacity onPress={signOut} style={{alignItems: 'center'}}>
               <Ionicons name="exit" size={30} color={'white'} />
               <Text style={AppStyle.radioMenuText}>Sign Out</Text>
@@ -108,40 +108,40 @@ function ProfileScreen({ navigation }) {
                 />
               </View>
               <View style={{ flexDirection: 'row' }}>
-              <View style={[AppStyle.profileComponent, { flex: 6, marginRight: 3, flexDirection: 'row' }]}>
+                <View style={[AppStyle.profileComponent, { flex: 6, marginRight: 3, flexDirection: 'row' }]}>
+                  <TextInput
+                    defaultValue={userPosition}
+                    editable={editMode}
+                    placeholder={'Community Position'}
+                    onChangeText={setUserPosition} 
+                  />
+                </View>
+                <View style={[AppStyle.profileComponent, { flex: 1 }]}>
+                  <TextInput
+                    defaultValue={userAge}
+                    editable={editMode}
+                    placeholder={'Age'}
+                    keyboardType={'number-pad'}
+                    onChangeText={setUserAge} 
+                  />
+                </View>
+              </View>
+              <View style={[AppStyle.profileComponent, { flexDirection: 'row', alignItems: 'center' }]}>
+                <Ionicons name="location" size={16} color={Colours.PRIMARY} />
                 <TextInput
-                  defaultValue={userPosition}
+                  defaultValue={userLocation}
                   editable={editMode}
-                  placeholder={'Community Position'}
-                  onChangeText={setUserPosition} 
+                  placeholder={'Location'}
+                  onChangeText={setUserLocation} 
                 />
               </View>
-              <View style={[AppStyle.profileComponent, { flex: 1 }]}>
-                <TextInput
-                  defaultValue={userAge}
-                  editable={editMode}
-                  placeholder={'Age'}
-                  keyboardType={'number-pad'}
-                  onChangeText={setUserAge} 
-                />
-              </View>
-            </View>
-            <View style={[AppStyle.profileComponent, { flexDirection: 'row', alignItems: 'center' }]}>
-              <Ionicons name="location" size={16} color={Colours.PRIMARY} />
               <TextInput
-                defaultValue={userLocation}
+                style={AppStyle.profileDescription}
+                defaultValue={userDescription}
                 editable={editMode}
-                placeholder={'Location'}
-                onChangeText={setUserLocation} 
+                placeholder={'User description...'}
+                onChangeText={setUserDescription} 
               />
-            </View>
-            <TextInput
-              style={AppStyle.profileDescription}
-              defaultValue={userDescription}
-              editable={editMode}
-              placeholder={'User description...'}
-              onChangeText={setUserDescription} 
-            />
             </View>
             <View style={[AppStyle.postsContainer, {width: '100%', height: '100%'}]}>
               {userPosts.length == 0 ? 

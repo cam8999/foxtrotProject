@@ -79,7 +79,7 @@ function HomeScreen({ route, navigation }) {
         navigation={navigation}
         onSearch={filterPosts}
       />
-      <View style={AppStyle.postsContainer}>
+      <View style={[AppStyle.postsContainer, {marginBottom: 75}]}>
         {posts.length == 0 ? 
           <View style={AppStyle.bubble}>
             <Text style={AppStyle.lightText}>No Posts</Text>  
@@ -102,7 +102,7 @@ function HomeScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={{ ...AppStyle.postsContainer, height: '100%' }}>
+      <View style={AppStyle.postsContainer}>
         <Post {...post} summary={false} />
       </View>
     </View>
