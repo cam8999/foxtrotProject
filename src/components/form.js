@@ -48,7 +48,8 @@ class LinearForm extends React.Component {
       canRequestMediaLibraryAccess: true,  // Can we prompt user again for access to photo library
 
       locationMethod: 'gps',  // The currently selected method of location acquisition out of 'gps', 'address' and 'latlong'
-      location: {latitude: 0, longitude: 0},
+      coordinates: {latitude: 0, longitude: 0},
+      address: "",  // Address found through reverse geocode
       enteredAddress: "",
       geolocationAccuracy: Location.Accuracy.Balanced,  // Accuracy to lookup location to. See https://docs.expo.dev/versions/latest/sdk/location/#accuracy
       locating: false,
@@ -70,6 +71,8 @@ class LinearForm extends React.Component {
     this.getLocationMethodComponent = this.getLocationMethodComponent.bind(this);
     this.locateDevice = this.locateDevice.bind(this);
     this.lookupAddress = this.lookupAddress.bind(this);
+    this.onChangeLatLongInput = this.onChangeLatLongInput.bind(this);
+    this.reverseGeocode = this.reverseGeocode.bind(this);
     this.submitForm = this.submitForm.bind(this);
     this.render = this.render.bind(this);
   }
@@ -80,12 +83,13 @@ class LinearForm extends React.Component {
    * @returns {ReactNative View[]} - The list of components
    */
   renderFieldsIntoComponents() {
-    var locationRadioProps = [
+    const locationRadioProps = [
       {label: 'GPS', value: 0, tag: 'gps'},
       {label: 'Address Lookup', value: 1,  tag: 'address'},
       {label: 'Latitude-Longitude', value: 2,  tag: 'latlong'},
     ];
     const formComponents = [];
+
     let counter = 0;
     for (const field of this.state.fields) {
       var item;
@@ -117,12 +121,13 @@ class LinearForm extends React.Component {
           item = 
             <View key={counter} style={this.state.stylesheet.field}>
               <Pressable 
-                accessibilityLabel="Click to upload images or videos" 
+                accessibilityLabel="Click to upload images" 
                 style={this.state.stylesheet.button} 
                 onPress={this.handleGalleryUpload}
+                disabled={this.state.galleryUploads.length == 5}
               >
                 <Text style={this.state.stylesheet.buttonTitle}>
-                  Upload Images or Videos
+                  Upload Images
                 </Text>
               </Pressable>
               <View style={this.state.stylesheet.mediaPreview}>
@@ -182,7 +187,10 @@ class LinearForm extends React.Component {
               </RadioForm>
               {this.getLocationMethodComponent(this.state.locationMethod)}
               <Text style={this.state.stylesheet.text}>
-                Latitude: {this.state.location.latitude} Longitude: {this.state.location.longitude}
+                Latitude: {this.state.coordinates.latitude} Longitude: {this.state.coordinates.longitude}
+              </Text>
+              <Text style={this.state.stylesheet.text}>
+                Address: {this.state.address}
               </Text>
             </View>
           break;
@@ -227,7 +235,6 @@ class LinearForm extends React.Component {
    */
   onChangeTextInput(prompt, answer) {
     this.state.textInputs.set(prompt, answer)
-    console.log(prompt + ": " + answer)
   }
 
 
@@ -259,11 +266,15 @@ class LinearForm extends React.Component {
       console.log("Need media library access permissions to upload image.");
       return;
     }
-    let upload = await ImagePicker.launchImageLibraryAsync({allowsEditing: true});
+    let upload = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      mediaTypes: ImagePicker.MediaTypeOptions.Images
+    });
     if (!upload.cancelled) {
       let image = {
         uri: upload.uri,
         name: upload.uri.substring(upload.uri.lastIndexOf('/')+1),
+        type: 'image',
       }
       this.setState(state => {
         const galleryUploads = state.galleryUploads.push(image);
@@ -326,57 +337,47 @@ class LinearForm extends React.Component {
         }
 
         case 'address': {
-          if (this.state.locating) {
-            chosenMethodComponent = 
-            <>
-              <TextInput
-                placeholder="Address"
-                autoComplete='postal-address'
-                onChangeText={addr => this.setState({enteredAddress: addr})}
-                style={this.state.stylesheet.textInput}
-              />
-              <Pressable
-                style={this.state.stylesheet.button}
-                disabled={true}
-              >
-                <Text style={this.state.stylesheet.buttonTitle}>Looking Up...</Text>
-              </Pressable>
-              
-            </>
-          } else {
-            chosenMethodComponent = 
-            <>
-              <TextInput
-                placeholder="Address"
-                autoComplete='postal-address'
-                onChangeText={addr => this.setState({enteredAddress: addr})}
-                style={this.state.stylesheet.textInput}
-              />
-              <Pressable
-                style={this.state.stylesheet.button}
-                onPress={this.lookupAddress}
-                accessibilityLabel="Click to lookup the entered address"
-              >
-                <Text style={this.state.stylesheet.buttonTitle}>Lookup</Text>
-              </Pressable>
-            </>
-          }
-          break;
-        }
+          chosenMethodComponent = 
+          <>
+            <TextInput
+              placeholder="Address"
+              autoComplete='postal-address'
+              onChangeText={addr => this.setState({enteredAddress: addr})}
+              style={this.state.stylesheet.textInput}
+            />
+            <Pressable
+              style={this.state.stylesheet.button}
+              onPress={this.lookupAddress}
+              disabled={this.state.locating}
+              accessibilityLabel="Click to lookup the entered address"
+            >
+              <Text style={this.state.stylesheet.buttonTitle}>{this.state.locating ? 'Looking Up...' : 'Lookup'}</Text>
+            </Pressable>
+          </>
+        break;
+      }
 
         case 'latlong': {
           chosenMethodComponent = 
             <>
               <TextInput
                 placeholder="Latitude"
-                onChangeText={lat => this.setState({location: {latitude: lat, longitude: this.state.location.longitude}})}
+                onChangeText={lat => this.onChangeLatLongInput('latitude', lat)}
                 style={this.state.stylesheet.textInput}
               />
               <TextInput
                 placeholder="Longitude"
-                onChangeText={long => this.setState({location: {latitude: this.state.location.latitude, longitude: long}})}
+                onChangeText={long => this.onChangeLatLongInput('longitude', long)}
                 style={this.state.stylesheet.textInput}
               />
+              <Pressable
+                style={this.state.stylesheet.button}
+                onPress={() => this.lookupLatLong}
+                disabled={this.state.locating}
+                accessibilityLabel="Click to lookup the address of the entered coordinates"
+              >
+                <Text style={this.state.stylesheet.buttonTitle}>{this.state.locating ? 'Looking Up...' : 'Lookup'}</Text>
+              </Pressable>
             </>
           break;
         }
@@ -391,11 +392,14 @@ class LinearForm extends React.Component {
   async locateDevice() {
     let currPermission = await Location.requestForegroundPermissionsAsync();
     if (currPermission.granted) {
-      this.setState({locating: true});
-      let currLocation = await Location.getCurrentPositionAsync({accuracy: this.state.geolocationAccuracy});
-      this.setState({location: {latitude: currLocation.coords.latitude, longitude: currLocation.coords.longitude}});
-      this.setState({locating: false});
+      this.setState({ locating: true });
+      let currLocation = await Location.getCurrentPositionAsync({ accuracy: this.state.geolocationAccuracy });
+      let coords = { latitude: currLocation.coords.latitude, longitude: currLocation.coords.longitude }
+      this.setState({ coordinates: coords });
+      this.setState({ locating: false });
+      this.reverseGeocode(coords);
     }
+    
   }
 
 
@@ -403,25 +407,59 @@ class LinearForm extends React.Component {
    * Looks up address stored in state.enteredAdress using expo-location and store result in state.location
    */
   async lookupAddress() {
+    console.log('Looking up address');
     let currPermission = await Location.requestForegroundPermissionsAsync();
     if (currPermission.granted) {
-      this.setState({locating: true});
-      let locations = await Location.geocodeAsync(this.state.enteredAddress, {accuracy: this.state.geolocationAccuracy});
+      this.setState({ locating: true });
+      let locations = await Location.geocodeAsync(this.state.enteredAddress, { accuracy: this.state.geolocationAccuracy });
       if (locations.length > 0) {
-        this.setState({location: {latitude: locations[0].latitude, longitude: locations[0].longitude}});
-        this.setState({locating: false});
+        let coords = { latitude: locations[0].latitude, longitude: locations[0].longitude };
+        this.setState({ coordinates: coords });
+        this.reverseGeocode(coords);
+        this.setState({ locating: false });
       }
     }
+    
+  }
+    
+
+  async onChangeLatLongInput(attribute, newVal) {
+    let lat = this.state.coordinates.latitude;
+    let long = this.state.coordinates.longitude;
+    if (attribute == 'latitude') lat = newVal;
+    if (attribute == 'longitude') long = newVal
+    let coords = { latitude: lat, longitude: long }
+    this.setState({coordinates: coords});
+  }
+
+
+  async lookupLatLong() {
+    this.setState({ locating: true });
+    this.reverseGeocode(this.state.coordinates);
+    this.setState({ locating: false });
+  }
+
+
+  /*
+   * Reverse geolocate to find an address from the entered latitude and longitude
+   */
+  async reverseGeocode(coordinates) {
+    const addresses = await Location.reverseGeocodeAsync(coordinates);
+    let address = (addresses[0].city ? addresses[0].city + ', ' : "") + addresses[0].country;
+    this.setState({address: address});
+    console.log("Found Address" + address);
   }
 
 
   /*
    * Take inputted data and format into JSON object, then pass to onSubmit()
    */
-  submitForm() {
+  async submitForm() {
+    if (this.state.submitted || this.state.submitting) return;
     let formJSON = {};
     let textualData = [];
-    this.setState({missingFields: [], errorMsg: ''});
+
+    this.setState({missingFields: [], errorMsg: '', submitting: true});
     for (const field of this.state.fields) {
       if (field.type == LinearForm.FieldTypes.Question) {
         let answer = this.state.textInputs.get(field.prompt);
@@ -455,18 +493,20 @@ class LinearForm extends React.Component {
       }
     }
     formJSON.textualData = textualData;
-    formJSON.coordinates = this.state.location;
-    formJSON.location = this.state.enteredAddress;
-    if (this.state.galleryUploads.length > 0) formJSON.media = this.state.galleryUploads;
-    if (this.state.documentUploads.length > 0) formJSON.documents = this.state.documentUploads;
+    formJSON.coordinates = this.state.coordinates;
+    formJSON.location = this.state.address;
+    if (this.state.galleryUploads.length > 0 || this.state.documentUploads.length > 0) formJSON.hasFiles = true;
+    else formJSON.hasFiles = false;
+    formJSON.media = this.state.galleryUploads;
+    formJSON.documents = this.state.documentUploads;
 
-    if (!this.state.missingFields) {
-      this.setState({submitting: true});
-      const success = this.props.onSubmit(formJSON);  // Return form data to user defined function.
+    if (!this.state.missingFields.length) {
+      console.log('submitting');
+      const success = await this.props.onSubmit(formJSON);  // Return form data to user defined function.
       if (success) this.setState({submitted: true});
-      else this.setState({errorMessage: "Failed to upload post. Try Again"})
-      this.setState({submitting: false});
+      else this.setState({errorMessage: 'Failed to upload post. Try Again'})
     }
+    this.setState({submitting: false});
   }
 
 
@@ -481,14 +521,14 @@ class LinearForm extends React.Component {
         <ScrollView>
           {this.renderFieldsIntoComponents()}
           <View style={this.state.stylesheet.field}>
-              <Pressable
-                style={this.state.stylesheet.button}
-                disabled={this.state.submitted || this.state.submitting}
-                onPress={this.submitForm}
-                accessibilityLabel="Click to submit the form"
-              >
-                <Text style={this.state.stylesheet.buttonTitle}>{buttonText}</Text>
-              </Pressable>
+            <Pressable
+              style={this.state.stylesheet.button}
+              disabled={this.state.submitted || this.state.submitting}
+              onPress={this.submitForm}
+              accessibilityLabel="Click to submit the form"
+            >
+              <Text style={this.state.stylesheet.buttonTitle}>{buttonText}</Text>
+            </Pressable>
             <Text style={this.state.stylesheet.errorMessage}>{this.state.errorMsg}</Text>
           </View>
         </ScrollView>

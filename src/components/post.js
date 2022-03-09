@@ -19,8 +19,8 @@ class Post extends React.Component {
       location: 'Location B',
       coordinates: { latitude : 28.613939,  longitude : 77.209023 },
       tags: ['climate change', 'research'],
-      textualData: [{
-        prompt: 'How successful were the actions taken?', answer: 'Very'},
+      textualData: [
+        {prompt: 'How successful were the actions taken?', answer: 'Very'},
         {prompt: 'How was the success evaluated?', answer: 'Quantitive data gathering through questionaires.'},
         {prompt: 'Are there any other factors which could explain the success?', answer: 'Higher average precipitation the last few years. Less crop loss.'}
       ],
