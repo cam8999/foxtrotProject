@@ -3,7 +3,7 @@ import { React, useState, useEffect } from 'react';
 import { View, ScrollView, Text, FlatList, Pressable, TouchableOpacity, StatusBar } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { getUser, getTopPosts, getPostsByTag, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB } from '../firebase-config';
+import { getTopPosts, getPostsByTag, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB } from '../firebase-config';
 import Post from '../components/post';
 import TopBar from '../components/topbar';
 import { AppStyle } from '../styles';
@@ -25,8 +25,13 @@ function HomeScreen({ route, navigation }) {
   async function addFilesToPost(post) {
     const isImage = URI => URI.endswith('.jpg') || URI.endswith('.png') || URI.endswith('.jpeg');
     if (post.hasFiles) {
+      console.log('addFilesToPost - adding to' + post.title);
       let URIs = await getFilesForPost(post, post.UserUID);
+      console.log('addFilesToPost - URIS');
+      console.log(URIs);
       let imageURIs = URIs.items.filter(URI => isImage(URI.toLowerCase()));
+      console.log('addFilesToPost - image URIS');
+      console.log(imageURIs);
       let otherURIs = URIs.items.filter(URI => !isImage(URI.toLowerCase()));
       post.media = imageURIs.map(URI => { uri: URI });
       post.documents = otherURIs.map(URI => { uri: URI });
@@ -61,8 +66,7 @@ function HomeScreen({ route, navigation }) {
     if (downloadedPosts) {
       downloadedPosts.forEach((post, index) => post.id = index);
       setPosts(downloadedPosts);
-      console.log(downloadedPosts[0]);
-      dPromise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
+      Promise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
       console.log('filterPosts - Downloaded Images for Posts');
     }
     

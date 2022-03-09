@@ -28,13 +28,13 @@ export async function getUserDoc(user) {            //If a user object is provid
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-            console.log("Document data:", docSnap.data());
+            //console.log("Document data:", docSnap.data());
             return docSnap.data();
         } else {
             setDoc(doc(db, "Users", user.uid), {
             });
             docSnap = await getDoc(docRef);
-            console.log(docSnap);
+            //console.log(docSnap);
             return docSnap.data();
         }
     } else {
@@ -77,7 +77,7 @@ export async function setUserDoc(params, user) {
 }
 
 export async function setPostDoc(params, postId) {
-    console.log(postId);
+    //console.log(postId);
     setDoc(doc(db, "Posts", postId), params, { merge: true });
 }
 
@@ -93,8 +93,8 @@ export async function uploadPostToDB(postJSON, user) {
         let postRef = await addDoc(collection(db, 'Posts'), postJSON);
         if (!userPostData) userPostData = [];
         userPostData.push(postRef.id);
-        console.log("Upload logs");
-        console.log(userPostData);
+        //console.log("Upload logs");
+        //console.log(userPostData);
         setUserDoc({ 'Posts': userPostData }, user);
         postIDs = await getPostIDs();
         if (!postIDs) postIDs = [];
@@ -157,7 +157,6 @@ async function snapshotToArray(q) {
         // doc.data() is never undefined for query doc snapshots
         postsArray.push(doc.data());
     });
-    console.log(postsArray[0]);
     return postsArray;
 }
 
@@ -327,9 +326,16 @@ export async function uploadFilesToDB(files, postId, userId) {
 //returns array downloadurl for now (as a string)
 // need to have limit on size of number of files uploaded, otherwise listAll consumes too many resources
 export async function getFilesForPost(postId, userId) {
+    console.log('getFilesForPost - running');
     const folderRef = ref(ref(FirebaseStorage), 'PostFiles/' + userId + '/' + postId);
-    var fileUrls = [];
+    var fileURLs = [];
     const listResult = await listAll(folderRef);
-    for (file of listResult) fileUrls.push(await getDownloadURL(file));
-    return listResult;
+    console.log('getFilesForPost - listing');
+    for (file of listResult) {
+        console.log(file)
+        fileURLs.push(await getDownloadURL(file));
+    }
+    console.log('getFilesForPost - gotURLs');
+    console.log(fileURLs);
+    return fileURLs;
 }
