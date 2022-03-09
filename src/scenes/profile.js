@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';;
-import { Text, View, TouchableOpacity, TextInput, Button, Pressable, FlatList, Alert, } from 'react-native';
+import { Text, View, ScrollView, TouchableOpacity, TextInput, Button, Pressable, FlatList, Alert, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { FirebaseAuth, FirebaseDB, getUser, setUserDoc, getUserDoc, getPostsByUsername } from '../firebase-config';
@@ -20,6 +20,7 @@ function ProfileScreen({ navigation }) {
   const [userPosition, setUserPosition] = useState("");
   const [userAge, setUserAge] = useState("");
   const [userPosts, setUserPosts] = useState([]);
+  const profileScrollRef = useRef();
 
   // Handle user state changes
   function onAuthStateChanged(user) {
@@ -30,7 +31,7 @@ function ProfileScreen({ navigation }) {
       setUserPosition(doc.Position);
       setUserDescription(doc.Description);
     });
-    getPostsByUsername(user.displayName).then((posts) => {
+    getPostsByUsername(user.displayName, 10).then((posts) => {
       setUserPosts(posts);
     });
     if (initializing) setInitializing(false);
@@ -38,7 +39,13 @@ function ProfileScreen({ navigation }) {
   }
 
   function onEditModeChanged() {
-    if (editMode) { setEditMode(false); changeDetails(); } else { setEditMode(true); }
+    if (editMode) { 
+      setEditMode(false); 
+      changeDetails(); 
+    } else { 
+      profileScrollRef.current?.scrollTo({y: 0, animated: true});
+      setEditMode(true); 
+    }
   }
 
   useEffect(() => {
@@ -62,90 +69,94 @@ function ProfileScreen({ navigation }) {
   async function signOut() {
     FirebaseAuth.signOut().then(() => console.log("Signed out"));
   }
+  
   console.log(user);
   if (user) {
     return (
-      <><View style={AppStyle.topBar}>
-      <View style={{ marginHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between' }}>
-        <TouchableOpacity onPress={signOut} style={{alignItems: 'center'}}>
-          <Ionicons name="exit" size={30} color={'white'} />
-          <Text style={AppStyle.radioMenuText}>Sign Out</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={onEditModeChanged} style={{alignItems: 'center'}}>
-          { editMode ? 
-            <>
-              <Ionicons name="checkmark" size={30} color={'white'} />
-              <Text style={AppStyle.radioMenuText}>Save Changes</Text>
-            </>
-          :
-            <>
-              <Ionicons name="pencil" size={30} color={'white'} />
-              <Text style={AppStyle.radioMenuText}>Edit Profile</Text>
-            </>
-          }
-        </TouchableOpacity>
-      </View>
-    </View>
-      <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0', padding: 15 }}>
-        <View style={AppStyle.profile}>
-          <View style={AppStyle.profileHeader}>
-            <TextInput
-              style={AppStyle.title}
-              defaultValue={user.displayName == "" ? "Name" : user.displayName}
-              onChangeText={setUserName}
-              editable={editMode}
-              placeholder={'Name'} />
+      <>
+        <View style={AppStyle.topBar}>
+          <View style={{ marginHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between' }}>
+            <TouchableOpacity onPress={signOut} style={{alignItems: 'center'}}>
+              <Ionicons name="exit" size={30} color={'white'} />
+              <Text style={AppStyle.radioMenuText}>Sign Out</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={onEditModeChanged} style={{alignItems: 'center'}}>
+              { editMode ? 
+                <>
+                  <Ionicons name="checkmark" size={30} color={'white'} />
+                  <Text style={AppStyle.radioMenuText}>Save Changes</Text>
+                </>
+              :
+                <>
+                  <Ionicons name="pencil" size={30} color={'white'} />
+                  <Text style={AppStyle.radioMenuText}>Edit Profile</Text>
+                </>
+              }
+            </TouchableOpacity>
           </View>
-          <View style={{ flexDirection: 'row' }}>
-            <View style={[AppStyle.profileComponent, { flex: 6, marginRight: 3, flexDirection: 'row' }]}>
-              <TextInput
-                defaultValue={userPosition}
-                editable={editMode}
-                placeholder={'Community Position'}
-                onChangeText={setUserPosition} />
-            </View>
-            <View style={[AppStyle.profileComponent, { flex: 1 }]}>
-              <TextInput
-                defaultValue={userAge}
-                editable={editMode}
-                placeholder={'Age'}
-                keyboardType={'number-pad'}
-                onChangeText={setUserAge} />
-            </View>
-          </View>
-          <View style={[AppStyle.profileComponent, { flexDirection: 'row', alignItems: 'center' }]}>
-            <Ionicons name="location" size={16} color={Colours.PRIMARY} />
-            <Text> </Text>
-            <TextInput
-              defaultValue={userLocation}
-              editable={editMode}
-              placeholder={'Location'}
-              onChangeText={setUserLocation} />
-          </View>
-          <TextInput
-            style={AppStyle.profileDescription}
-            defaultValue={userDescription}
-            editable={editMode}
-            placeholder={'User description...'}
-            onChangeText={setUserDescription} />
         </View>
-        <View style={[AppStyle.postsContainer, {width: '100%'}]}>
-          {userPosts.length == 0 ? 
-            <View style={AppStyle.bubble}>
-              <Text style={AppStyle.lightText}>No Posts</Text>  
+        <ScrollView ref={profileScrollRef}>
+          <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0', padding: 15 }}>
+            <View style={AppStyle.profile}>
+              <View style={AppStyle.profileHeader}>
+                <TextInput
+                  style={AppStyle.title}
+                  defaultValue={user.displayName == "" ? "Name" : user.displayName}
+                  onChangeText={setUserName}
+                  editable={editMode}
+                  placeholder={'Name'} 
+                />
+              </View>
+              <View style={{ flexDirection: 'row' }}>
+              <View style={[AppStyle.profileComponent, { flex: 6, marginRight: 3, flexDirection: 'row' }]}>
+                <TextInput
+                  defaultValue={userPosition}
+                  editable={editMode}
+                  placeholder={'Community Position'}
+                  onChangeText={setUserPosition} 
+                />
+              </View>
+              <View style={[AppStyle.profileComponent, { flex: 1 }]}>
+                <TextInput
+                  defaultValue={userAge}
+                  editable={editMode}
+                  placeholder={'Age'}
+                  keyboardType={'number-pad'}
+                  onChangeText={setUserAge} 
+                />
+              </View>
             </View>
-          : null }
-          <FlatList
-            data={userPosts}
-            renderItem={({item}) => <Post {...item}/>}
-            keyExtractor={item => item.id}
-          />
-      </View>
-      </View></>
+            <View style={[AppStyle.profileComponent, { flexDirection: 'row', alignItems: 'center' }]}>
+              <Ionicons name="location" size={16} color={Colours.PRIMARY} />
+              <TextInput
+                defaultValue={userLocation}
+                editable={editMode}
+                placeholder={'Location'}
+                onChangeText={setUserLocation} 
+              />
+            </View>
+            <TextInput
+              style={AppStyle.profileDescription}
+              defaultValue={userDescription}
+              editable={editMode}
+              placeholder={'User description...'}
+              onChangeText={setUserDescription} 
+            />
+            </View>
+            <View style={[AppStyle.postsContainer, {width: '100%', height: '100%'}]}>
+              {userPosts.length == 0 ? 
+                <View style={AppStyle.bubble}>
+                  <Text style={AppStyle.lightText}>No Posts</Text>  
+                </View>
+              : null }
+              {userPosts.map((post) => <Post {...post}/>)}
+            </View>
+          </View>
+        </ScrollView>
+      </>
     );
   } else {
     return (
-
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>Loading ...</Text>
       </View>

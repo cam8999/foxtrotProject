@@ -13,10 +13,11 @@ export const AppStyle = StyleSheet.create({
     backgroundColor: '#C0C0C0',
   },
   topBar: {
-    padding: 5,
+    paddingLeft: 5,
     paddingRight: 10,
-    width: '100%',
     paddingTop: Constants.statusBarHeight + 10,
+    paddingBottom: 10,
+    width: '100%',
     backgroundColor: Colours.PRIMARY,
   },
   searchBarContainer: {
@@ -39,7 +40,6 @@ export const AppStyle = StyleSheet.create({
   postsContainer: {
     margin: 15,
     justifyContent: 'flex-start',
-    marginBottom: 75,
   },
   post: {
     borderRadius: 15,
