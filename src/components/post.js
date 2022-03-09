@@ -60,6 +60,7 @@ class Post extends React.Component {
   }
 
   render() {
+    console.log(this.props.media);
     if (this.state.renderSummary) return (
       <View style={[AppStyle.post, {width: this.state.mediaWidth}]}>
         <Text style={AppStyle.postHeader}>
@@ -108,13 +109,14 @@ class Post extends React.Component {
         </Text>
         {
           (this.props.media && this.props.media.length > 0) ?
-            this.props.media.map(image => 
+            this.props.media.map((image, index) => 
               <Image
                 style={{ 
                   width: this.state.mediaWidth,
                   height: this.state.mediaHeight, 
                 }}
-                source={image.uri}
+                source={{uri: image.uri}}
+                key={index}
             />
             )
             : null

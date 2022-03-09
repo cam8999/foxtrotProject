@@ -23,18 +23,20 @@ function HomeScreen({ route, navigation }) {
   }, [route.params]);
 
   async function addFilesToPost(post) {
-    const isImage = URI => URI.endswith('.jpg') || URI.endswith('.png') || URI.endswith('.jpeg');
+    const isImage = URI => URI.includes('.jpg') || URI.includes('.png') || URI.includes('.jpeg');
     if (post.hasFiles) {
       console.log('addFilesToPost - adding to' + post.title);
-      let URIs = await getFilesForPost(post, post.UserUID);
+      let URIs = await getFilesForPost(post.ID, post.userUID);
       console.log('addFilesToPost - URIS');
       console.log(URIs);
       let imageURIs = URIs.filter(URI => isImage(URI.toLowerCase()));
       console.log('addFilesToPost - image URIS');
       console.log(imageURIs);
       let otherURIs = URIs.filter(URI => !isImage(URI.toLowerCase()));
-      post.media = imageURIs.map(URI => { uri: URI });
-      post.documents = otherURIs.map(URI => { uri: URI });
+      post.media = [];
+      post.documents = [];
+      imageURIs.forEach(URI => post.media.push({uri: URI}));
+      otherURIs.forEach(URI => post.documents.push({uri: URI}));
     }
     return post;
   }

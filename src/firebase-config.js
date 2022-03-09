@@ -327,11 +327,11 @@ export async function uploadFilesToDB(files, postId, userId) {
 // need to have limit on size of number of files uploaded, otherwise listAll consumes too many resources
 export async function getFilesForPost(postId, userId) {
     const folderRef = ref(ref(FirebaseStorage), 'PostFiles/' + userId + '/' + postId);
+    
     var fileURLs = [];
     const listResult = await listAll(folderRef);
     for (const file of listResult.items) {
         fileURLs.push(await getDownloadURL(file));
     }
-    console.log(fileURLs);
     return fileURLs;
 }
