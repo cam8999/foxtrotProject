@@ -1,7 +1,9 @@
 import { Alert, View, StyleSheet } from 'react-native';
 
 import LinearForm from '../components/form';
+import { getUser, uploadPostToDB, uploadFilesToDB } from '../firebase-config';
 import Colours from '../styles';
+import TopBar from '../components/topbar'
 
 const FieldTypes = LinearForm.FieldTypes;
 
@@ -26,7 +28,38 @@ const uploadFormFields = new Array(
   { type: FieldTypes.Question, prompt: 'What proof do you have of these outcomes?', required: true },
   { type: FieldTypes.Question, prompt: 'Could the actions taken be applied elsewhere?', required: true },
   { type: FieldTypes.Heading, text: 'Source of Knowledge' },
-  { type: FieldTypes.Question, prompt: 'Are you reporting first-hand, or on behalf of someone else?' },
+  { type: FieldTypes.Question, prompt: 'Are you reporting first-hand, or on behalf of someone else?', required: true},
+  { type: FieldTypes.Question, prompt: 'What is the status in the community of the knowledge holder?' },
+  { type: FieldTypes.Question, prompt: 'What related experience does the knowledge holder have?', required: true },
+  { type: FieldTypes.Heading, text: "Files, Images and Videos" },
+  { type: FieldTypes.GalleryUpload },
+  { type: FieldTypes.DocumentUpload },
+  { type: FieldTypes.Text, text: 'Changes cannot be made after uploading the post. Are you sure you want to submit now?' },
+)
+
+
+const testFormFields = new Array(
+  { type: FieldTypes.Heading, text: "Upload a Post" },
+  { type: FieldTypes.Subheading, text: 'General Information' },
+  { type: FieldTypes.Question, prompt: 'What is the title of the research?', id: 'title', required: true },
+  { type: FieldTypes.Question, prompt: 'Who is the author(s) of the research?', id: 'author', required: true },
+  { type: FieldTypes.Question, prompt: 'Provide a summary of the research:', id: 'description', required: true },
+  { type: FieldTypes.Question, prompt: 'Provide some comma-seperated tags for the project, for example the hazard it relates to:', id: 'tags' },
+  { type: FieldTypes.Location },
+  { type: FieldTypes.Subheading, text: 'Threat' },
+  { type: FieldTypes.Question, prompt: 'What environmental threat does this relate to?' },
+  { type: FieldTypes.Question, prompt: 'How have these threats changed over the last decades?' },
+  { type: FieldTypes.Question, prompt: 'How were these changes observed?' },
+  { type: FieldTypes.Subheading, text: 'Actions Taken' },
+  { type: FieldTypes.Question, prompt: 'Over what time frame were observations made?' },
+  { type: FieldTypes.Question, prompt: 'How have these threats been mitigated or adapted to?'},
+  { type: FieldTypes.Question, prompt: 'How successful were the actions taken?' },
+  { type: FieldTypes.Question, prompt: 'How was the success evaluated?' },
+  { type: FieldTypes.Question, prompt: 'Are there any other factors which could explain the success?' },
+  { type: FieldTypes.Question, prompt: 'What proof do you have of these outcomes?' },
+  { type: FieldTypes.Question, prompt: 'Could the actions taken be applied elsewhere?' },
+  { type: FieldTypes.Heading, text: 'Source of Knowledge' },
+  { type: FieldTypes.Question, prompt: 'Are you reporting first-hand, or on behalf of someone else?'},
   { type: FieldTypes.Question, prompt: 'What is the status in the community of the knowledge holder?' },
   { type: FieldTypes.Question, prompt: 'What related experience does the knowledge holder have?' },
   { type: FieldTypes.Heading, text: "Files, Images and Videos" },
@@ -47,27 +80,42 @@ const acceptedDocumentTypes = new Array(  // List of document (non-media) file f
 
 
 // TODO: Integrate with uploadPostToDB in main branch
-function uploadFormDataToDB(formData) {
-  console.log("Uploaded:");
-  console.log(formData);
-  return true;
-  /*
-  const user = getUser();
+async function uploadFormDataToDB(formData) {
+  console.log("uploadFormDataToDB");
+
+  const user = await getUser();
   if (!user) {
     Alert.alert("You must be logged in to create a post.");
-    return;
+    return false;
   }
-  const postID = uploadPostToDB(formData, user);  
+
+  let images, documents;
+  if (formData.hasFiles) {
+    images = formData.media;
+    documents = formData.documents;
+    delete formData.media;
+    delete formData.documents;
+  }
+  console.log("uploadPostToDB");
+  const postID = await uploadPostToDB(formData, user);
+  console.log("Uploaded text");
   if (!postID) {
     Alert.alert("Post failed to upload to Firebase Database. Try Again.");
-    return;
+    return false;
   }
-  for (const medium of formData.media) {
-    uploadFile(medium.uri, postId);
+  console.log("Uploading files");
+  if (images) {
+    console.log("Uploading images");
+    await uploadFilesToDB(images, postID, user);
   }
-  for (const doc of formData.documents) {
-    uploadFile(doc.uri, postId);
-  } */
+  if (documents) {
+    console.log("Uploading documents");
+    await uploadFilesToDB(documents, postID, user);
+  }
+  console.log("Uploaded Files")
+
+  console.log("Uploaded");
+  return true;
 }
 
 
@@ -159,12 +207,16 @@ export const UploadFormStyle = StyleSheet.create({
 function UploadScreen({ navigation }) {
   return (
     <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
-      <View style={{ height: 50, width: '100%', backgroundColor: Colours.PRIMARY }}></View>
-      <LinearForm
-        fields={uploadFormFields}
+      <TopBar
+        navigation={navigation}
+        onSearch={console.log}
+      />
+      <LinearForm 
+        fields={testFormFields}
         documentUploadTypes={acceptedDocumentTypes}
         onSubmit={uploadFormDataToDB}
-        stylesheet={UploadFormStyle} />
+        stylesheet={UploadFormStyle}
+      />
     </View>
   )
 }

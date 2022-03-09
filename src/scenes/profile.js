@@ -60,8 +60,8 @@ function ProfileScreen({ navigation }) {
   console.log(user);
   if (user) {
     return (
-      <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
-        <View style={AppStyle.topBar}/>
+      <><View style={AppStyle.topBar} />
+      <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0', padding: 15 }}>
         <View style={AppStyle.profile}>
           <View style={AppStyle.profileHeader}>
             <TextInput
@@ -69,8 +69,7 @@ function ProfileScreen({ navigation }) {
               defaultValue={user.displayName == "" ? "Name" : user.displayName}
               onChangeText={setUserName}
               editable={editMode}
-              placeholder={'Name'}
-            />
+              placeholder={'Name'} />
           </View>
           <View style={{ flexDirection: 'row' }}>
             <View style={[AppStyle.profileComponent, { flex: 6, marginRight: 3, flexDirection: 'row' }]}>
@@ -78,8 +77,7 @@ function ProfileScreen({ navigation }) {
                 defaultValue={userPosition}
                 editable={editMode}
                 placeholder={'Community Position'}
-                onChangeText={setUserPosition}
-              />
+                onChangeText={setUserPosition} />
             </View>
             <View style={[AppStyle.profileComponent, { flex: 1 }]}>
               <TextInput
@@ -87,27 +85,24 @@ function ProfileScreen({ navigation }) {
                 editable={editMode}
                 placeholder={'Age'}
                 keyboardType={'number-pad'}
-                onChangeText={setUserAge}
-              />
+                onChangeText={setUserAge} />
             </View>
           </View>
-          <View style={[AppStyle.profileComponent, {flexDirection: 'row'}]}>
+          <View style={[AppStyle.profileComponent, { flexDirection: 'row', alignItems: 'center' }]}>
             <Ionicons name="location" size={16} color={Colours.PRIMARY} />
             <Text> </Text>
             <TextInput
               defaultValue={userLocation}
               editable={editMode}
               placeholder={'Location'}
-              onChangeText={setUserLocation}
-            />
+              onChangeText={setUserLocation} />
           </View>
           <TextInput
             style={AppStyle.profileDescription}
             defaultValue={userDescription}
             editable={editMode}
             placeholder={'User description...'}
-            onChangeText={setUserDescription}
-          />
+            onChangeText={setUserDescription} />
         </View>
         <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
           <Pressable style={[AppStyle.button]} onPress={onEditModeChanged}>
@@ -117,17 +112,14 @@ function ProfileScreen({ navigation }) {
                 : 'Edit Profile'}
             </Text>
           </Pressable>
-          <Text></Text>
           <Pressable style={AppStyle.button} onPress={signOut}>
             <Text style={AppStyle.buttonTitle}>Sign Out</Text>
           </Pressable>
         </View>
         <View style={{ width: '100%' }}>
-          <FlatList
-          //TODO: Render posts by the user
-          />
+          <FlatList />
         </View>
-      </View>
+      </View></>
     );
   } else {
     return (

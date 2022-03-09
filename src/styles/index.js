@@ -16,7 +16,7 @@ export const AppStyle = StyleSheet.create({
     padding: 5,
     paddingRight: 10,
     width: '100%',
-    paddingTop: Constants.statusBarHeight,
+    paddingTop: Constants.statusBarHeight + 10,
     backgroundColor: Colours.PRIMARY,
   },
   searchBarContainer: {
@@ -68,7 +68,6 @@ export const AppStyle = StyleSheet.create({
   profile: {
     overflow:'hidden',
     borderRadius: 15,
-    marginTop: 10,
     width: '100%',
   },
   profileHeader: {
@@ -106,7 +105,7 @@ export const AppStyle = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
     elevation: 0,
-    margin: 10,
+    marginVertical: 15,
   },
   buttonTitle: {
     fontWeight: 'bold',
