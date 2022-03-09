@@ -65,6 +65,8 @@ export const AppStyle = StyleSheet.create({
     color: '#C0C0C0',
     padding: 10,
     paddingTop: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   profile: {
     overflow:'hidden',

@@ -1,12 +1,13 @@
 import React from 'react';
-import {View, Text, Alert, Button} from 'react-native';
+import {View, Text, Alert, Button, TouchableOpacity} from 'react-native';
 import {StyleSheet} from 'react-native';
 import {Dimensions} from 'react-native';
 import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import { useState, useEffect } from 'react';
-
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getTopPosts } from '../firebase-config';
+import { AppStyle } from '../styles';
 
 
 
@@ -15,7 +16,6 @@ import { getTopPosts } from '../firebase-config';
 function MapScreen({navigation}) {
 
   const [posts, setPosts] = useState([]);
-
 
   useEffect(() => {
      refreshPosts(); 
@@ -42,7 +42,6 @@ function MapScreen({navigation}) {
     },
   });
 
-
   const [region, setRegion] = React.useState({
     latitude: 51.5079145,
     longitude: -0.0899163,
@@ -51,8 +50,15 @@ function MapScreen({navigation}) {
   });
 
   return (
-    <View style={styles.container}>
-      <MapView style={styles.map} 
+    <View style={AppStyle.homeContainer}>
+      <View style={[AppStyle.topBar, {flexDirection: 'row'}]}>
+        <TouchableOpacity onPress={() => refreshPosts()} style={{alignItems: 'center'}}>
+          <Ionicons name="refresh" size={30} color={'white'}/>
+          <Text style={AppStyle.radioMenuText}>Refresh</Text>
+        </TouchableOpacity>
+        <View/>
+      </View>
+      <MapView style={[styles.map, {flex: 1}]} 
         initialRegion={{
           latitude: 0,
           longitude: 0,
@@ -71,7 +77,6 @@ function MapScreen({navigation}) {
           />
         )}
       </MapView>
-     <Button title = {'Refresh'} onPress={() => refreshPosts()}> </Button>
     </View>
   );
 }
