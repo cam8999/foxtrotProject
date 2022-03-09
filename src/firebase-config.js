@@ -293,10 +293,10 @@ export async function uploadFilesToDB(files, postId, userId) {
     for (const file of files) {
         const imgRef = ref(folderRef, file.name);
         const metadata = {
-            contentType: files.type,
+            contentType: file.type,
         }
-        const byteArray = await readAsStringAsync(files.uri);
-        const uploadTask = uploadBytesResumable(imgRef, byteArray, metadata);
+        const fileBlob = await (await fetch(file.uri)).blob();
+        const uploadTask = uploadBytesResumable(imgRef, fileBlob, metadata);
         uploadTask.on('state_changed',
         (snapshot) => {
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;

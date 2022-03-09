@@ -465,11 +465,9 @@ class LinearForm extends React.Component {
       if (field.type == LinearForm.FieldTypes.Question) {
         let answer = this.state.textInputs.get(field.prompt);
         if (!answer && field.required) {
-          this.setState({errorMsg : 'Missing required fields'});
-          this.setState(state => {
-            const missing = state.missingFields.push(field.prompt);
-            return missing;
-          })
+          const newMissingFields = this.state.missingFields;
+          newMissingFields.push(field.prompt);
+          this.setState({missingFields: newMissingFields});
           continue;
         } else if (!answer) {
           answer = '';
@@ -502,20 +500,22 @@ class LinearForm extends React.Component {
     formJSON.media = this.state.galleryUploads;
     formJSON.documents = this.state.documentUploads;
 
-    if (!this.state.missingFields) {
-      console.log('submitting');
+    if (this.state.missingFields.length == 0) {
       const success = await this.props.onSubmit(formJSON);  // Return form data to user defined function.
       if (success) {
         this.setState({submitted: true});
         this.resetForm();
       }
-      else this.setState({errorMessage: 'Failed to upload post. Try Again'})
+      else this.setState({errorMsg: 'Failed to upload post. Try Again'})
+    } else {
+      this.setState({errorMsg: 'Missing Required Fields'});
     }
     this.setState({submitting: false});
   }
 
 
   resetForm() {
+    console.log('resetForm - Resetting form fields.');
     this.setState({
       textInputs: new Map(),
 
