@@ -91,12 +91,13 @@ export async function uploadPostToDB(postJSON, user) {
         postJSON.Timestamp = Timestamp.now();
         let userPostData = userDoc.Posts;
         let postRef = await addDoc(collection(db, 'Posts'), postJSON);
-        if (!userPostData) userPostData = []
+        if (!userPostData) userPostData = [];
         userPostData.push(postRef.id);
         console.log("Upload logs");
         console.log(userPostData);
         setUserDoc({ 'Posts': userPostData }, user);
         postIDs = await getPostIDs();
+        if (!postIDs) postIDs = [];
         postIDs.push(postRef.id);
         setDoc(doc(db, "PostIDs", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
         setPostDoc({ 'ID': postRef.id }, postRef.id);
@@ -294,6 +295,28 @@ export async function uploadFilesToDB(files, postId, userId) {
         }
         const byteArray = await readAsStringAsync(files.uri);
         const uploadTask = uploadBytesResumable(imgRef, byteArray, metadata);
+        uploadTask.on('state_changed',
+        (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+            switch (snapshot.state) {
+            case 'paused':
+                console.log('Upload is paused');
+                break;
+            case 'running':
+                console.log('Upload is running');
+                break;
+            } 
+        },
+        (error) => {
+            // unsuccessful upload
+            // TODO: handle unsuccessful upload
+        },
+        () => {
+            // successful upload
+            // TODO: add to JSON object
+        }
+    );
         // TODO: Deal with file not uploading (do it at form or in )
         uploadTask.catch(console.log("Error: file cannot be added to the server right now. Please try again shortly."));
 
