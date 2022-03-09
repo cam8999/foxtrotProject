@@ -89,7 +89,7 @@ class Post extends React.Component {
     if (this.state.renderSummary) return (
       <View style={[AppStyle.post, {width: this.state.mediaWidth}]}>
         <Text style={AppStyle.postHeader}>
-          {this.props.author},
+          {this.props.author}
           <Text style={AppStyle.primary}> {this.props.location.name}</Text>
         </Text>
         {
@@ -122,7 +122,7 @@ class Post extends React.Component {
     else return (
       <View style={AppStyle.post}>
         <Text style={AppStyle.postHeader}>
-          {this.props.author},
+          {this.props.author}
           <Text style={AppStyle.primary}> {this.props.location.name}</Text>
         </Text>
         {

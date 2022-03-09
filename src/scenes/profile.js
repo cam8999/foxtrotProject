@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';;
 import { Text, View, TouchableOpacity, TextInput, Button, Pressable, FlatList, Alert, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { FirebaseAuth, FirebaseDB, getUser, setUserDoc, getUserDoc } from '../firebase-config';
+import { FirebaseAuth, FirebaseDB, getUser, setUserDoc, getUserDoc, getPostsByUsername } from '../firebase-config';
 import { updateProfile } from 'firebase/auth';
 import { AppStyle } from '../styles';
 import Colours from '../styles'
+import Post from '../components/post';
 
 function ProfileScreen({ navigation }) {
   const [initializing, setInitializing] = useState(true);
@@ -18,6 +19,7 @@ function ProfileScreen({ navigation }) {
   const [userDescription, setUserDescription] = useState("");
   const [userPosition, setUserPosition] = useState("");
   const [userAge, setUserAge] = useState("");
+  const [userPosts, setUserPosts] = useState([]);
 
   // Handle user state changes
   function onAuthStateChanged(user) {
@@ -27,6 +29,9 @@ function ProfileScreen({ navigation }) {
       setUserLocation(doc.Location);
       setUserPosition(doc.Position);
       setUserDescription(doc.Description);
+    });
+    getPostsByUsername(user.displayName).then((posts) => {
+      setUserPosts(posts);
     });
     if (initializing) setInitializing(false);
     setUserName(user.displayName); 
@@ -116,9 +121,18 @@ function ProfileScreen({ navigation }) {
             <Text style={AppStyle.buttonTitle}>Sign Out</Text>
           </Pressable>
         </View>
-        <View style={{ width: '100%' }}>
-          <FlatList />
-        </View>
+        <View style={[AppStyle.postsContainer, {width: '100%'}]}>
+          {userPosts.length == 0 ? 
+            <View style={AppStyle.bubble}>
+              <Text style={AppStyle.lightText}>No Posts</Text>  
+            </View>
+          : null }
+          <FlatList
+            data={userPosts}
+            renderItem={({item}) => <Post {...item}/>}
+            keyExtractor={item => item.id}
+          />
+      </View>
       </View></>
     );
   } else {
