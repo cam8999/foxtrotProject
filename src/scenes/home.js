@@ -75,7 +75,11 @@ function HomeScreen({ route, navigation }) {
         onSearch={filterPosts}
       />
       <View style={AppStyle.postsContainer}>
-        {posts.length == 0 ? <Text>"No results"</Text> : null}
+        {posts.length == 0 ? 
+          <View style={AppStyle.bubble}>
+            <Text style={AppStyle.lightText}>No Posts</Text>  
+          </View>
+        : null }
         <FlatList
           data={posts}
           renderItem={({ item }) => renderPostAsButton(item)}
