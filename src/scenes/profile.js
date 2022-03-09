@@ -73,7 +73,7 @@ function ProfileScreen({ navigation }) {
   console.log(user);
   if (user) {
     return (
-      <>
+      <View style={{backgroundColor: '#C0C0C0', height: '100%'}}>
         <View style={AppStyle.topBar}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <TouchableOpacity onPress={signOut} style={{alignItems: 'center'}}>
@@ -96,7 +96,7 @@ function ProfileScreen({ navigation }) {
           </View>
         </View>
         <ScrollView ref={profileScrollRef}>
-          <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0', padding: 15 }}>
+          <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0', paddingHorizontal: 15 }}>
             <View style={AppStyle.profile}>
               <View style={AppStyle.profileHeader}>
                 <TextInput
@@ -153,7 +153,7 @@ function ProfileScreen({ navigation }) {
             </View>
           </View>
         </ScrollView>
-      </>
+      </View>
     );
   } else {
     return (

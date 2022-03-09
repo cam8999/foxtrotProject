@@ -38,14 +38,14 @@ export const AppStyle = StyleSheet.create({
     fontSize: 13,
   },
   postsContainer: {
-    margin: 15,
+    marginHorizontal: 15,
     justifyContent: 'flex-start',
   },
   post: {
     borderRadius: 15,
     overflow:'hidden',
     backgroundColor: 'white',
-    marginBottom: 15,
+    marginTop: 15,
   },
   postHeader: {
     padding: 10,
@@ -129,6 +129,7 @@ export const AppStyle = StyleSheet.create({
     borderRadius: 10,
     padding: 10,
     paddingHorizontal: 20,
+    marginTop: 15,
   },
   lightText: {
     color: '#545454',
