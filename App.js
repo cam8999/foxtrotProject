@@ -76,7 +76,7 @@ export default function App() {
             return <Ionicons name={iconName} size={focused ? size + 10 : size} color='white' />;
           },
           tabBarStyle: {
-            height: 80,
+            height: 70,
             backgroundColor: Colours.PRIMARY,
           },
         })}

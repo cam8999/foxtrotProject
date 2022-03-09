@@ -151,6 +151,7 @@ function ProfileScreen({ navigation }) {
               : null }
               {userPosts.map((post) => <Post {...post}/>)}
             </View>
+            <View style={{height:15}}></View>
           </View>
         </ScrollView>
       </View>

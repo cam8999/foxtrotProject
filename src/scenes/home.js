@@ -89,6 +89,7 @@ function HomeScreen({ route, navigation }) {
           data={posts}
           renderItem={({item}) => renderPostAsButton(item)}
           keyExtractor={item => item.id}
+          ListFooterComponent={<View style={{height:15}}></View>}
         />
       </View>
     </View>
