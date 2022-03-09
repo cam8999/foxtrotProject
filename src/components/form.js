@@ -494,7 +494,8 @@ class LinearForm extends React.Component {
       }
     }
     formJSON.textualData = textualData;
-    formJSON.coordinates = this.state.coordinates;
+    formJSON.latitude = this.state.coordinates.latitude;
+    formJSON.longitude = this.state.coordinates.longitude;
     formJSON.location = this.state.address;
     if (this.state.galleryUploads.length > 0 || this.state.documentUploads.length > 0) formJSON.hasFiles = true;
     else formJSON.hasFiles = false;

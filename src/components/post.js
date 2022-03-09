@@ -9,44 +9,6 @@ import Colours, { AppStyle } from '../styles';
 
 class Post extends React.Component {
 
-  static examplePosts = [
-    {
-      id: 10,
-      UserUID: '43627846',
-      title: "Climate Change in Bangladesh",
-      author: 'H. Simpson',
-      description: 'Research on the effects of Climate Change in Bangladesh.',
-      location: 'Location B',
-      coordinates: { latitude : 28.613939,  longitude : 77.209023 },
-      tags: ['climate change', 'research'],
-      textualData: [
-        {prompt: 'How successful were the actions taken?', answer: 'Very'},
-        {prompt: 'How was the success evaluated?', answer: 'Quantitive data gathering through questionaires.'},
-        {prompt: 'Are there any other factors which could explain the success?', answer: 'Higher average precipitation the last few years. Less crop loss.'}
-      ],
-      hasFiles: false,
-      media: [],
-      documents: [],
-      upvotes: 4,
-      upvoters: [],
-    },
-    {
-      id: 12,
-      UserUID: '1421326',
-      author: 'J. Frink',
-      description: 'Study of average temperature increase in Asia.',
-      location: 'Location A',
-      coordinates: { latitude : 23.810331,  longitude : 90.412521 },
-      tags: ['temperature', 'climate change'],
-      textualData: [{prompt: 'Who could this benefit?', answer: 'Other indigenous peoples.'},],
-      hasFiles: true,
-      media: [{uri: 'https://i.imgur.com/b6BQJPc.jpeg', name:'people'},],
-      documents: [],
-      upvotes: 13,
-      upvoters: [],
-    },
-  ];
-
   constructor(props) {
     super(props);
     this.state = {
@@ -90,7 +52,7 @@ class Post extends React.Component {
       <View style={[AppStyle.post, {width: this.state.mediaWidth}]}>
         <Text style={AppStyle.postHeader}>
           {this.props.author}
-          <Text style={AppStyle.primary}> {this.props.location.name}</Text>
+          <Text style={AppStyle.primary}> {this.props.location}</Text>
         </Text>
         {
           (this.props.media && this.props.media.length > 0) ?
@@ -123,7 +85,7 @@ class Post extends React.Component {
       <View style={AppStyle.post}>
         <Text style={AppStyle.postHeader}>
           {this.props.author}
-          <Text style={AppStyle.primary}> {this.props.location.name}</Text>
+          <Text style={AppStyle.primary}> {this.props.location}</Text>
         </Text>
         {
           (this.props.media && this.props.media.length > 0) ?
