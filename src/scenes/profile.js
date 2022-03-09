@@ -65,7 +65,27 @@ function ProfileScreen({ navigation }) {
   console.log(user);
   if (user) {
     return (
-      <><View style={AppStyle.topBar} />
+      <><View style={AppStyle.topBar}>
+      <View style={{ marginHorizontal: 15, flexDirection: 'row', justifyContent: 'space-between' }}>
+        <TouchableOpacity onPress={signOut} style={{alignItems: 'center'}}>
+          <Ionicons name="exit" size={30} color={'white'} />
+          <Text style={AppStyle.radioMenuText}>Sign Out</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={onEditModeChanged} style={{alignItems: 'center'}}>
+          { editMode ? 
+            <>
+              <Ionicons name="checkmark" size={30} color={'white'} />
+              <Text style={AppStyle.radioMenuText}>Save Changes</Text>
+            </>
+          :
+            <>
+              <Ionicons name="pencil" size={30} color={'white'} />
+              <Text style={AppStyle.radioMenuText}>Edit Profile</Text>
+            </>
+          }
+        </TouchableOpacity>
+      </View>
+    </View>
       <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0', padding: 15 }}>
         <View style={AppStyle.profile}>
           <View style={AppStyle.profileHeader}>
@@ -108,18 +128,6 @@ function ProfileScreen({ navigation }) {
             editable={editMode}
             placeholder={'User description...'}
             onChangeText={setUserDescription} />
-        </View>
-        <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
-          <Pressable style={[AppStyle.button]} onPress={onEditModeChanged}>
-            <Text style={AppStyle.buttonTitle}>
-              {editMode ?
-                'Save Changes'
-                : 'Edit Profile'}
-            </Text>
-          </Pressable>
-          <Pressable style={AppStyle.button} onPress={signOut}>
-            <Text style={AppStyle.buttonTitle}>Sign Out</Text>
-          </Pressable>
         </View>
         <View style={[AppStyle.postsContainer, {width: '100%'}]}>
           {userPosts.length == 0 ? 
