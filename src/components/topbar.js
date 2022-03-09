@@ -7,10 +7,10 @@ import { Searchbar } from 'react-native-paper';
 import Colours, { AppStyle } from "../styles";
 
 const searchOptionList = [
-  { label: 'Title', value: 'title', },
-  { label: 'Author', value: 'author', },
-  { label: 'Tags', value: 'tags', },
-  { label: 'Location', value: 'loc', },
+  { label: 'Title', value: 0 },
+  { label: 'Author', value: 1 },
+  { label: 'Tags', value: 2 },
+  { label: 'Location', value: 3 },
 ];
 
 TopBar = ({navigation, onSearch}) => {
@@ -30,21 +30,21 @@ TopBar = ({navigation, onSearch}) => {
       <RadioForm 
         formHorizontal={true}
         style={{ justifyContent: 'space-around', flex: 8 }}>
-        {searchOptionList.map((l, v) => (
-          <RadioButton key={v}>
+        {searchOptionList.map((option, i) => (
+          <RadioButton key={i}>
             <RadioButtonInput
-              obj={l}
-              index={v}
-              isSelected={checked === v}
-              onPress={() => setChecked(v)}
+              obj={option}
+              index={i}
+              isSelected={checked === option.value}
+              onPress={() => setChecked(option.value)}
               buttonSize={7}
               buttonInnerColor={'white'}
               buttonOuterColor={'white'}
             />
             <RadioButtonLabel
-              obj={l}
-              index={v}
-              onPress={() => setChecked(v)}
+              obj={option}
+              index={i}
+              onPress={() => setChecked(option.value)}
               labelWrapStyle={{ marginHorizontal: 5 }}
               labelStyle={AppStyle.radioMenuText}
             />

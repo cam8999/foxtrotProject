@@ -149,6 +149,7 @@ export async function deletePost(postId, user) {
     }
 }
 
+
 async function snapshotToArray(q) {
     const querySnapshot = await getDocs(q);
     let postsArray = [];
@@ -156,8 +157,10 @@ async function snapshotToArray(q) {
         // doc.data() is never undefined for query doc snapshots
         postsArray.push(doc.data());
     });
+    console.log(postsArray[0]);
     return postsArray;
 }
+
 
 async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal) {
     const querySnapshot = await getDocs(q);
@@ -184,45 +187,64 @@ async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal
     }
 }
 
+
 export async function getPostsByLocation(location, limitVal = 100, orderByUpvotes = false) {
-    let q;
-    if (!orderByUpvotes) {
-        q = query(collection(db, "Posts"), where("Location", "==", location), orderBy('Timestamp', 'desc'), limit(limitVal));
-    } else {
-        q = query(collection(db, "Posts"), where("Location", "==", location), orderBy('Upvotes', 'desc'), limit(limitVal));
-    }
-    return snapshotToArray(q);
+    queries = [
+        {attributeName: 'location', operator: '==', attributeValue: location}
+    ]
+    return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
+
 
 export async function getTopPosts(limitVal = 100, orderByUpvotes = false) {
-    let q;
-    if (!orderByUpvotes) {
-        q = query(collection(db, "Posts"), orderBy('Timestamp', 'desc'), limit(limitVal));
-    } else {
-        q = query(collection(db, "Posts"), orderBy('Upvotes', 'desc'), limit(limitVal));
-    }
-    return snapshotToArray(q);
+    return getPostsByAttributes([], limitVal, orderByUpvotes);
 }
+
 
 export async function getPostsByTitle(title, limitVal = 100, orderByUpvotes = false) {
-    let q;
-    if (!orderByUpvotes) {
-        q = query(collection(db, "Posts"), where("Title", "==", title), orderBy('Timestamp', 'desc'), limit(limitVal));
-    } else {
-        q = query(collection(db, "Posts"), where("Title", "==", title), orderBy('Upvotes', 'desc'), limit(limitVal));
-    }
-    return snapshotToArray(q);
+    console.log("getPostsByTitle - searching for " + title);
+    queries = [
+        {attributeName: 'title', operator: '==', attributeValue: title}
+    ]
+    return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
 
+
 export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = false) {
-    let q;
-    if (!orderByUpvotes) {
-        q = query(collection(db, "Posts"), where("userUID", "==", uid), orderBy('Timestamp', 'desc'), limit(limitVal));
-    } else {
-        q = query(collection(db, "Posts"), where("userUID", "==", uid), orderBy('Upvotes', 'desc'), limit(limitVal));
-    }
-    return snapshotToArray(q);
+    queries = [
+        {attributeName: 'userUID', operator: '==', attributeValue: uid}
+    ]
+    return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
+
+
+export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false) {
+    queries = [
+        {attributeName: 'tags', operator: 'array-contains', attributeValue: tag}
+    ]
+    return getPostsByAttributes(queries, limitVal, orderByUpvotes);
+}
+
+/* 
+ * Returns an array of posts satisfying the given queries.
+ * @param attributeQueries - an array of { attributeName, operator, attributeValue } object queries
+ */
+async function getPostsByAttributes(attributeQueries, limitVal, orderByUpvotes) {
+    console.log("getPostsByAttributes - getting posts from DB.");
+    let parameters = [collection(db, "Posts")];
+    for (const q of attributeQueries) {
+        parameters.push(where(q.attributeName, q.operator, q.attributeValue));
+    }
+    if (orderByUpvotes) parameters.push(orderBy('Upvotes', 'desc'));
+    else parameters.push(orderBy('Timestamp', 'desc'));
+    parameters.push(limit(limitVal));
+
+    let q = query(...parameters);
+    let queriedPosts = await snapshotToArray(q);
+    console.log("getPostsByAttributes - returning posts");
+    return queriedPosts;
+}
+
 
 export async function getPostsByCoordinates(coordinates, limitVal = 100, orderByUpvotes = false) {
     let q;
@@ -236,26 +258,6 @@ export async function getPostsByCoordinates(coordinates, limitVal = 100, orderBy
 
     }
     return snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal);
-}
-
-export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false) {
-    let q;
-    if (!orderByUpvotes) {
-        q = query(collection(db, "Posts"), where("Tags", "array-contains", tag), orderBy('Timestamp', 'desc'), limit(limitVal));
-    } else {
-        q = query(collection(db, "Posts"), where("Tags", "array-contains", tag), orderBy('Upvotes', 'desc'), limit(limitVal));
-    }
-    return snapshotToArray(q);
-}
-
-export async function getPostsByAttribute(attributeName, attribute, limitVal = 100, orderByUpvotes = false) {
-    let q;
-    if (!orderByUpvotes) {
-        q = query(collection(db, "Posts"), where(attributeName, "==", attribute), orderBy('Timestamp', 'desc'), limit(limitVal));
-    } else {
-        q = query(collection(db, "Posts"), where(attributeName, "==", attribute), orderBy('Upvotes', 'desc'), limit(limitVal));
-    }
-    return snapshotToArray(q);
 }
 
 export async function getPostsByUsername(username, limitVal = 100, orderByUpvotes = false) {

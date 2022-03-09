@@ -32,7 +32,7 @@ class LinearForm extends React.Component {
     Location: 'location',
     Heading: 'heading',  // text: "text to display"
     Subheading: 'sub-heading', // text: "text to display"
-    Seperator: 'seperator',
+    Separator: 'separator',
   }
 
   constructor(props) {
@@ -74,6 +74,7 @@ class LinearForm extends React.Component {
     this.onChangeLatLongInput = this.onChangeLatLongInput.bind(this);
     this.reverseGeocode = this.reverseGeocode.bind(this);
     this.submitForm = this.submitForm.bind(this);
+    this.resetForm = this.resetForm.bind(this);
     this.render = this.render.bind(this);
   }
 
@@ -212,8 +213,8 @@ class LinearForm extends React.Component {
           break;
         }
 
-        case LinearForm.FieldTypes.Seperator: {
-          item = <View key={counter} style={this.state.stylesheet.seperator} /> //TODO: Implement styling
+        case LinearForm.FieldTypes.Separator: {
+          item = <View key={counter} style={this.state.stylesheet.separator} /> //TODO: Implement styling
         }
 
         default:
@@ -500,13 +501,38 @@ class LinearForm extends React.Component {
     formJSON.media = this.state.galleryUploads;
     formJSON.documents = this.state.documentUploads;
 
-    if (!this.state.missingFields.length) {
+    if (!this.state.missingFields) {
       console.log('submitting');
       const success = await this.props.onSubmit(formJSON);  // Return form data to user defined function.
-      if (success) this.setState({submitted: true});
+      if (success) {
+        this.setState({submitted: true});
+        this.resetForm();
+      }
       else this.setState({errorMessage: 'Failed to upload post. Try Again'})
     }
     this.setState({submitting: false});
+  }
+
+
+  resetForm() {
+    this.setState({
+      textInputs: new Map(),
+
+      galleryUploads: [],
+      documentUploads: [],
+
+      locationMethod: 'gps',
+      coordinates: {latitude: 0, longitude: 0},
+      address: '',
+      enteredAddress: '',
+      locating: false,
+
+      submitted: false,
+      submitting: false,
+      missingFields: [],
+
+      errorMsg: '',
+    })
   }
 
 

@@ -3,18 +3,10 @@ import { React, useState, useEffect } from 'react';
 import { View, Text, FlatList, Pressable, TouchableOpacity, StatusBar } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { getUser, getTopPosts, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB } from '../firebase-config';
+import { getUser, getTopPosts, getPostsByTag, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB } from '../firebase-config';
 import Post from '../components/post';
 import TopBar from '../components/topbar';
 import { AppStyle } from '../styles';
-
-
-async function Test() {
-  let user1 = await getUser();
-  let posts = await uploadPostToDB({ 'latitude': 10.03, 'longitude': 10.03 }, { 'uid': '2Lt2CzPtbfO5Bt1ANmvwVbSB5o53' });
-  //uploadPostToDB({ 'TT': 'TT' }, user1);
-  console.log(posts);
-}
 
 
 function HomeScreen({ route, navigation }) {
@@ -25,7 +17,7 @@ function HomeScreen({ route, navigation }) {
   useEffect(() => {
     console.log(route);
     if (route.params) setPosts([route.params.postsToDisplay])
-    //else filterPosts('', null);  // Fill posts with getTopPosts()
+    else filterPosts('', null);  // Fill posts with getTopPosts()
   }, [route.params]);
 
   async function addFilesToPost(post) {
@@ -42,26 +34,39 @@ function HomeScreen({ route, navigation }) {
 
   async function filterPosts(query, queryType) {
     let promise;
-    if (query == '') promise = getTopPosts();
+    console.log('filterPosts - Downloading Posts');
+    console.log('filterPosts - Query type: ' + queryType);
+    if (query == '' || queryType == null) promise = getTopPosts();
     else {
       switch (queryType) {
-        case 'Tags':
+        case 2:
           promise = getPostsByTag(query);
-        case 'Location':
+        case 3:
           promise = getPostsByLocation(query);
-        case 'Username':
+        case 1:
           promise = getPostsByUsername(query);
-        case 'Title':  // Default to title
-        default:
+        case 0:
           promise = getPostsByTitle(query);
+          break;
+        default:
+          console.error('filterPosts - Invalid queryType' + queryType);
+          return;
       }
     }
+    console.log('filterPosts - Awaiting Posts');
     let downloadedPosts = await promise;
-    Promise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
-    console.log(posts);
+    console.log('filterPosts - Downloaded Posts');
+    if (downloadedPosts) {
+      downloadedPosts.forEach((post, index) => post.id = index);
+      setPosts(downloadedPosts);
+      console.log(downloadedPosts[0]);
+      //Promise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
+      console.log('filterPosts - Downloaded Images for Posts');
+    }
+    
   }
 
-  const renderPostAsButton = item =>
+  const renderPostAsButton = (item) =>
     <Pressable
       onPress={() => { setFocusedPost(item); setFocused(true) }}
     >
@@ -78,7 +83,7 @@ function HomeScreen({ route, navigation }) {
         {posts.length == 0 ? <Text>"No results"</Text> : null}
         <FlatList
           data={posts}
-          renderItem={({ item }) => renderPostAsButton(item)}
+          renderItem={({item}) => renderPostAsButton(item)}
           keyExtractor={item => item.id}
         />
       </View>

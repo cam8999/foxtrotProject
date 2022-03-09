@@ -38,6 +38,7 @@ export const AppStyle = StyleSheet.create({
   },
   postsContainer: {
     margin: 15,
+    padding: 10,
     justifyContent: 'flex-start',
   },
   post: {

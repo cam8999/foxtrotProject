@@ -44,7 +44,7 @@ const testFormFields = new Array(
   { type: FieldTypes.Question, prompt: 'What is the title of the research?', id: 'title', required: true },
   { type: FieldTypes.Question, prompt: 'Who is the author(s) of the research?', id: 'author', required: true },
   { type: FieldTypes.Question, prompt: 'Provide a summary of the research:', id: 'description', required: true },
-  { type: FieldTypes.Question, prompt: 'Provide some comma-seperated tags for the project, for example the hazard it relates to:', id: 'tags' },
+  { type: FieldTypes.Question, prompt: 'Provide some comma-separated tags for the project, for example the hazard it relates to:', id: 'tags' },
   { type: FieldTypes.Location },
   { type: FieldTypes.Subheading, text: 'Threat' },
   { type: FieldTypes.Question, prompt: 'What environmental threat does this relate to?' },
@@ -81,7 +81,8 @@ const acceptedDocumentTypes = new Array(  // List of document (non-media) file f
 
 // TODO: Integrate with uploadPostToDB in main branch
 async function uploadFormDataToDB(formData) {
-  console.log("uploadFormDataToDB");
+  console.log("uploadFormDataToDB - called with formData = \n");
+  console.log(formData);
 
   const user = await getUser();
   if (!user) {
@@ -89,32 +90,31 @@ async function uploadFormDataToDB(formData) {
     return false;
   }
 
-  let images, documents;
+  let images = [], documents = [];
   if (formData.hasFiles) {
     images = formData.media;
     documents = formData.documents;
     delete formData.media;
     delete formData.documents;
   }
-  console.log("uploadPostToDB");
+  console.log("uploadFormDataToDB - Uploading text fields of form");
   const postID = await uploadPostToDB(formData, user);
-  console.log("Uploaded text");
+  console.log("uploadFormDataToDB - Uploaded text");
   if (!postID) {
     Alert.alert("Post failed to upload to Firebase Database. Try Again.");
     return false;
   }
-  console.log("Uploading files");
+
   if (images) {
-    console.log("Uploading images");
+    console.log("uploadFormDataToDB - Uploading images");
     await uploadFilesToDB(images, postID, user);
   }
   if (documents) {
-    console.log("Uploading documents");
+    console.log("uploadFormDataToDB - Uploading documents");
     await uploadFilesToDB(documents, postID, user);
   }
-  console.log("Uploaded Files")
 
-  console.log("Uploaded");
+  console.log("uploadFormDataToDB - Uploaded");
   return true;
 }
 
@@ -212,7 +212,7 @@ function UploadScreen({ navigation }) {
         onSearch={console.log}
       />
       <LinearForm 
-        fields={testFormFields}
+        fields={uploadFormFields}
         documentUploadTypes={acceptedDocumentTypes}
         onSubmit={uploadFormDataToDB}
         stylesheet={UploadFormStyle}
