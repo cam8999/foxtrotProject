@@ -1,11 +1,12 @@
 import React from 'react';
-import {View, Text, Alert} from 'react-native';
+import {View, Text, Alert, Button} from 'react-native';
 import {StyleSheet} from 'react-native';
 import {Dimensions} from 'react-native';
 import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
-import Post from '../components/post.js';
+import { useState, useEffect } from 'react';
 
+import { getUser, getTopPosts, getPostsByTag, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB } from '../firebase-config';
 
 
 
@@ -13,8 +14,37 @@ import Post from '../components/post.js';
 
 function MapScreen({navigation}) {
 
-  
+  const [posts, setPosts] = useState([]);
 
+  function buttonpress()
+  {
+    filterPosts('',null);
+    console.log(posts);
+    console.log(posts.length.toString());
+
+  }
+
+
+  useEffect(() => {
+     filterPosts('', null);  
+  }, []);
+
+  async function filterPosts(query, queryType) {
+    let promise;
+    console.log('filterPosts - Downloading Posts');
+    console.log('filterPosts - Query type: ' + queryType);
+    if (query == '' || queryType == null) promise = getTopPosts();
+  
+    console.log('filterPosts - Awaiting Posts');
+    let downloadedPosts = await promise;
+    console.log('filterPosts - Downloaded Posts');
+    if (downloadedPosts) {
+      
+      setPosts(downloadedPosts);
+      console.log('this');
+    }
+    
+  }
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -49,9 +79,9 @@ function MapScreen({navigation}) {
       onRegionChangeComplete={(region) => setRegion(region)}
       >
 
-      {Post.examplePosts.map(marker => (
+      {posts.map(marker => (
           <Marker
-              coordinate={marker.coordinates}
+              coordinate={{latitude: marker.Latitude, longitude:marker.Longitude}}
               key = {marker.id}
               title = {marker.author}
               description={marker.description}
@@ -61,8 +91,7 @@ function MapScreen({navigation}) {
 
        
       </MapView>
-      <Text>Current latitude: {region.latitude}</Text>
-    <Text>Current longitude: {region.longitude}</Text>
+     <Button title = {'Refresh'} onPress={buttonpress}> </Button>
 
     </View>
   );
