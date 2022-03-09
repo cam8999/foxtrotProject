@@ -149,7 +149,7 @@ function ProfileScreen({ navigation }) {
                   <Text style={AppStyle.lightText}>No Posts</Text>  
                 </View>
               : null }
-              {userPosts.map((post) => <Post {...post}/>)}
+              {userPosts.map((post) => <Post {...post} key={post.id} displayDelete={true}/>)}
             </View>
             <View style={{height:15}}></View>
           </View>

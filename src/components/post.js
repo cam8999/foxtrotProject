@@ -1,9 +1,10 @@
+import { get } from 'firebase/database';
 import React from 'react';
-import { Dimensions, Image, View, Text, TouchableHighlight } from 'react-native';
+import { Dimensions, Image, View, Text, TouchableHighlight, Alert } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { getUser, togglePostUpvote } from '../firebase-config';
+import { getUser, togglePostUpvote, deletePost } from '../firebase-config';
 import Colours, { AppStyle } from '../styles';
 
 
@@ -15,6 +16,7 @@ class Post extends React.Component {
       postUpvoted: false,
       upvotes: this.props.Upvotes,
       renderSummary: this.props.summary,
+      currentUser: null,
 
       summaryImageURI: (this.props.media && this.props.media.length > 0) ? this.props.media[0].uri : null,
       mediaWidth: 0,
@@ -29,7 +31,11 @@ class Post extends React.Component {
   async determineIfUpvoted() {
     let user = await getUser();
     console.log(user);
-    this.setState({postUpvoted: this.props.Upvoters.includes(user.uid)}); 
+    this.setState({postUpvoted: this.props.Upvoters.includes(user.uid), currentUser: user}); 
+  }
+
+  onDeletePressed = () => {
+    deletePost(this.props.ID, this.state.currentUser);
   }
 
 
@@ -77,14 +83,21 @@ class Post extends React.Component {
         <Text style={AppStyle.postTail}>
           {this.props.description}
         </Text>
-        <Text style={AppStyle.postUpvoteBar}>
-          <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>
-            {this.state.postUpvoted ?
-              <Ionicons name="heart" size={16} color={Colours.PRIMARY} />
-              : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY} />}
-          </TouchableHighlight>
-          {''} {this.state.upvotes} upvotes
-        </Text>
+        <View style={AppStyle.postUpvoteBar}>
+          <View style={{flexDirection: 'row'}}>
+            <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>
+              {this.state.postUpvoted ?
+                <Ionicons name="heart" size={16} color={Colours.PRIMARY} />
+                : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY} />}
+            </TouchableHighlight>
+            <Text style={{color: '#C0C0C0'}}>{''} {this.state.upvotes} upvotes</Text>
+          </View>
+          {this.props.displayDelete ?
+            <TouchableHighlight underlayColor='white' onPress={this.onDeletePressed}>
+              <Ionicons name="trash" size={16} color={Colours.PRIMARY} />
+            </TouchableHighlight>
+          : null}
+        </View>
       </View>
       );
     else return (
@@ -117,14 +130,21 @@ class Post extends React.Component {
             <Text style={AppStyle.postTail} key={index}>{text.prompt} {text.answer}</Text>
           )
         }
-        <Text style={AppStyle.postUpvoteBar}>
-          <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>
-            {this.state.postUpvoted ?
-              <Ionicons name="heart" size={16} color={Colours.PRIMARY} />
-              : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY} />}
-          </TouchableHighlight>
-          {''} {this.state.upvotes} upvotes
-        </Text>
+        <View style={AppStyle.postUpvoteBar}>
+          <View style={{flexDirection: 'row'}}>
+            <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>
+              {this.state.postUpvoted ?
+                <Ionicons name="heart" size={16} color={Colours.PRIMARY} />
+                : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY} />}
+            </TouchableHighlight>
+            <Text style={{color: '#C0C0C0'}}>{''} {this.state.upvotes} upvotes</Text>
+          </View>
+          {this.props.displayDelete ?
+            <TouchableHighlight underlayColor='white' onPress={this.onDeletePressed}>
+              <Ionicons name="trash" size={16} color={Colours.PRIMARY} />
+            </TouchableHighlight>
+          : null}
+        </View>
       </View>
     );
   }
