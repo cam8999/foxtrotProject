@@ -140,9 +140,12 @@ export async function deletePost(postId, user) {
         let postIDs = await getPostIDs();
         postIDs = postIDs.filter(e => e !== postId);
         let userPosts = userDoc.Posts;
+        let userUpvotedPosts = userDoc.upvotedPosts;
         if (userPosts.includes(postId)) {
             userPosts = userPosts.filter(e => e !== postId);
+            userUpvotedPosts = userUpvotedPosts.filter(e => e !== postId);
             setUserDoc({ 'Posts': userPosts }, user);
+            setUserDoc({ 'upvotedPosts': userUpvotedPosts }, user);
             setDoc(doc(db, "PostIDs", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
             deleteDoc(doc(db, "Posts", postId));
         }
@@ -190,7 +193,7 @@ async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal
 
 export async function getPostsByLocation(location, limitVal = 100, orderByUpvotes = false) {
     queries = [
-        {attributeName: 'location', operator: '==', attributeValue: location}
+        { attributeName: 'location', operator: '==', attributeValue: location }
     ]
     return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
@@ -203,7 +206,7 @@ export async function getTopPosts(limitVal = 100, orderByUpvotes = false) {
 
 export async function getPostsByTitle(title, limitVal = 100, orderByUpvotes = false) {
     queries = [
-        {attributeName: 'title', operator: '==', attributeValue: title}
+        { attributeName: 'title', operator: '==', attributeValue: title }
     ]
     return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
@@ -211,7 +214,7 @@ export async function getPostsByTitle(title, limitVal = 100, orderByUpvotes = fa
 
 export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = false) {
     queries = [
-        {attributeName: 'userUID', operator: '==', attributeValue: uid}
+        { attributeName: 'userUID', operator: '==', attributeValue: uid }
     ]
     return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
@@ -219,7 +222,7 @@ export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = fa
 
 export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false) {
     queries = [
-        {attributeName: 'tags', operator: 'array-contains', attributeValue: tag}
+        { attributeName: 'tags', operator: 'array-contains', attributeValue: tag }
     ]
     return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
@@ -297,27 +300,27 @@ export async function uploadFilesToDB(files, postId, userId) {
         const fileBlob = await (await fetch(file.uri)).blob();
         const uploadTask = uploadBytesResumable(imgRef, fileBlob, metadata);
         uploadTask.on('state_changed',
-        (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
-            switch (snapshot.state) {
-            case 'paused':
-                console.log('Upload is paused');
-                break;
-            case 'running':
-                console.log('Upload is running');
-                break;
-            } 
-        },
-        (error) => {
-            // unsuccessful upload
-            // TODO: handle unsuccessful upload
-        },
-        () => {
-            // successful upload
-            // TODO: add to JSON object
-        }
-    );
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log('Upload is ' + progress + '% done');
+                switch (snapshot.state) {
+                    case 'paused':
+                        console.log('Upload is paused');
+                        break;
+                    case 'running':
+                        console.log('Upload is running');
+                        break;
+                }
+            },
+            (error) => {
+                // unsuccessful upload
+                // TODO: handle unsuccessful upload
+            },
+            () => {
+                // successful upload
+                // TODO: add to JSON object
+            }
+        );
         // TODO: Deal with file not uploading (do it at form or in )
         uploadTask.catch(console.log("Error: file cannot be added to the server right now. Please try again shortly."));
 
