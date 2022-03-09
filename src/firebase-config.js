@@ -97,6 +97,7 @@ export async function uploadPostToDB(postJSON, user) {
         console.log(userPostData);
         setUserDoc({ 'Posts': userPostData }, user);
         postIDs = await getPostIDs();
+        if (!postIDs) postIDs = [];
         postIDs.push(postRef.id);
         setDoc(doc(db, "PostIDs", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
         setPostDoc({ 'ID': postRef.id }, postRef.id);

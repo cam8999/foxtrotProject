@@ -1,4 +1,4 @@
-import {Alert, View, StyleSheet} from 'react-native';
+import { Alert, View, StyleSheet } from 'react-native';
 
 import LinearForm from '../components/form';
 import { getUser, uploadPostToDB, uploadFilesToDB } from '../firebase-config';
@@ -121,7 +121,7 @@ async function uploadFormDataToDB(formData) {
 
 export const UploadFormStyle = StyleSheet.create({
   container: {
-    flex: 1, 
+    flex: 1,
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
