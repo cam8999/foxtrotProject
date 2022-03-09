@@ -29,10 +29,10 @@ function HomeScreen({ route, navigation }) {
       let URIs = await getFilesForPost(post, post.UserUID);
       console.log('addFilesToPost - URIS');
       console.log(URIs);
-      let imageURIs = URIs.items.filter(URI => isImage(URI.toLowerCase()));
+      let imageURIs = URIs.filter(URI => isImage(URI.toLowerCase()));
       console.log('addFilesToPost - image URIS');
       console.log(imageURIs);
-      let otherURIs = URIs.items.filter(URI => !isImage(URI.toLowerCase()));
+      let otherURIs = URIs.filter(URI => !isImage(URI.toLowerCase()));
       post.media = imageURIs.map(URI => { uri: URI });
       post.documents = otherURIs.map(URI => { uri: URI });
     }

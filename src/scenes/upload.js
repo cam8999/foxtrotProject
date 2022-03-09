@@ -76,11 +76,11 @@ async function uploadFormDataToDB(formData) {
 
   if (images) {
     console.log("uploadFormDataToDB - Uploading images");
-    await uploadFilesToDB(images, postID, user);
+    await uploadFilesToDB(images, postID, user.uid);
   }
   if (documents) {
     console.log("uploadFormDataToDB - Uploading documents");
-    await uploadFilesToDB(documents, postID, user);
+    await uploadFilesToDB(documents, postID, user.uid);
   }
 
   console.log("uploadFormDataToDB - Uploaded");
