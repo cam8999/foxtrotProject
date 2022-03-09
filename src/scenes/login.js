@@ -52,7 +52,7 @@ function LoginScreen({ navigation }) {
       />
 
       <View style={AppStyle.loginContainer}>
-        <Text style={AppStyle.title}>Sign In</Text>
+        <Text style={[AppStyle.title, {padding: 10}]}>Sign In</Text>
         <View style={{flexDirection: 'row'}}>
           <TextInput
             placeholder="Phone Number"
