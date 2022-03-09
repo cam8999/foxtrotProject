@@ -1,9 +1,9 @@
 
-import { React, useState, useEffect} from 'react';
+import { React, useState, useEffect } from 'react';
 import { View, Text, FlatList, Pressable, TouchableOpacity, StatusBar } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { getUser, getTopPosts, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost } from '../firebase-config';
+import { getUser, getTopPosts, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB } from '../firebase-config';
 import Post from '../components/post';
 import TopBar from '../components/topbar';
 import { AppStyle } from '../styles';
@@ -11,13 +11,13 @@ import { AppStyle } from '../styles';
 
 async function Test() {
   let user1 = await getUser();
-  let posts = await getPostsByCoordinates({ 'latitude': 10.03, 'longitude': 10.03 }, 10, false);
+  let posts = await uploadPostToDB({ 'latitude': 10.03, 'longitude': 10.03 }, { 'uid': '2Lt2CzPtbfO5Bt1ANmvwVbSB5o53' });
   //uploadPostToDB({ 'TT': 'TT' }, user1);
   console.log(posts);
 }
 
 
-function HomeScreen({route, navigation }) {
+function HomeScreen({ route, navigation }) {
   const [posts, setPosts] = useState([]);
   const [focused, setFocused] = useState(false);
   const [focusedPost, setFocusedPost] = useState();
@@ -34,8 +34,8 @@ function HomeScreen({route, navigation }) {
       let URIs = await getFilesForPost(post, post.UserUID);
       let imageURIs = URIs.items.filter(URI => isImage(URI.toLowerCase()));
       let otherURIs = URIs.items.filter(URI => !isImage(URI.toLowerCase()));
-      post.media = imageURIs.map(URI => {uri: URI});
-      post.documents = otherURIs.map(URI => {uri: URI});
+      post.media = imageURIs.map(URI => { uri: URI });
+      post.documents = otherURIs.map(URI => { uri: URI });
     }
     return post;
   }
@@ -63,22 +63,22 @@ function HomeScreen({route, navigation }) {
 
   const renderPostAsButton = item =>
     <Pressable
-      onPress={() => {setFocusedPost(item); setFocused(true)}}
+      onPress={() => { setFocusedPost(item); setFocused(true) }}
     >
-      <Post {...item} summary={true}/>
+      <Post {...item} summary={true} />
     </Pressable>
 
-  const renderFeed = () => 
+  const renderFeed = () =>
     <View style={AppStyle.homeContainer}>
       <TopBar
         navigation={navigation}
         onSearch={filterPosts}
       />
       <View style={AppStyle.postsContainer}>
-        {posts.length == 0 ? <Text>"No results"</Text> : null }
+        {posts.length == 0 ? <Text>"No results"</Text> : null}
         <FlatList
           data={posts}
-          renderItem={({item}) => renderPostAsButton(item)}
+          renderItem={({ item }) => renderPostAsButton(item)}
           keyExtractor={item => item.id}
         />
       </View>
@@ -87,14 +87,14 @@ function HomeScreen({route, navigation }) {
   const renderFocusedPost = (post) =>
     <View style={AppStyle.homeContainer}>
       <View style={AppStyle.topBar}>
-        <View style={{marginLeft: 15}}>
+        <View style={{ marginLeft: 15 }}>
           <TouchableOpacity onPress={() => setFocused(false)}>
             <Ionicons name="arrow-back" size={30} color={'white'} />
           </TouchableOpacity>
         </View>
       </View>
-      <View style={{...AppStyle.postsContainer, height:'100%'}}>
-        <Post {...post} summary={false}/>
+      <View style={{ ...AppStyle.postsContainer, height: '100%' }}>
+        <Post {...post} summary={false} />
       </View>
     </View>
 

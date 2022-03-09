@@ -91,12 +91,13 @@ export async function uploadPostToDB(postJSON, user) {
         postJSON.Timestamp = Timestamp.now();
         let userPostData = userDoc.Posts;
         let postRef = await addDoc(collection(db, 'Posts'), postJSON);
-        if (!userPostData) userPostData = []
+        if (!userPostData) userPostData = [];
         userPostData.push(postRef.id);
         console.log("Upload logs");
         console.log(userPostData);
         setUserDoc({ 'Posts': userPostData }, user);
         postIDs = await getPostIDs();
+        if (!postIDs) postIDs = [];
         postIDs.push(postRef.id);
         setDoc(doc(db, "PostIDs", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
         setPostDoc({ 'ID': postRef.id }, postRef.id);
