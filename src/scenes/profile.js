@@ -30,10 +30,10 @@ function ProfileScreen({ navigation }) {
       setUserLocation(doc.Location);
       setUserPosition(doc.Position);
       setUserDescription(doc.Description);
-    });
+    }).then(
     getPostsByUsername(user.displayName, 10).then((posts) => {
       setUserPosts(posts);
-    });
+    }));
     if (initializing) setInitializing(false);
     setUserName(user.displayName); 
   }
@@ -69,7 +69,7 @@ function ProfileScreen({ navigation }) {
   async function signOut() {
     FirebaseAuth.signOut().then(() => console.log("Signed out"));
   }
-  
+
   console.log(user);
   if (user) {
     return (

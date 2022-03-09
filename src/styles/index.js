@@ -39,7 +39,6 @@ export const AppStyle = StyleSheet.create({
   },
   postsContainer: {
     margin: 15,
-    padding: 10,
     justifyContent: 'flex-start',
   },
   post: {
@@ -50,7 +49,6 @@ export const AppStyle = StyleSheet.create({
   },
   postHeader: {
     padding: 10,
-    backgroundColor: 'white',
     fontWeight: 'bold',
   },
   postTags: {
@@ -72,6 +70,7 @@ export const AppStyle = StyleSheet.create({
     overflow:'hidden',
     borderRadius: 15,
     width: '100%',
+    margin: 15,
   },
   profileHeader: {
     padding: 10,

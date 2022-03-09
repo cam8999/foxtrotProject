@@ -76,7 +76,7 @@ export default function App() {
             return <Ionicons name={iconName} size={focused ? size + 10 : size} color='white' />;
           },
           tabBarStyle: {
-            height: 80,
+            height: 60,
             backgroundColor: Colours.PRIMARY,
           },
         })}
@@ -84,7 +84,7 @@ export default function App() {
 
         <appTabs.Screen name="Map" component={MapScreen} />
         <appTabs.Screen name="Home" component={HomeScreen} />
-        <appTabs.Screen name="Upload" component={UploadScreen} />
+        {user ? <appTabs.Screen name="Upload" component={UploadScreen} /> : null}
         <appTabs.Screen name="Profile" component={user ? ProfileScreen : LoginScreen} />
       </appTabs.Navigator>
     </NavigationContainer>
