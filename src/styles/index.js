@@ -13,10 +13,11 @@ export const AppStyle = StyleSheet.create({
     backgroundColor: '#C0C0C0',
   },
   topBar: {
-    padding: 5,
+    paddingLeft: 5,
     paddingRight: 10,
-    width: '100%',
     paddingTop: Constants.statusBarHeight + 10,
+    paddingBottom: 10,
+    width: '100%',
     backgroundColor: Colours.PRIMARY,
   },
   searchBarContainer: {
@@ -45,6 +46,7 @@ export const AppStyle = StyleSheet.create({
     borderRadius: 15,
     overflow:'hidden',
     backgroundColor: 'white',
+    marginBottom: 15,
   },
   postHeader: {
     padding: 10,
@@ -72,7 +74,7 @@ export const AppStyle = StyleSheet.create({
     width: '100%',
   },
   profileHeader: {
-    padding: 15,
+    padding: 10,
     backgroundColor: 'white',
     width: '100%',
     flexDirection: 'row',
@@ -122,6 +124,16 @@ export const AppStyle = StyleSheet.create({
   },
   textInput: {
     padding: 10,
+  },
+  bubble: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 10,
+    paddingHorizontal: 20,
+  },
+  lightText: {
+    color: '#545454',
+    fontStyle: 'italic',
   },
 });
 

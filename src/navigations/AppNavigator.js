@@ -50,7 +50,7 @@ export default function AppNavigator(props) {
           return <Ionicons name={iconName} size={focused ? size + 10 : size} color='white' />;
         },
         tabBarStyle: {
-          height: 80,
+          height: 60,
           backgroundColor: Colours.PRIMARY,
         },
       })}
@@ -80,7 +80,7 @@ export default function AppNavigator(props) {
           return <Ionicons name={iconName} size={focused ? size + 10 : size} color='white' />;
         },
         tabBarStyle: {
-          height: 80,
+          height: 60,
           backgroundColor: Colours.PRIMARY,
         },
       })}
