@@ -1,6 +1,6 @@
 
 import { React, useState, useEffect} from 'react';
-import { View, Text, FlatList, Pressable, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, Pressable, TouchableOpacity, StatusBar } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { getUser, getTopPosts, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost } from '../firebase-config';
@@ -75,7 +75,7 @@ function HomeScreen({route, navigation }) {
         onSearch={filterPosts}
       />
       <View style={AppStyle.postsContainer}>
-        <Text>{posts.length == 0 ? "No results" : ""}</Text>
+        {posts.length == 0 ? <Text>"No results"</Text> : null }
         <FlatList
           data={posts}
           renderItem={({item}) => renderPostAsButton(item)}

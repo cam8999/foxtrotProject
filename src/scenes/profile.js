@@ -5,7 +5,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { FirebaseAuth, FirebaseDB, getUser, setUserDoc, getUserDoc } from '../firebase-config';
 import { updateProfile } from 'firebase/auth';
 import { AppStyle } from '../styles';
-import { TouchableHighlight } from 'react-native-gesture-handler';
 import Colours from '../styles'
 
 function ProfileScreen({ navigation }) {
@@ -62,9 +61,9 @@ function ProfileScreen({ navigation }) {
   if (user) {
     return (
       <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
+        <View style={AppStyle.topBar}/>
         <View style={AppStyle.profile}>
           <View style={AppStyle.profileHeader}>
-            <Ionicons name="person" size={20} color={'black'} />
             <TextInput
               style={AppStyle.title}
               defaultValue={user.displayName == "" ? "Name" : user.displayName}

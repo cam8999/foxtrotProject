@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
-
+import { StyleSheet } from 'react-native';
 import * as Colours from './colours';
+import Constants from 'expo-constants';
 
 export const AppStyle = StyleSheet.create({
   primary: {
@@ -8,15 +8,15 @@ export const AppStyle = StyleSheet.create({
   },
   homeContainer: {
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: '#C0C0C0',
   },
   topBar: {
     padding: 5,
-    paddingTop: 120,
     paddingRight: 10,
     width: '100%',
+    paddingTop: Constants.statusBarHeight,
     backgroundColor: Colours.PRIMARY,
   },
   searchBarContainer: {
@@ -31,6 +31,10 @@ export const AppStyle = StyleSheet.create({
   },
   radioButtonContainer: {
     paddingTop: 10, paddingLeft: 10, flexDirection: 'row',
+  },
+  radioMenuText: {
+    color: 'white',
+    fontSize: 13,
   },
   postsContainer: {
     margin: 15,
@@ -78,7 +82,6 @@ export const AppStyle = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'black',
-    padding: 10,
   },
   subtitle: {
     fontWeight: 'bold',
