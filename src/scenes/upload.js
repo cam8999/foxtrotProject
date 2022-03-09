@@ -38,36 +38,6 @@ const uploadFormFields = new Array(
 )
 
 
-const testFormFields = new Array(
-  { type: FieldTypes.Heading, text: "Upload a Post" },
-  { type: FieldTypes.Subheading, text: 'General Information' },
-  { type: FieldTypes.Question, prompt: 'What is the title of the research?', id: 'title', required: true },
-  { type: FieldTypes.Question, prompt: 'Who is the author(s) of the research?', id: 'author', required: true },
-  { type: FieldTypes.Question, prompt: 'Provide a summary of the research:', id: 'description', required: true },
-  { type: FieldTypes.Question, prompt: 'Provide some comma-separated tags for the project, for example the hazard it relates to:', id: 'tags' },
-  { type: FieldTypes.Location },
-  { type: FieldTypes.Subheading, text: 'Threat' },
-  { type: FieldTypes.Question, prompt: 'What environmental threat does this relate to?' },
-  { type: FieldTypes.Question, prompt: 'How have these threats changed over the last decades?' },
-  { type: FieldTypes.Question, prompt: 'How were these changes observed?' },
-  { type: FieldTypes.Subheading, text: 'Actions Taken' },
-  { type: FieldTypes.Question, prompt: 'Over what time frame were observations made?' },
-  { type: FieldTypes.Question, prompt: 'How have these threats been mitigated or adapted to?'},
-  { type: FieldTypes.Question, prompt: 'How successful were the actions taken?' },
-  { type: FieldTypes.Question, prompt: 'How was the success evaluated?' },
-  { type: FieldTypes.Question, prompt: 'Are there any other factors which could explain the success?' },
-  { type: FieldTypes.Question, prompt: 'What proof do you have of these outcomes?' },
-  { type: FieldTypes.Question, prompt: 'Could the actions taken be applied elsewhere?' },
-  { type: FieldTypes.Heading, text: 'Source of Knowledge' },
-  { type: FieldTypes.Question, prompt: 'Are you reporting first-hand, or on behalf of someone else?'},
-  { type: FieldTypes.Question, prompt: 'What is the status in the community of the knowledge holder?' },
-  { type: FieldTypes.Question, prompt: 'What related experience does the knowledge holder have?' },
-  { type: FieldTypes.Heading, text: "Files, Images and Videos" },
-  { type: FieldTypes.GalleryUpload },
-  { type: FieldTypes.DocumentUpload },
-  { type: FieldTypes.Text, text: 'Changes cannot be made after uploading the post. Are you sure you want to submit now?' },
-)
-
 const acceptedDocumentTypes = new Array(  // List of document (non-media) file formats to accept as uploads.
   'application/msword',  // .doc
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',  // .docx
@@ -81,8 +51,7 @@ const acceptedDocumentTypes = new Array(  // List of document (non-media) file f
 
 // TODO: Integrate with uploadPostToDB in main branch
 async function uploadFormDataToDB(formData) {
-  console.log("uploadFormDataToDB - called with formData = \n");
-  console.log(formData);
+  console.log("uploadFormDataToDB - uploading form");
 
   const user = await getUser();
   if (!user) {
@@ -203,7 +172,7 @@ export const UploadFormStyle = StyleSheet.create({
 
 });
 
-// TODO: Replace placeholder with actual header bar
+
 function UploadScreen({ navigation }) {
   return (
     <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>

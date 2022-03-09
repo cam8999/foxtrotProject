@@ -16,7 +16,9 @@ function HomeScreen({ route, navigation }) {
 
   useEffect(() => {
     console.log(route);
-    if (route.params) setPosts([route.params.postsToDisplay])
+    if (route.params) {
+      setPosts([route.params.postsToDisplay]);
+    }
     else filterPosts('', null);  // Fill posts with getTopPosts()
   }, [route.params]);
 
@@ -60,7 +62,7 @@ function HomeScreen({ route, navigation }) {
       downloadedPosts.forEach((post, index) => post.id = index);
       setPosts(downloadedPosts);
       console.log(downloadedPosts[0]);
-      //Promise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
+      dPromise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
       console.log('filterPosts - Downloaded Images for Posts');
     }
     

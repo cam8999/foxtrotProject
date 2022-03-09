@@ -6,7 +6,7 @@ import MapView from 'react-native-maps';
 import {Marker} from 'react-native-maps';
 import { useState, useEffect } from 'react';
 
-import { getUser, getTopPosts, getPostsByTag, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB } from '../firebase-config';
+import { getTopPosts } from '../firebase-config';
 
 
 
@@ -16,35 +16,19 @@ function MapScreen({navigation}) {
 
   const [posts, setPosts] = useState([]);
 
-  function buttonpress()
-  {
-    filterPosts('',null);
-    console.log(posts);
-    console.log(posts.length.toString());
-
-  }
-
 
   useEffect(() => {
-     filterPosts('', null);  
+     refreshPosts(); 
   }, []);
 
-  async function filterPosts(query, queryType) {
-    let promise;
-    console.log('filterPosts - Downloading Posts');
-    console.log('filterPosts - Query type: ' + queryType);
-    if (query == '' || queryType == null) promise = getTopPosts();
-  
-    console.log('filterPosts - Awaiting Posts');
-    let downloadedPosts = await promise;
-    console.log('filterPosts - Downloaded Posts');
+  async function refreshPosts() {
+    let downloadedPosts = await getTopPosts();
     if (downloadedPosts) {
-      
+      downloadedPosts.forEach((post, index) => post.id = index);
       setPosts(downloadedPosts);
-      console.log('this');
     }
-    
   }
+
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -69,30 +53,25 @@ function MapScreen({navigation}) {
   return (
     <View style={styles.container}>
       <MapView style={styles.map} 
-      
-      initialRegion={{
-        latitude: 0,
-        longitude: 0,
-        latitudeDelta: 60,
-        longitudeDelta: 60,
-      }}
-      onRegionChangeComplete={(region) => setRegion(region)}
+        initialRegion={{
+          latitude: 0,
+          longitude: 0,
+          latitudeDelta: 60,
+          longitudeDelta: 60,
+        }}
+        onRegionChangeComplete={(region) => setRegion(region)}
       >
-
-      {posts.map(marker => (
+        {posts.map((marker, index) => 
           <Marker
-              coordinate={{latitude: marker.Latitude, longitude:marker.Longitude}}
-              key = {marker.id}
-              title = {marker.author}
-              description={marker.description}
-              onPress={(e) => {e.stopPropagation(); navigation.navigate("Home", {postsToDisplay: marker});}}
+            coordinate={{latitude: marker.latitude, longitude: marker.longitude}}
+            key = {index}
+            title = {marker.title}
+            description={marker.description}
+            onPress={(e) => {e.stopPropagation(); navigation.navigate("Home", {postsToDisplay: marker});}}
           />
-      ))}
-
-       
+        )}
       </MapView>
-     <Button title = {'Refresh'} onPress={buttonpress}> </Button>
-
+     <Button title = {'Refresh'} onPress={() => refreshPosts()}> </Button>
     </View>
   );
 }
