@@ -1,7 +1,7 @@
 
 import { React, useState, useEffect} from 'react';
-import { View, Text, FlatList, Pressable, Button } from 'react-native';
-
+import { View, Text, FlatList, Pressable, TouchableOpacity, StatusBar } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { getUser, getTopPosts, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost } from '../firebase-config';
 import Post from '../components/post';
@@ -75,7 +75,7 @@ function HomeScreen({route, navigation }) {
         onSearch={filterPosts}
       />
       <View style={AppStyle.postsContainer}>
-        <Text>{posts.length == 0 ? "No results" : ""}</Text>
+        {posts.length == 0 ? <Text>"No results"</Text> : null }
         <FlatList
           data={posts}
           renderItem={({item}) => renderPostAsButton(item)}
@@ -87,10 +87,11 @@ function HomeScreen({route, navigation }) {
   const renderFocusedPost = (post) =>
     <View style={AppStyle.homeContainer}>
       <View style={AppStyle.topBar}>
-        <Button
-          title="Back"
-          onPress={() => setFocused(false)}
-        />
+        <View style={{marginLeft: 15}}>
+          <TouchableOpacity onPress={() => setFocused(false)}>
+            <Ionicons name="arrow-back" size={30} color={'white'} />
+          </TouchableOpacity>
+        </View>
       </View>
       <View style={{...AppStyle.postsContainer, height:'100%'}}>
         <Post {...post} summary={false}/>

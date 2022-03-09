@@ -2,10 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';;
 import { Text, View, TouchableOpacity, TextInput, Button, Pressable, FlatList, Alert, } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { FirebaseAuth, FirebaseDB, getUser, setUserDoc } from '../firebase-config';
+import { FirebaseAuth, FirebaseDB, getUser, setUserDoc, getUserDoc } from '../firebase-config';
 import { updateProfile } from 'firebase/auth';
 import { AppStyle } from '../styles';
-import { TouchableHighlight } from 'react-native-gesture-handler';
 import Colours from '../styles'
 
 function ProfileScreen({ navigation }) {
@@ -15,19 +14,26 @@ function ProfileScreen({ navigation }) {
   // It is not always necessarily equal to the username held at the database.
   // For that look at user.displayName
   const [editMode, setEditMode] = useState(false);
-
   const [userLocation, setUserLocation] = useState("");
+  const [userDescription, setUserDescription] = useState("");
+  const [userPosition, setUserPosition] = useState("");
+  const [userAge, setUserAge] = useState("");
 
   // Handle user state changes
   function onAuthStateChanged(user) {
     setUser(user);
+    getUserDoc(user).then((doc) => {
+      setUserAge(doc.Age);
+      setUserLocation(doc.Location);
+      setUserPosition(doc.Position);
+      setUserDescription(doc.Description);
+    });
     if (initializing) setInitializing(false);
-    setUserName(user.displayName);
-
+    setUserName(user.displayName); 
   }
 
   function onEditModeChanged() {
-    if (editMode) { setEditMode(false); ChangeName(); } else { setEditMode(true); }
+    if (editMode) { setEditMode(false); changeDetails(); } else { setEditMode(true); }
   }
 
   useEffect(() => {
@@ -36,12 +42,12 @@ function ProfileScreen({ navigation }) {
     return subscriber; // unsubscribe on unmount
   }, []);
 
-  async function ChangeName() {
+  async function changeDetails() {
     updateProfile(FirebaseAuth.currentUser, {
       displayName: userName
     }).then(() => {
       let userRef = getUser();
-      setUserDoc({ 'Username': userName }, user);
+      setUserDoc({ 'Username': userName, 'Age': userAge, 'Location': userLocation, 'Position': userPosition, 'Description': userDescription }, user);
       console.log("Profile updated");
     }).catch((error) => {
       console.log("error");
@@ -54,11 +60,8 @@ function ProfileScreen({ navigation }) {
   console.log(user);
   if (user) {
     return (
-
-      <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
-        <View style={{ justifyContent: 'center', alignItems: 'center', height: 80, width: '100%', backgroundColor: Colours.PRIMARY }}>
-
-        </View>
+      <><View style={AppStyle.topBar} />
+      <View style={{ flex: 1, flexDirection: 'column', width: '100%', alignItems: 'center', backgroundColor: '#C0C0C0', padding: 15 }}>
         <View style={AppStyle.profile}>
           <View style={AppStyle.profileHeader}>
             <TextInput
@@ -66,32 +69,40 @@ function ProfileScreen({ navigation }) {
               defaultValue={user.displayName == "" ? "Name" : user.displayName}
               onChangeText={setUserName}
               editable={editMode}
-              placeholder={'Name'}
-            />
+              placeholder={'Name'} />
           </View>
           <View style={{ flexDirection: 'row' }}>
-            <View style={[AppStyle.profileComponent, { flex: 4, marginRight: 3 }]}>
+            <View style={[AppStyle.profileComponent, { flex: 6, marginRight: 3, flexDirection: 'row' }]}>
               <TextInput
-                defaultValue={''}
+                defaultValue={userPosition}
                 editable={editMode}
                 placeholder={'Community Position'}
-              />
+                onChangeText={setUserPosition} />
             </View>
             <View style={[AppStyle.profileComponent, { flex: 1 }]}>
               <TextInput
-                defaultValue={''}
+                defaultValue={userAge}
                 editable={editMode}
                 placeholder={'Age'}
                 keyboardType={'number-pad'}
-              />
+                onChangeText={setUserAge} />
             </View>
+          </View>
+          <View style={[AppStyle.profileComponent, { flexDirection: 'row', alignItems: 'center' }]}>
+            <Ionicons name="location" size={16} color={Colours.PRIMARY} />
+            <Text> </Text>
+            <TextInput
+              defaultValue={userLocation}
+              editable={editMode}
+              placeholder={'Location'}
+              onChangeText={setUserLocation} />
           </View>
           <TextInput
             style={AppStyle.profileDescription}
-            defaultValue={''}
+            defaultValue={userDescription}
             editable={editMode}
             placeholder={'User description...'}
-          />
+            onChangeText={setUserDescription} />
         </View>
         <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'space-between' }}>
           <Pressable style={[AppStyle.button]} onPress={onEditModeChanged}>
@@ -106,11 +117,9 @@ function ProfileScreen({ navigation }) {
           </Pressable>
         </View>
         <View style={{ width: '100%' }}>
-          <FlatList
-          //TODO: Render posts by the user
-          />
+          <FlatList />
         </View>
-      </View>
+      </View></>
     );
   } else {
     return (

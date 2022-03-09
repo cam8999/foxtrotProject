@@ -1,6 +1,6 @@
-import {StyleSheet} from 'react-native';
-
+import { StyleSheet } from 'react-native';
 import * as Colours from './colours';
+import Constants from 'expo-constants';
 
 export const AppStyle = StyleSheet.create({
   primary: {
@@ -8,15 +8,15 @@ export const AppStyle = StyleSheet.create({
   },
   homeContainer: {
     flexDirection: 'column',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     backgroundColor: '#C0C0C0',
   },
   topBar: {
     padding: 5,
-    paddingTop: 120,
     paddingRight: 10,
     width: '100%',
+    paddingTop: Constants.statusBarHeight + 10,
     backgroundColor: Colours.PRIMARY,
   },
   searchBarContainer: {
@@ -32,15 +32,17 @@ export const AppStyle = StyleSheet.create({
   radioButtonContainer: {
     paddingTop: 10, paddingLeft: 10, flexDirection: 'row',
   },
-  postContainer: {
-    justifyContent: 'center',
-    flex: 1,
-    width: '100%',
+  radioMenuText: {
+    color: 'white',
+    fontSize: 13,
+  },
+  postsContainer: {
+    margin: 15,
+    justifyContent: 'flex-start',
   },
   post: {
     borderRadius: 15,
     overflow:'hidden',
-    marginTop: 10,
     backgroundColor: 'white',
   },
   postHeader: {
@@ -66,20 +68,23 @@ export const AppStyle = StyleSheet.create({
   profile: {
     overflow:'hidden',
     borderRadius: 15,
-    marginTop: 10,
     width: '100%',
   },
   profileHeader: {
-    padding: 10,
+    padding: 15,
     backgroundColor: 'white',
     width: '100%',
-    flexDirection: 'row'
+    flexDirection: 'row',
+    alignContent: 'center',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'black',
-    padding: 10,
+  },
+  subtitle: {
+    fontWeight: 'bold',
+    color: Colours.PRIMARY,
   },
   profileComponent: {
     marginTop: 3,
@@ -100,7 +105,7 @@ export const AppStyle = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 10,
     elevation: 0,
-    margin: 10,
+    marginVertical: 15,
   },
   buttonTitle: {
     fontWeight: 'bold',
