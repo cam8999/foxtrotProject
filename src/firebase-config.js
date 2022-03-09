@@ -87,7 +87,7 @@ export async function uploadPostToDB(postJSON, user) {
 
         postJSON.userUID = user.uid;
         postJSON.Upvotes = 0;
-        postJSON.Upvoters = 0;
+        postJSON.Upvoters = [];
         postJSON.Timestamp = Timestamp.now();
         let userPostData = userDoc.Posts;
         let postRef = await addDoc(collection(db, 'Posts'), postJSON);
@@ -202,7 +202,6 @@ export async function getTopPosts(limitVal = 100, orderByUpvotes = false) {
 
 
 export async function getPostsByTitle(title, limitVal = 100, orderByUpvotes = false) {
-    console.log("getPostsByTitle - searching for " + title);
     queries = [
         {attributeName: 'title', operator: '==', attributeValue: title}
     ]

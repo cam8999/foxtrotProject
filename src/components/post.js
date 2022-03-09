@@ -3,7 +3,7 @@ import { Dimensions, Image, View, Text, TouchableHighlight } from 'react-native'
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { getUser } from '../firebase-config';
+import { getUser, togglePostUpvote } from '../firebase-config';
 import Colours, { AppStyle } from '../styles';
 
 
@@ -12,16 +12,24 @@ class Post extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      postUpvoted: true,
-      upvotes: this.props.upvotes,
+      postUpvoted: false,
+      upvotes: this.props.Upvotes,
       renderSummary: this.props.summary,
 
       summaryImageURI: (this.props.media && this.props.media.length > 0) ? this.props.media[0].uri : null,
       mediaWidth: 0,
       mediaHeight: 0,
     }
-    
+    if (this.props.media) this.props.media.forEach((item, index) => item.key = index);
+    this.determineIfUpvoted.bind(this)();
     this.render = this.render.bind(this);
+  }
+
+
+  async determineIfUpvoted() {
+    let user = await getUser();
+    console.log(user);
+    this.setState({postUpvoted: this.props.Upvoters.includes(user.uid)}); 
   }
 
 
@@ -40,11 +48,9 @@ class Post extends React.Component {
 
 
   onUpvotePressed = () => {
-    {
-      this.state.postUpvoted ?
-        this.setState({ postUpvoted: false, upvotes: this.state.upvotes - 1 })
-        : this.setState({ postUpvoted: true, upvotes: this.state.upvotes + 1 })
-    }
+      if (this.state.postUpvoted) this.setState({ postUpvoted: false, upvotes: this.state.upvotes - 1 });
+      else this.setState({ postUpvoted: true, upvotes: this.state.upvotes + 1 });
+      getUser().then(user => togglePostUpvote(this.props.ID, user));
   }
 
   render() {
@@ -107,10 +113,8 @@ class Post extends React.Component {
           {this.props.description}
         </Text>
         {
-          this.props.textualData.map(text =>
-            <>
-              <Text style={AppStyle.postTail}>{text.prompt} {text.answer}</Text>
-            </>
+          this.props.textualData.map((text, index) =>
+            <Text style={AppStyle.postTail} key={index}>{text.prompt} {text.answer}</Text>
           )
         }
         <Text style={AppStyle.postUpvoteBar}>
