@@ -1,6 +1,6 @@
 
 import { React, useState, useEffect } from 'react';
-import { View, Text, FlatList, Pressable, TouchableOpacity, StatusBar } from 'react-native';
+import { View, ScrollView, Text, FlatList, Pressable, TouchableOpacity, StatusBar } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { getUser, getTopPosts, getPostsByTag, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB } from '../firebase-config';
@@ -105,9 +105,10 @@ function HomeScreen({ route, navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={AppStyle.postsContainer}>
+      <ScrollView contentContainerStyle={AppStyle.postsContainer}>
         <Post {...post} summary={false} />
-      </View>
+        <View style={{height: 15}}/>
+      </ScrollView>
     </View>
 
   return focused ? renderFocusedPost(focusedPost) : renderFeed();
