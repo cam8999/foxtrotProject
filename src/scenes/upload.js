@@ -2,8 +2,7 @@ import { Alert, View, StyleSheet } from 'react-native';
 
 import LinearForm from '../components/form';
 import { getUser, uploadPostToDB, uploadFilesToDB } from '../firebase-config';
-import Colours from '../styles';
-import TopBar from '../components/topbar'
+import Colours, { AppStyle } from '../styles';
 
 const FieldTypes = LinearForm.FieldTypes;
 
@@ -176,10 +175,7 @@ export const UploadFormStyle = StyleSheet.create({
 function UploadScreen({ navigation }) {
   return (
     <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
-      <TopBar
-        navigation={navigation}
-        onSearch={console.log}
-      />
+      <View style={[AppStyle.topBar, {flexDirection: 'row'}]}/>
       <LinearForm 
         fields={uploadFormFields}
         documentUploadTypes={acceptedDocumentTypes}

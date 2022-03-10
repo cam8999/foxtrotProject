@@ -1,5 +1,5 @@
 import { React, useState, } from 'react';
-import { View, Text, TouchableHighlight, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
@@ -55,7 +55,10 @@ TopBar = ({navigation, onSearch}) => {
   
   return (
     <View style={AppStyle.topBar}>
-     <View style={{ flexDirection: 'row' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <TouchableOpacity onPress={() => onSearch('', checked)} style={{alignItems: 'center', paddingHorizontal: 10}}>
+          <Ionicons name="refresh" size={30} color={'white'}/>
+        </TouchableOpacity>
         <View style={AppStyle.searchBarContainer}>
           <Searchbar
             style={AppStyle.searchBar}
