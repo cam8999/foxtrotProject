@@ -13,25 +13,25 @@ function HomeScreen({ route, navigation }) {
   const [posts, setPosts] = useState([]);
   const [focused, setFocused] = useState(false);
   const [focusedPost, setFocusedPost] = useState();
+  const [backupPosts, setBackupPosts] = useState([]);
 
   useEffect(() => {
-    console.log(route);
     if (route.params) {
       setPosts([route.params.postsToDisplay]);
     }
     else filterPosts('', null);  // Fill posts with getTopPosts()
   }, [route.params]);
 
+  const refreshPosts = () => {
+    const backup = posts;
+    setPosts(backup);
+  }
+
   async function addFilesToPost(post) {
     const isImage = URI => URI.includes('.jpg') || URI.includes('.png') || URI.includes('.jpeg');
     if (post.hasFiles) {
-      console.log('addFilesToPost - adding to' + post.title);
       let URIs = await getFilesForPost(post.ID, post.userUID);
-      console.log('addFilesToPost - URIS');
-      console.log(URIs);
       let imageURIs = URIs.filter(URI => isImage(URI.toLowerCase()));
-      console.log('addFilesToPost - image URIS');
-      console.log(imageURIs);
       let otherURIs = URIs.filter(URI => !isImage(URI.toLowerCase()));
       post.media = [];
       post.documents = [];
@@ -73,6 +73,7 @@ function HomeScreen({ route, navigation }) {
       setPosts(downloadedPosts);
       Promise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
       console.log('filterPosts - Downloaded Images for Posts');
+      refreshPosts();
     }
     
   }

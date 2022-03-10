@@ -61,6 +61,13 @@ export const AppStyle = StyleSheet.create({
     padding: 10,
     backgroundColor: 'white',
   },
+  postTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'black',
+    paddingLeft: 10,
+    paddingTop: 5,
+  },
   postUpvoteBar: {
     color: '#C0C0C0',
     padding: 10,

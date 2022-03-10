@@ -1,7 +1,6 @@
-import { get } from 'firebase/database';
 import React from 'react';
-import { Dimensions, Image, View, Text, TouchableHighlight, ScrollView } from 'react-native';
-
+import { Dimensions, Image, View, Text, TouchableHighlight, ScrollView, Button } from 'react-native';
+import { WebView } from 'react-native-webview';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import { getUser, togglePostUpvote, deletePost } from '../firebase-config';
@@ -21,10 +20,14 @@ class Post extends React.Component {
       summaryImageURI: (this.props.media && this.props.media.length > 0) ? this.props.media[0].uri : null,
       mediaWidth: 0,
       mediaHeight: 0,
+
+      download: false,
+      downloaded: false,
     }
     if (this.props.media) this.props.media.forEach((item, index) => item.key = index);
     this.determineIfUpvoted.bind(this)();
     this.render = this.render.bind(this);
+    console.log(this.props.documents);
   }
 
 
@@ -59,8 +62,9 @@ class Post extends React.Component {
       getUser().then(user => togglePostUpvote(this.props.ID, user));
   }
 
+  startDownload = () => this.setState({download: true});
+
   render() {
-    console.log(this.props.media);
     if (this.state.renderSummary) return (
       <View style={[AppStyle.post, {width: this.state.mediaWidth}]}>
         <Text style={AppStyle.postHeader}>
@@ -120,23 +124,52 @@ class Post extends React.Component {
                   }}
                   source={{uri: image.uri}}
                   key={index}
-              />
+                />
               )
               : null
           }
         </ScrollView>
-        
         <Text style={AppStyle.postTags}>
           Tags: {this.props.tags.join(', ')}
+        </Text>
+        <Text style={AppStyle.postTitle}>
+          {this.props.title}
         </Text>
         <Text style={AppStyle.postTail}>
           {this.props.description}
         </Text>
+
         {
           this.props.textualData.map((text, index) =>
             <Text style={AppStyle.postTail} key={index}>{text.prompt} {text.answer}</Text>
           )
         }
+
+        {
+          this.props.documents ?
+          <Button 
+            title={this.state.download ? 'Downloaded' : 'Click to download files and videos!'}
+            color={Colours.PRIMARY}
+            onPress={this.startDownload}
+            disabled={this.state.download}
+          />
+          : null
+        }
+        {
+          (this.state.download) ? 
+          this.props.documents.map((file, index) => {
+            return (
+            <WebView
+              key={index}
+              style={{ 
+                width: 1, height: 1
+              }}
+              source={{uri: file.uri}}
+            />)
+          })
+          : null
+        }
+
         <View style={AppStyle.postUpvoteBar}>
           <View style={{flexDirection: 'row'}}>
             <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>

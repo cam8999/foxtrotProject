@@ -227,7 +227,7 @@ export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = fa
 
 export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false) {
     queries = [
-        { attributeName: 'tags', operator: 'array-contains', attributeValue: tag }
+        { attributeName: 'tags', operator: 'array-contains', attributeValue: tag.toLowerCase() }
     ]
     return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
