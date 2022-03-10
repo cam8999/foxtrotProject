@@ -1,6 +1,6 @@
 import { get } from 'firebase/database';
 import React from 'react';
-import { Dimensions, Image, View, Text, TouchableHighlight, Alert } from 'react-native';
+import { Dimensions, Image, View, Text, TouchableHighlight, ScrollView } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -107,20 +107,25 @@ class Post extends React.Component {
           {this.props.author}
           <Text style={AppStyle.primary}> {this.props.location}</Text>
         </Text>
-        {
-          (this.props.media && this.props.media.length > 0) ?
-            this.props.media.map((image, index) => 
-              <Image
-                style={{ 
-                  width: this.state.mediaWidth,
-                  height: this.state.mediaHeight, 
-                }}
-                source={{uri: image.uri}}
-                key={index}
-            />
-            )
-            : null
-        }
+        <ScrollView
+          horizontal={true}
+        >
+          { 
+            (this.props.media && this.props.media.length > 0) ?
+              this.props.media.map((image, index) => 
+                <Image
+                  style={{ 
+                    width: this.state.mediaWidth,
+                    height: this.state.mediaHeight, 
+                  }}
+                  source={{uri: image.uri}}
+                  key={index}
+              />
+              )
+              : null
+          }
+        </ScrollView>
+        
         <Text style={AppStyle.postTags}>
           Tags: {this.props.tags.join(', ')}
         </Text>
