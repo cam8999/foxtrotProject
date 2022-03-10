@@ -50,10 +50,13 @@ function HomeScreen({ route, navigation }) {
       switch (queryType) {
         case 2:
           promise = getPostsByTag(query);
+          break;
         case 3:
           promise = getPostsByLocation(query);
+          break;
         case 1:
           promise = getPostsByUsername(query);
+          break;
         case 0:
           promise = getPostsByTitle(query);
           break;
