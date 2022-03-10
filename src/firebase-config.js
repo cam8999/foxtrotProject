@@ -222,7 +222,7 @@ async function snapshotToArray(q) {
   * snapshotToArrayCoordinates - translates a query by coordinates to an array of JSON objects representing posts
   * @param q - the query
   * @param longitude - the longitude for the coordinates
-  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
@@ -254,7 +254,7 @@ async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal
 /*
   * getPostsByLocation - returns the posts searched by the location given
   * @param location - the location with which to search
-  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
@@ -267,7 +267,7 @@ export async function getPostsByLocation(location, limitVal = 100, orderByUpvote
 
 /*
   * getTopPosts - returns the top posts to display to the user
-  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
@@ -278,7 +278,7 @@ export async function getTopPosts(limitVal = 100, orderByUpvotes = false) {
 /*
   * getPostsByTitle - returns the posts searched by the title given
   * @param title - the title with which to search
-  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
@@ -292,7 +292,7 @@ export async function getPostsByTitle(title, limitVal = 100, orderByUpvotes = fa
 /*
   * getPostsByUserUID - returns the posts searched by the user UID given
   * @param uid - the uid with which to search
-  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
@@ -306,7 +306,7 @@ export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = fa
 /*
   * getPostsByTag - returns the posts searched by the tag given
   * @param tag - the tag with which to search
-  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
@@ -340,7 +340,7 @@ async function getPostsByAttributes(attributeQueries, limitVal, orderByUpvotes) 
 /*
   * getPostsByCoordinates - returns the posts searched by the coordinates given
   * @param coordinates - the coordinates with which to search
-  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
@@ -362,7 +362,7 @@ export async function getPostsByCoordinates(coordinates, limitVal = 100, orderBy
 /*
   * getPostsByusername - returns the posts searched by the username of the creator given
   * @param username - the username with which to search
-  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
@@ -393,7 +393,13 @@ export async function getPostsByUsername(username, limitVal = 100, orderByUpvote
     },]
 }
 */
-
+/*
+  * uploadFilesToDB - uploads files onto firebase cloud storage at location PostFiles/{userId}/{postId}
+  * @param files - an array of file objects, all of which contain the fields name, type & uri
+  * @param postId - the id of the post associated with the file upload
+  * @param userId - the id of the user which posted the file
+  * @return void
+*/
 export async function uploadFilesToDB(files, postId, userId) {
     const folderRef = ref(ref(FirebaseStorage), 'PostFiles/' + userId + '/' + postId);
     for (const file of files) {
@@ -402,37 +408,18 @@ export async function uploadFilesToDB(files, postId, userId) {
             contentType: file.type,
         }
         const fileBlob = await (await fetch(file.uri)).blob();
-        const uploadTask = uploadBytesResumable(imgRef, fileBlob, metadata);
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log('Upload is ' + progress + '% done');
-                switch (snapshot.state) {
-                    case 'paused':
-                        console.log('Upload is paused');
-                        break;
-                    case 'running':
-                        console.log('Upload is running');
-                        break;
-                }
-            },
-            (error) => {
-                // unsuccessful upload
-                // TODO: handle unsuccessful upload
-            },
-            () => {
-                // successful upload
-                // TODO: add to JSON object
-            }
-        );
-        // TODO: Deal with file not uploading (do it at form or in )
-        uploadTask.catch(console.log("Error: file cannot be added to the server right now. Please try again shortly."));
-
+        uploadBytesResumable(imgRef, fileBlob, metadata);
     }
 }
 
 //returns array downloadurl for now (as a string)
 // need to have limit on size of number of files uploaded, otherwise listAll consumes too many resources
+/*
+  * getFilesForPost - returns the files from a specific post
+  * @param postId - the id of the post associated with the file upload
+  * @param userId - the id of the user which posted the file
+  * @return fileURLs {array of download URLs} - the URLs used to download the files onto the app
+*/
 export async function getFilesForPost(postId, userId) {
     const folderRef = ref(ref(FirebaseStorage), 'PostFiles/' + userId + '/' + postId);
 
