@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, deleteDoc, query, where, getDocs, Timestamp, orderBy, limit } from "firebase/firestore";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, list } from "firebase/storage";
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, list, deleteObject } from "firebase/storage";
 import { readAsStringAsync } from "expo-file-system";
 
 const firebaseConfig = {
@@ -148,6 +148,12 @@ export async function deletePost(postId, user) {
             setUserDoc({ 'upvotedPosts': userUpvotedPosts }, user);
             setDoc(doc(db, "PostIDs", 'PostIDs'), { 'IDs': postIDs }, { merge: true });
             deleteDoc(doc(db, "Posts", postId));
+
+            const folderRef = ref(ref(FirebaseStorage), 'PostFiles/' + user.uid + '/' + postId);
+            const listResult = await listAll(folderRef);
+            for (const file of listResult.items) {
+                deleteObject(file);
+            }
         }
     }
 }
