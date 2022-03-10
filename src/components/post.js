@@ -1,6 +1,6 @@
 import { get } from 'firebase/database';
 import React from 'react';
-import { Dimensions, Image, View, Text, TouchableHighlight, ScrollView } from 'react-native';
+import { Dimensions, Image, View, Text, TouchableHighlight, ScrollView, Alert } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -34,9 +34,27 @@ class Post extends React.Component {
     this.setState({postUpvoted: this.props.Upvoters.includes(user.uid), currentUser: user}); 
   }
 
-  onDeletePressed = () => {
-    deletePost(this.props.ID, this.state.currentUser);
-  }
+  onDeletePressed = () => 
+    Alert.alert(
+      "Delete Post",
+      "Are you sure you want to delete this post? This action is irreversible.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete Post",
+          onPress: () => {
+            deletePost(this.props.ID, this.state.currentUser);
+            Alert.alert("Post deleted successfully", "Refresh to see changes");
+          },
+        }
+      ],
+      {
+        cancelable: true,
+      }
+    );
 
 
   componentDidMount = () => {
