@@ -48,6 +48,12 @@ function ProfileScreen({ navigation }) {
     }
   }
 
+  function onRefresh() {
+    getPostsByUserUID(user.uid, 10).then((posts) => {
+      setUserPosts(posts);
+    })
+  }
+
   useEffect(() => {
     const subscriber = FirebaseAuth.onAuthStateChanged(onAuthStateChanged);
     console.log(subscriber);
@@ -76,10 +82,17 @@ function ProfileScreen({ navigation }) {
       <View style={{backgroundColor: '#C0C0C0', height: '100%'}}>
         <View style={AppStyle.topBar}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <TouchableOpacity onPress={signOut} style={{alignItems: 'center'}}>
-              <Ionicons name="exit" size={30} color={'white'} />
-              <Text style={AppStyle.radioMenuText}>Sign Out</Text>
-            </TouchableOpacity>
+            <View style={{flexDirection: 'row'}}>
+              <TouchableOpacity onPress={signOut} style={{alignItems: 'center'}}>
+                <Ionicons name="exit" size={30} color={'white'} />
+                <Text style={AppStyle.radioMenuText}>Sign Out</Text>
+              </TouchableOpacity>
+              <View style={{width: 15}}/>
+              <TouchableOpacity style={{alignItems: 'center'}}>
+                <Ionicons name="refresh" onPress={onRefresh} size={30} color={'white'}/>
+                <Text style={AppStyle.radioMenuText}>Refresh</Text>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity onPress={onEditModeChanged} style={{alignItems: 'center'}}>
               { editMode ? 
                 <>
