@@ -8,11 +8,8 @@ import * as Location from 'expo-location';
 import RadioForm, { RadioButton, RadioButtonInput, RadioButtonLabel } from 'react-native-simple-radio-button';
 
 import Colours from '../styles';
+import { readDirectoryAsync } from 'expo-file-system';
 
-// TODO: Data sanitisation/necessitation
-// TODO: Maximum uploads = 10
-// TODO: Add optional personal info
-// TODO: Reverse geolocate address
 
 /*
  * A form component containing provided fields in a linear column.
@@ -34,6 +31,8 @@ class LinearForm extends React.Component {
     Subheading: 'sub-heading', // text: "text to display"
     Separator: 'separator',
   }
+
+  static MAX_IMAGE_UPLOADS = 5;
 
   constructor(props) {
     super(props);
@@ -73,6 +72,7 @@ class LinearForm extends React.Component {
     this.lookupAddress = this.lookupAddress.bind(this);
     this.onChangeLatLongInput = this.onChangeLatLongInput.bind(this);
     this.reverseGeocode = this.reverseGeocode.bind(this);
+    this.pushToMissingFields = this.pushToMissingFields.bind(this);
     this.submitForm = this.submitForm.bind(this);
     this.resetForm = this.resetForm.bind(this);
     this.render = this.render.bind(this);
@@ -84,6 +84,21 @@ class LinearForm extends React.Component {
    * @returns {ReactNative View[]} - The list of components
    */
   renderFieldsIntoComponents() {
+    const renderImageAsButton = (image, index) =>
+      <Pressable
+        accessibilityLabel="Click to delete image" 
+        key={index}
+        style={this.state.stylesheet.imagePreview}
+        onPress={() => {
+          this.setState({galleryUploads: this.state.galleryUploads.filter(val => val != image)});
+        }}
+      >
+        <Image
+          style={this.state.stylesheet.imagePreview}
+          source={{uri: image.uri}}
+        />
+      </Pressable>
+
     const locationRadioProps = [
       {label: 'GPS', value: 0, tag: 'gps'},
       {label: 'Address Lookup', value: 1,  tag: 'address'},
@@ -119,13 +134,18 @@ class LinearForm extends React.Component {
         }
 
         case LinearForm.FieldTypes.GalleryUpload: {
+          let disabledStyle = (
+            this.state.galleryUploads.length == LinearForm.MAX_IMAGE_UPLOADS
+            ? {backgroundColor: Colours.DISABLED}
+            : null
+          );
           item = 
             <View key={counter} style={this.state.stylesheet.field}>
               <Pressable 
                 accessibilityLabel="Click to upload images" 
-                style={this.state.stylesheet.button} 
+                style={{...this.state.stylesheet.button, ...disabledStyle}} 
                 onPress={this.handleGalleryUpload}
-                disabled={this.state.galleryUploads.length == 5}
+                disabled={this.state.galleryUploads.length == LinearForm.MAX_IMAGE_UPLOADS}
               >
                 <Text style={this.state.stylesheet.buttonTitle}>
                   Upload Images
@@ -133,9 +153,19 @@ class LinearForm extends React.Component {
               </Pressable>
               <View style={this.state.stylesheet.mediaPreview}>
                 {this.state.galleryUploads.map(
-                  upload => <Image style={this.state.stylesheet.imagePreview} source={{uri: upload.uri}}/>
+                  (upload, index) => renderImageAsButton(upload, index)
                 )}
               </View>
+              { 
+                (this.state.galleryUploads.length > 0)
+                ? <Text style={this.state.stylesheet.text}>Click on a preview to remove it from the post!</Text>
+                : null
+              }
+              {
+                (this.state.galleryUploads.length == LinearForm.MAX_IMAGE_UPLOADS)
+                ? <Text style={this.state.stylesheet.errorMessage}>Can't upload more than {LinearForm.MAX_IMAGE_UPLOADS} images.</Text>
+                : null
+              }
             </View>
           break;
         }
@@ -160,6 +190,7 @@ class LinearForm extends React.Component {
         }
 
         case LinearForm.FieldTypes.Location: {
+          let missingStyle = this.state.missingFields.includes('location') ? {color: 'red'} : {color: 'black'};
           item = 
             <View key={counter} style={this.state.stylesheet.field}>
               <Text style={this.state.stylesheet.text}>
@@ -187,10 +218,10 @@ class LinearForm extends React.Component {
                 ))}
               </RadioForm>
               {this.getLocationMethodComponent(this.state.locationMethod)}
-              <Text style={this.state.stylesheet.text}>
+              <Text style={{...this.state.stylesheet.text, ...missingStyle}}>
                 Latitude: {this.state.coordinates.latitude} Longitude: {this.state.coordinates.longitude}
               </Text>
-              <Text style={this.state.stylesheet.text}>
+              <Text style={{...this.state.stylesheet.text, ...missingStyle}}>
                 Address: {this.state.address}
               </Text>
             </View>
@@ -417,8 +448,8 @@ class LinearForm extends React.Component {
         let coords = { latitude: locations[0].latitude, longitude: locations[0].longitude };
         this.setState({ coordinates: coords });
         this.reverseGeocode(coords);
-        this.setState({ locating: false });
       }
+      this.setState({ locating: false });
     }
     
   }
@@ -452,6 +483,13 @@ class LinearForm extends React.Component {
   }
 
 
+  pushToMissingFields(item) {
+    const newMissingFields = this.state.missingFields;
+    newMissingFields.push(item);
+    this.setState({missingFields: newMissingFields});
+  }
+
+
   /*
    * Take inputted data and format into JSON object, then pass to onSubmit()
    */
@@ -465,9 +503,7 @@ class LinearForm extends React.Component {
       if (field.type == LinearForm.FieldTypes.Question) {
         let answer = this.state.textInputs.get(field.prompt);
         if (!answer && field.required) {
-          const newMissingFields = this.state.missingFields;
-          newMissingFields.push(field.prompt);
-          this.setState({missingFields: newMissingFields});
+          this.pushToMissingFields(field.prompt);
           continue;
         } else if (!answer) {
           answer = '';
@@ -490,6 +526,11 @@ class LinearForm extends React.Component {
             if (answer) textualData.push({prompt: field.prompt, answer: answer});
         }
       }
+      else if (field.type == LinearForm.FieldTypes.Location && field.required) {
+        if (this.state.longitude == 0 && this.state.latitude == 0 || this.state.address == "") {
+          this.pushToMissingFields('location');
+        }
+      }
     }
     formJSON.textualData = textualData;
     formJSON.latitude = this.state.coordinates.latitude;
@@ -504,7 +545,6 @@ class LinearForm extends React.Component {
       const success = await this.props.onSubmit(formJSON);  // Return form data to user defined function.
       if (success) {
         this.setState({submitted: true});
-        this.resetForm();
       }
       else this.setState({errorMsg: 'Failed to upload post. Try Again'})
     } else {
@@ -515,7 +555,6 @@ class LinearForm extends React.Component {
 
 
   resetForm() {
-    console.log('resetForm - Resetting form fields.');
     this.setState({
       textInputs: new Map(),
 
@@ -528,12 +567,13 @@ class LinearForm extends React.Component {
       enteredAddress: '',
       locating: false,
 
-      submitted: false,
       submitting: false,
+      submitted: false,
       missingFields: [],
 
       errorMsg: '',
     })
+    this.render();
   }
 
 
@@ -558,6 +598,17 @@ class LinearForm extends React.Component {
             </Pressable>
             <Text style={this.state.stylesheet.errorMessage}>{this.state.errorMsg}</Text>
           </View>
+          {
+            true?//this.state.submitted ?
+            <Pressable
+              style={this.state.stylesheet.button}
+              onPress={this.resetForm}
+              accessibilityLabel="Click to make new upload."
+            >
+              <Text style={this.state.stylesheet.buttonTitle}>Upload Another Post</Text>
+            </Pressable>
+            : null
+          }
         </ScrollView>
       </View>
     )

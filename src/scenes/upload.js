@@ -14,7 +14,7 @@ const uploadFormFields = new Array(
   { type: FieldTypes.Question, prompt: 'Who is the author(s) of the research?', id: 'author', required: true },
   { type: FieldTypes.Question, prompt: 'Provide a summary of the research:', id: 'description', required: true },
   { type: FieldTypes.Question, prompt: 'Provide some comma-seperated tags for the project, for example the hazard it relates to:', id: 'tags', required: true },
-  { type: FieldTypes.Location },
+  { type: FieldTypes.Location, required: true },
   { type: FieldTypes.Subheading, text: 'Threat' },
   { type: FieldTypes.Question, prompt: 'What environmental threat does this relate to?', required: true },
   { type: FieldTypes.Question, prompt: 'How have these threats changed over the last decades?' },
