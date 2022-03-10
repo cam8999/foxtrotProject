@@ -22,7 +22,13 @@ export const FirebaseDB = getDatabase(FirebaseApp);
 export const db = getFirestore();
 export const FirebaseStorage = getStorage(FirebaseApp);
 
-export async function getUserDoc(user) {            //If a user object is provided it will return the corresponding data.
+
+/*
+  * getUserDoc returns the JSON object associated with a given user
+  * @param user - user object, which can be retrieved using getUser()
+  * @returns data {JSON Object} - returns the JSON object associated with a given user
+*/
+export async function getUserDoc(user) {
     if (user) {
         const docRef = doc(db, 'Users', user.uid);
         const docSnap = await getDoc(docRef);
@@ -42,7 +48,13 @@ export async function getUserDoc(user) {            //If a user object is provid
     }
 }
 
-export async function getPostDoc(postId) {            //If a post id is provided it will return the corresponding data.
+
+/*
+  * getPostDoc returns the JSON object associated with a given post
+  * @param postId - the string representing the ID of the post
+  * @returns data {JSON Object} - returns the JSON object associated with a given post
+*/
+export async function getPostDoc(postId) {
     if (postId) {
         const docRef = doc(db, 'Posts', postId);
         const docSnap = await getDoc(docRef);
@@ -58,29 +70,50 @@ export async function getPostDoc(postId) {            //If a post id is provided
     }
 }
 
+/*
+  * getPostIDs returns an array of IDs of all the posts stored in the database
+  * @returns postIDs {array of strings} - returns an array of IDs of all the posts stored in the database
+*/
 export async function getPostIDs() {
     const docRef = doc(db, 'PostIDs', 'PostIDs');
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-        //console.log("Document data:", docSnap.data());
         return docSnap.data().IDs;
     } else {
         return undefined;
     }
 }
 
+
+/*
+  * setUserDoc - updates the data associated with the user in the database
+  * @param params - JSON object specifying the key value pairs to be updated in the DB
+  * @param user - The user object of the currently logged in user
+*/
 export async function setUserDoc(params, user) {
     if (user) {
         setDoc(doc(db, "Users", user.uid), params, { merge: true });
     }
 }
 
+
+/*
+  * setPostDoc - updates the data associated with the post in the database
+  * @param params - JSON object specifying the key value pairs to be updated in the DB
+  * @param postId - The postID
+*/
 export async function setPostDoc(params, postId) {
     //console.log(postId);
     setDoc(doc(db, "Posts", postId), params, { merge: true });
 }
 
+
+/*
+  * uploadPostToDB - uploades the post to the databse and initialises some of the relevant fields, such as Upvoters, Upvotes, UID of the user who posted, the timestamp and the UID of the Post
+  * @param params - JSON object specifying the key value pairs to be uploaded in the DB for the post
+  * @param user - The user object of the currently logged in user
+*/
 export async function uploadPostToDB(postJSON, user) {
     if (user) {
         const userDoc = await getUserDoc(user);
@@ -93,8 +126,6 @@ export async function uploadPostToDB(postJSON, user) {
         let postRef = await addDoc(collection(db, 'Posts'), postJSON);
         if (!userPostData) userPostData = [];
         userPostData.push(postRef.id);
-        //console.log("Upload logs");
-        //console.log(userPostData);
         setUserDoc({ 'Posts': userPostData }, user);
         postIDs = await getPostIDs();
         if (!postIDs) postIDs = [];
@@ -106,10 +137,20 @@ export async function uploadPostToDB(postJSON, user) {
     throw 'User is not logged in!';
 }
 
+
+/*
+  * getUser - returns the object specifying the currently logged in user
+  * @returns user {JSON object} - the object specifying the currently logged in user
+*/
 export async function getUser() {
     return FirebaseAuth.currentUser;
 }
 
+/*
+  * togglePostUpvote - Upvotes/removes the upvote from a given post and updates the DB
+  * @param postId - The postID
+  * @param user - The user object of the currently logged in user
+*/
 export async function togglePostUpvote(postId, user) {
     const userDoc = await getUserDoc(user);
     const postDoc = await getPostDoc(postId);
@@ -133,7 +174,11 @@ export async function togglePostUpvote(postId, user) {
     setPostDoc({ 'Upvoters': upvoters, 'Upvotes': upvotes }, postId);
 }
 
-
+/*
+  * deletePost - Removes the post from the DB and ensures the consistency of the state of the DB
+  * @param postId - The postID
+  * @param user - The user object of the currently logged in user. The user must be the one to have uploaded the post in the first place.
+*/
 export async function deletePost(postId, user) {
     if (user) {
         const userDoc = await getUserDoc(user);
@@ -158,7 +203,11 @@ export async function deletePost(postId, user) {
     }
 }
 
-
+/*
+  * snapshotToArray - translates a query to an array of JSON objects representing posts
+  * @param q - the query
+  * @return postsArray {array of JSON objects} - the objects representing the relevant posts
+*/
 async function snapshotToArray(q) {
     const querySnapshot = await getDocs(q);
     let postsArray = [];
@@ -169,7 +218,14 @@ async function snapshotToArray(q) {
     return postsArray;
 }
 
-
+/*
+  * snapshotToArrayCoordinates - translates a query by coordinates to an array of JSON objects representing posts
+  * @param q - the query
+  * @param longitude - the longitude for the coordinates
+  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param limitVal - specifies how many posts to return
+  * @return postsArray {array of JSON objects} - the objects representing the relevant posts
+*/
 async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal) {
     const querySnapshot = await getDocs(q);
     let postsArray = [];
@@ -195,7 +251,13 @@ async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal
     }
 }
 
-
+/*
+  * getPostsByLocation - returns the posts searched by the location given
+  * @param location - the location with which to search
+  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param limitVal - specifies how many posts to return
+  * @return postsArray {array of JSON objects} - the objects representing the relevant posts
+*/
 export async function getPostsByLocation(location, limitVal = 100, orderByUpvotes = false) {
     queries = [
         { attributeName: 'location', operator: '==', attributeValue: location }
@@ -203,12 +265,23 @@ export async function getPostsByLocation(location, limitVal = 100, orderByUpvote
     return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
 
-
+/*
+  * getTopPosts - returns the top posts to display to the user
+  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param limitVal - specifies how many posts to return
+  * @return postsArray {array of JSON objects} - the objects representing the relevant posts
+*/
 export async function getTopPosts(limitVal = 100, orderByUpvotes = false) {
     return getPostsByAttributes([], limitVal, orderByUpvotes);
 }
 
-
+/*
+  * getPostsByTitle - returns the posts searched by the title given
+  * @param title - the title with which to search
+  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param limitVal - specifies how many posts to return
+  * @return postsArray {array of JSON objects} - the objects representing the relevant posts
+*/
 export async function getPostsByTitle(title, limitVal = 100, orderByUpvotes = false) {
     queries = [
         { attributeName: 'title', operator: '==', attributeValue: title }
@@ -216,7 +289,13 @@ export async function getPostsByTitle(title, limitVal = 100, orderByUpvotes = fa
     return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
 
-
+/*
+  * getPostsByUserUID - returns the posts searched by the user UID given
+  * @param uid - the uid with which to search
+  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param limitVal - specifies how many posts to return
+  * @return postsArray {array of JSON objects} - the objects representing the relevant posts
+*/
 export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = false) {
     queries = [
         { attributeName: 'userUID', operator: '==', attributeValue: uid }
@@ -224,7 +303,13 @@ export async function getPostsByUserUID(uid, limitVal = 100, orderByUpvotes = fa
     return getPostsByAttributes(queries, limitVal, orderByUpvotes);
 }
 
-
+/*
+  * getPostsByTag - returns the posts searched by the tag given
+  * @param tag - the tag with which to search
+  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param limitVal - specifies how many posts to return
+  * @return postsArray {array of JSON objects} - the objects representing the relevant posts
+*/
 export async function getPostsByTag(tag, limitVal = 100, orderByUpvotes = false) {
     queries = [
         { attributeName: 'tags', operator: 'array-contains', attributeValue: tag }
@@ -252,7 +337,13 @@ async function getPostsByAttributes(attributeQueries, limitVal, orderByUpvotes) 
     return queriedPosts;
 }
 
-
+/*
+  * getPostsByCoordinates - returns the posts searched by the coordinates given
+  * @param coordinates - the coordinates with which to search
+  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param limitVal - specifies how many posts to return
+  * @return postsArray {array of JSON objects} - the objects representing the relevant posts
+*/
 export async function getPostsByCoordinates(coordinates, limitVal = 100, orderByUpvotes = false) {
     let q;
     let latitude = coordinates.Latitude;
@@ -267,6 +358,14 @@ export async function getPostsByCoordinates(coordinates, limitVal = 100, orderBy
     return snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal);
 }
 
+
+/*
+  * getPostsByusername - returns the posts searched by the username of the creator given
+  * @param username - the username with which to search
+  * @param orderByUpvotes - specifies wether to order by upvotes
+  * @param limitVal - specifies how many posts to return
+  * @return postsArray {array of JSON objects} - the objects representing the relevant posts
+*/
 export async function getPostsByUsername(username, limitVal = 100, orderByUpvotes = false) {
     let userQuery = query(collection(db, "Users"), where("Username", "==", username), limit(1));
     const querySnapshot = await getDocs(userQuery);
@@ -336,7 +435,7 @@ export async function uploadFilesToDB(files, postId, userId) {
 // need to have limit on size of number of files uploaded, otherwise listAll consumes too many resources
 export async function getFilesForPost(postId, userId) {
     const folderRef = ref(ref(FirebaseStorage), 'PostFiles/' + userId + '/' + postId);
-    
+
     var fileURLs = [];
     const listResult = await listAll(folderRef);
     for (const file of listResult.items) {
