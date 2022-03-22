@@ -1,9 +1,9 @@
 import React from 'react';
-import {View, Text, Alert, Button, TouchableOpacity} from 'react-native';
-import {StyleSheet} from 'react-native';
-import {Dimensions} from 'react-native';
+import { View, Text, Alert, Button, TouchableOpacity } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Dimensions } from 'react-native';
 import MapView from 'react-native-maps';
-import {Marker} from 'react-native-maps';
+import { Marker } from 'react-native-maps';
 import { useState, useEffect } from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { getTopPosts } from '../firebase-config';
@@ -13,12 +13,12 @@ import { AppStyle } from '../styles';
 
 
 
-function MapScreen({navigation}) {
+function MapScreen({ navigation }) {
 
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-     refreshPosts(); 
+    refreshPosts();
   }, []);
 
   async function refreshPosts() {
@@ -38,7 +38,7 @@ function MapScreen({navigation}) {
     },
     map: {
       width: Dimensions.get('window').width,
-      height: Dimensions.get('window').height*0.8,
+      height: Dimensions.get('window').height * 0.8,
     },
   });
 
@@ -51,14 +51,14 @@ function MapScreen({navigation}) {
 
   return (
     <View style={AppStyle.homeContainer}>
-      <View style={[AppStyle.topBar, {flexDirection: 'row'}]}>
-        <TouchableOpacity onPress={() => refreshPosts()} style={{alignItems: 'center'}}>
-          <Ionicons name="refresh" size={30} color={'white'}/>
+      <View style={[AppStyle.topBar, { flexDirection: 'row' }]}>
+        <TouchableOpacity onPress={() => refreshPosts()} style={{ alignItems: 'center' }}>
+          <Ionicons name="refresh" size={30} color={'white'} />
           <Text style={AppStyle.radioMenuText}>Refresh</Text>
         </TouchableOpacity>
-        <View/>
+        <View />
       </View>
-      <MapView style={[styles.map, {flex: 1}]} 
+      <MapView style={[styles.map, { flex: 1 }]}
         initialRegion={{
           latitude: 0,
           longitude: 0,
@@ -67,13 +67,13 @@ function MapScreen({navigation}) {
         }}
         onRegionChangeComplete={(region) => setRegion(region)}
       >
-        {posts.map((marker, index) => 
+        {posts.map((marker, index) =>
           <Marker
-            coordinate={{latitude: marker.latitude, longitude: marker.longitude}}
-            key = {index}
-            title = {marker.title}
+            coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
+            key={index}
+            title={marker.title}
             description={marker.description}
-            onPress={(e) => {e.stopPropagation(); navigation.navigate("Home", {postsToDisplay: marker});}}
+            onPress={(e) => { e.stopPropagation(); navigation.navigate("Home", { postsToDisplay: marker }); }}
           />
         )}
       </MapView>

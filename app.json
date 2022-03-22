@@ -24,6 +24,11 @@
     "android": {
       "package": "com.foxtrot.project",
       "googleServicesFile": "./google-services.json",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDuR5AYaQ68rymeKqHjSe_u4TCr6ZNGqa4"
+        }
+      },
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
@@ -31,7 +36,6 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-      
     }
   }
 }
