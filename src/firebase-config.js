@@ -4,9 +4,10 @@ import { getDatabase } from "firebase/database";
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, deleteDoc, query, where, getDocs, Timestamp, orderBy, limit } from "firebase/firestore";
 import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, list, deleteObject } from "firebase/storage";
 import { readAsStringAsync } from "expo-file-system";
+import { FIREBASE_API_KEY } from "@env";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDyFygporWON-sAA5rJ17xbiTXi-vJhtm8",
+    apiKey: FIREBASE_API_KEY,
     authDomain: "foxtrotproject-678f5.firebaseapp.com",
     projectId: "foxtrotproject-678f5",
     storageBucket: "foxtrotproject-678f5.appspot.com",

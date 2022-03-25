@@ -31,20 +31,20 @@ function ProfileScreen({ navigation }) {
       setUserPosition(doc.Position);
       setUserDescription(doc.Description);
     }).then(
-    getPostsByUserUID(user.uid, 10).then((posts) => {
-      setUserPosts(posts);
-    }));
+      getPostsByUserUID(user.uid, 10).then((posts) => {
+        setUserPosts(posts);
+      }));
     if (initializing) setInitializing(false);
-    setUserName(user.displayName); 
+    setUserName(user.displayName);
   }
 
   function onEditModeChanged() {
-    if (editMode) { 
-      setEditMode(false); 
-      changeDetails(); 
-    } else { 
-      profileScrollRef.current?.scrollTo({y: 0, animated: true});
-      setEditMode(true); 
+    if (editMode) {
+      setEditMode(false);
+      changeDetails();
+    } else {
+      profileScrollRef.current?.scrollTo({ y: 0, animated: true });
+      setEditMode(true);
     }
   }
 
@@ -56,7 +56,7 @@ function ProfileScreen({ navigation }) {
 
   useEffect(() => {
     const subscriber = FirebaseAuth.onAuthStateChanged(onAuthStateChanged);
-    console.log(subscriber);
+    //console.log(subscriber);
     return subscriber; // unsubscribe on unmount
   }, []);
 
@@ -76,30 +76,30 @@ function ProfileScreen({ navigation }) {
     FirebaseAuth.signOut().then(() => console.log("Signed out"));
   }
 
-  console.log(user);
+  //console.log(user);
   if (user) {
     return (
-      <View style={{backgroundColor: '#C0C0C0', height: '100%'}}>
+      <View style={{ backgroundColor: '#C0C0C0', height: '100%' }}>
         <View style={AppStyle.topBar}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <View style={{flexDirection: 'row'}}>
-              <TouchableOpacity onPress={signOut} style={{alignItems: 'center'}}>
+            <View style={{ flexDirection: 'row' }}>
+              <TouchableOpacity onPress={signOut} style={{ alignItems: 'center' }}>
                 <Ionicons name="exit" size={30} color={'white'} />
                 <Text style={AppStyle.radioMenuText}>Sign Out</Text>
               </TouchableOpacity>
-              <View style={{width: 15}}/>
-              <TouchableOpacity style={{alignItems: 'center'}}>
-                <Ionicons name="refresh" onPress={onRefresh} size={30} color={'white'}/>
+              <View style={{ width: 15 }} />
+              <TouchableOpacity style={{ alignItems: 'center' }}>
+                <Ionicons name="refresh" onPress={onRefresh} size={30} color={'white'} />
                 <Text style={AppStyle.radioMenuText}>Refresh</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={onEditModeChanged} style={{alignItems: 'center'}}>
-              { editMode ? 
+            <TouchableOpacity onPress={onEditModeChanged} style={{ alignItems: 'center' }}>
+              {editMode ?
                 <>
                   <Ionicons name="checkmark" size={30} color={'white'} />
                   <Text style={AppStyle.radioMenuText}>Save Changes</Text>
                 </>
-              :
+                :
                 <>
                   <Ionicons name="pencil" size={30} color={'white'} />
                   <Text style={AppStyle.radioMenuText}>Edit Profile</Text>
@@ -117,7 +117,7 @@ function ProfileScreen({ navigation }) {
                   defaultValue={user.displayName == "" ? "Name" : user.displayName}
                   onChangeText={setUserName}
                   editable={editMode}
-                  placeholder={'Name'} 
+                  placeholder={'Name'}
                 />
               </View>
               <View style={{ flexDirection: 'row' }}>
@@ -126,7 +126,7 @@ function ProfileScreen({ navigation }) {
                     defaultValue={userPosition}
                     editable={editMode}
                     placeholder={'Community Position'}
-                    onChangeText={setUserPosition} 
+                    onChangeText={setUserPosition}
                   />
                 </View>
                 <View style={[AppStyle.profileComponent, { flex: 1 }]}>
@@ -135,7 +135,7 @@ function ProfileScreen({ navigation }) {
                     editable={editMode}
                     placeholder={'Age'}
                     keyboardType={'number-pad'}
-                    onChangeText={setUserAge} 
+                    onChangeText={setUserAge}
                   />
                 </View>
               </View>
@@ -145,7 +145,7 @@ function ProfileScreen({ navigation }) {
                   defaultValue={userLocation}
                   editable={editMode}
                   placeholder={'Location'}
-                  onChangeText={setUserLocation} 
+                  onChangeText={setUserLocation}
                 />
               </View>
               <TextInput
@@ -153,18 +153,18 @@ function ProfileScreen({ navigation }) {
                 defaultValue={userDescription}
                 editable={editMode}
                 placeholder={'User description...'}
-                onChangeText={setUserDescription} 
+                onChangeText={setUserDescription}
               />
             </View>
-            <View style={[AppStyle.postsContainer, {width: '100%', height: '100%'}]}>
-              {userPosts.length == 0 ? 
+            <View style={[AppStyle.postsContainer, { width: '100%', height: '100%' }]}>
+              {userPosts.length == 0 ?
                 <View style={AppStyle.bubble}>
-                  <Text style={AppStyle.lightText}>No Posts</Text>  
+                  <Text style={AppStyle.lightText}>No Posts</Text>
                 </View>
-              : null }
-              {userPosts.map((post) => <Post {...post} key={post.id} displayDelete={true}/>)}
+                : null}
+              {userPosts.map((post) => <Post {...post} key={post.id} displayDelete={true} />)}
             </View>
-            <View style={{height:15}}></View>
+            <View style={{ height: 15 }}></View>
           </View>
         </ScrollView>
       </View>

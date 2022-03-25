@@ -9,9 +9,9 @@ const FieldTypes = LinearForm.FieldTypes;
 const uploadFormFields = new Array(
   { type: FieldTypes.Heading, text: "Upload a Post" },
   { type: FieldTypes.Subheading, text: 'General Information' },
-  { type: FieldTypes.Question, prompt: 'What is the title of the research?', id: 'title', required: true },
-  { type: FieldTypes.Question, prompt: 'Who is the author(s) of the research?', id: 'author', required: true },
-  { type: FieldTypes.Question, prompt: 'Provide a summary of the research:', id: 'description', required: true },
+  { type: FieldTypes.Question, prompt: 'What is the title of the observation?', id: 'title', required: true },
+  { type: FieldTypes.Question, prompt: 'Who is the author(s) of the observation?', id: 'author', required: true },
+  { type: FieldTypes.Question, prompt: 'Provide a summary of the observation:', id: 'description', required: true },
   { type: FieldTypes.Question, prompt: 'Provide some comma-seperated tags for the project, for example the hazard it relates to:', id: 'tags', required: true },
   { type: FieldTypes.Location, required: true },
   { type: FieldTypes.Subheading, text: 'Threat' },
@@ -27,7 +27,7 @@ const uploadFormFields = new Array(
   { type: FieldTypes.Question, prompt: 'What proof do you have of these outcomes?', required: true },
   { type: FieldTypes.Question, prompt: 'Could the actions taken be applied elsewhere?', required: true },
   { type: FieldTypes.Heading, text: 'Source of Knowledge' },
-  { type: FieldTypes.Question, prompt: 'Are you reporting first-hand, or on behalf of someone else?', required: true},
+  { type: FieldTypes.Question, prompt: 'Are you reporting first-hand, or on behalf of someone else?', required: true },
   { type: FieldTypes.Question, prompt: 'What is the status in the community of the knowledge holder?' },
   { type: FieldTypes.Question, prompt: 'What related experience does the knowledge holder have?', required: true },
   { type: FieldTypes.Heading, text: "Files, Images and Videos" },
@@ -175,8 +175,8 @@ export const UploadFormStyle = StyleSheet.create({
 function UploadScreen({ navigation }) {
   return (
     <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: '#C0C0C0' }}>
-      <View style={[AppStyle.topBar, {flexDirection: 'row'}]}/>
-      <LinearForm 
+      <View style={[AppStyle.topBar, { flexDirection: 'row' }]} />
+      <LinearForm
         fields={uploadFormFields}
         documentUploadTypes={acceptedDocumentTypes}
         onSubmit={uploadFormDataToDB}

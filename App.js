@@ -33,7 +33,7 @@ export async function checkSignInStatus() {
 export default function App() {
   //console.log("test");
 
-  
+
   // Set an initializing state whilst Firebase connects
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState();
@@ -46,11 +46,11 @@ export default function App() {
     console.log("Auth Prints User");
     checkSignInStatus();
     getUserDoc(user);
-    console.log(user);
+    //console.log(user);
   }
   useEffect(() => {
     const subscriber = FirebaseAuth.onAuthStateChanged(onAuthStateChanged);
-    console.log(subscriber);
+    //console.log(subscriber);
     return subscriber; // unsubscribe on unmount
   }, []);
 

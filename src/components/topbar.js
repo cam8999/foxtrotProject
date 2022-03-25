@@ -13,21 +13,21 @@ const searchOptionList = [
   { label: 'Location', value: 3 },
 ];
 
-TopBar = ({navigation, onSearch}) => {
+TopBar = ({ navigation, onSearch }) => {
   const [checked, setChecked] = useState('title');
   const [searchQuery, setSearchQuery] = useState('');
-  
+
   const onQuery = () => {
     //props.navigation.navigate('Home');
     onSearch(searchQuery, checked);
     setSearchQuery('');
   }
 
-  
+
   const renderRadioForm =
     <View style={AppStyle.radioButtonContainer}>
-      <Text style={[AppStyle.radioMenuText, {flex: 2}]}>Search by:</Text>
-      <RadioForm 
+      <Text style={[AppStyle.radioMenuText, { flex: 2 }]}>Search by:</Text>
+      <RadioForm
         formHorizontal={true}
         style={{ justifyContent: 'space-around', flex: 8 }}>
         {searchOptionList.map((option, i) => (
@@ -52,12 +52,12 @@ TopBar = ({navigation, onSearch}) => {
         ))}
       </RadioForm>
     </View>
-  
+
   return (
     <View style={AppStyle.topBar}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <TouchableOpacity onPress={() => onSearch('', checked)} style={{alignItems: 'center', paddingHorizontal: 10}}>
-          <Ionicons name="refresh" size={30} color={'white'}/>
+        <TouchableOpacity onPress={() => onSearch('', checked)} style={{ alignItems: 'center', paddingHorizontal: 10 }}>
+          <Ionicons name="refresh" size={30} color={'white'} />
         </TouchableOpacity>
         <View style={AppStyle.searchBarContainer}>
           <Searchbar
@@ -66,6 +66,7 @@ TopBar = ({navigation, onSearch}) => {
             onChangeText={setSearchQuery}
             value={searchQuery}
             onIconPress={onQuery}
+            onSubmitEditing={onQuery}
           />
         </View>
       </View>

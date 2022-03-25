@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, Image, View, Text, TouchableHighlight, ScrollView, Button } from 'react-native';
+import { Dimensions, Image, View, Text, TouchableHighlight, ScrollView, Button, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
@@ -33,11 +33,11 @@ class Post extends React.Component {
 
   async determineIfUpvoted() {
     let user = await getUser();
-    console.log(user);
-    this.setState({postUpvoted: this.props.Upvoters.includes(user.uid), currentUser: user}); 
+    //console.log(user);
+    this.setState({ postUpvoted: this.props.Upvoters.includes(user.uid), currentUser: user });
   }
 
-  onDeletePressed = () => 
+  onDeletePressed = () =>
     Alert.alert(
       "Delete Post",
       "Are you sure you want to delete this post? This action is irreversible.",
@@ -75,16 +75,16 @@ class Post extends React.Component {
 
 
   onUpvotePressed = () => {
-      if (this.state.postUpvoted) this.setState({ postUpvoted: false, upvotes: this.state.upvotes - 1 });
-      else this.setState({ postUpvoted: true, upvotes: this.state.upvotes + 1 });
-      getUser().then(user => togglePostUpvote(this.props.ID, user));
+    if (this.state.postUpvoted) this.setState({ postUpvoted: false, upvotes: this.state.upvotes - 1 });
+    else this.setState({ postUpvoted: true, upvotes: this.state.upvotes + 1 });
+    getUser().then(user => togglePostUpvote(this.props.ID, user));
   }
 
-  startDownload = () => this.setState({download: true});
+  startDownload = () => this.setState({ download: true });
 
   render() {
     if (this.state.renderSummary) return (
-      <View style={[AppStyle.post, {width: this.state.mediaWidth}]}>
+      <View style={[AppStyle.post, { width: this.state.mediaWidth }]}>
         <Text style={AppStyle.postHeader}>
           {this.props.author}
           <Text style={AppStyle.primary}> {this.props.location}</Text>
@@ -92,9 +92,9 @@ class Post extends React.Component {
         {
           (this.props.media && this.props.media.length > 0) ?
             <Image
-              style={{ 
+              style={{
                 width: this.state.mediaWidth,
-                height: this.state.mediaHeight, 
+                height: this.state.mediaHeight,
               }}
               source={{ uri: this.props.media[0].uri }}
             />
@@ -107,22 +107,22 @@ class Post extends React.Component {
           {this.props.description}
         </Text>
         <View style={AppStyle.postUpvoteBar}>
-          <View style={{flexDirection: 'row'}}>
+          <View style={{ flexDirection: 'row' }}>
             <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>
               {this.state.postUpvoted ?
                 <Ionicons name="heart" size={16} color={Colours.PRIMARY} />
                 : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY} />}
             </TouchableHighlight>
-            <Text style={{color: '#C0C0C0'}}>{''} {this.state.upvotes} upvotes</Text>
+            <Text style={{ color: '#C0C0C0' }}>{''} {this.state.upvotes} upvotes</Text>
           </View>
           {this.props.displayDelete ?
             <TouchableHighlight underlayColor='white' onPress={this.onDeletePressed}>
               <Ionicons name="trash" size={16} color={Colours.PRIMARY} />
             </TouchableHighlight>
-          : null}
+            : null}
         </View>
       </View>
-      );
+    );
     else return (
       <View style={AppStyle.post}>
         <Text style={AppStyle.postHeader}>
@@ -132,15 +132,15 @@ class Post extends React.Component {
         <ScrollView
           horizontal={true}
         >
-          { 
+          {
             (this.props.media && this.props.media.length > 0) ?
-              this.props.media.map((image, index) => 
+              this.props.media.map((image, index) =>
                 <Image
-                  style={{ 
+                  style={{
                     width: this.state.mediaWidth,
-                    height: this.state.mediaHeight, 
+                    height: this.state.mediaHeight,
                   }}
-                  source={{uri: image.uri}}
+                  source={{ uri: image.uri }}
                   key={index}
                 />
               )
@@ -165,43 +165,43 @@ class Post extends React.Component {
 
         {
           this.props.documents ?
-          <Button 
-            title={this.state.download ? 'Downloaded' : 'Click to download files and videos!'}
-            color={Colours.PRIMARY}
-            onPress={this.startDownload}
-            disabled={this.state.download}
-          />
-          : null
+            <Button
+              title={this.state.download ? 'Downloaded' : 'Click to download files and videos!'}
+              color={Colours.PRIMARY}
+              onPress={this.startDownload}
+              disabled={this.state.download}
+            />
+            : null
         }
         {
-          (this.state.download) ? 
-          this.props.documents.map((file, index) => {
-            return (
-            <WebView
-              key={index}
-              style={{ 
-                width: 1, height: 1
-              }}
-              source={{uri: file.uri}}
-            />)
-          })
-          : null
+          (this.state.download) ?
+            this.props.documents.map((file, index) => {
+              return (
+                <WebView
+                  key={index}
+                  style={{
+                    width: 1, height: 1
+                  }}
+                  source={{ uri: file.uri }}
+                />)
+            })
+            : null
         }
 
         <View style={AppStyle.postUpvoteBar}>
-          <View style={{flexDirection: 'row'}}>
+          <View style={{ flexDirection: 'row' }}>
             <TouchableHighlight onPress={this.onUpvotePressed} underlayColor='white'>
               {this.state.postUpvoted ?
                 <Ionicons name="heart" size={16} color={Colours.PRIMARY} />
                 : <Ionicons name="heart-outline" size={16} color={Colours.PRIMARY} />}
             </TouchableHighlight>
-            <Text style={{color: '#C0C0C0'}}>{''} {this.state.upvotes} upvotes</Text>
+            <Text style={{ color: '#C0C0C0' }}>{''} {this.state.upvotes} upvotes</Text>
           </View>
           {this.props.displayDelete ?
             <TouchableHighlight underlayColor='white' onPress={this.onDeletePressed}>
               <Ionicons name="trash" size={16} color={Colours.PRIMARY} />
             </TouchableHighlight>
-          : null}
+            : null}
         </View>
       </View>
     );
