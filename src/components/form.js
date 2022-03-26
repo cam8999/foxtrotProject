@@ -291,11 +291,11 @@ class LinearForm extends React.Component {
 
 
   /*
-   * Open ImagePicker and store a single chosen image/video in state.galleryUploads
+   * Open ImagePicker and store a single chosen image in state.galleryUploads
    */
   async handleGalleryUpload() {
     if (!this.ensureMediaLibraryAccess()) {
-      console.log("Need media library access permissions to upload image.");
+      console.error("Need media library access permissions to upload image.");
       return;
     }
     let upload = await ImagePicker.launchImageLibraryAsync({

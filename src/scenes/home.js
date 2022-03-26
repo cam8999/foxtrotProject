@@ -3,7 +3,7 @@ import { React, useState, useEffect } from 'react';
 import { View, ScrollView, Text, FlatList, Pressable, TouchableOpacity, StatusBar } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { getTopPosts, getPostsByTag, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB } from '../firebase-config';
+import { getTopPosts, getPostsByTag, getPostsByLocation, getPostsByUsername, getPostsByTitle, getFilesForPost, uploadPostToDB, getPostsByCoordinates } from '../firebase-config';
 import Post from '../components/post';
 import TopBar from '../components/topbar';
 import { AppStyle } from '../styles';
@@ -13,7 +13,6 @@ function HomeScreen({ route, navigation }) {
   const [posts, setPosts] = useState([]);
   const [focused, setFocused] = useState(false);
   const [focusedPost, setFocusedPost] = useState();
-  const [backupPosts, setBackupPosts] = useState([]);
 
   useEffect(() => {
     if (route.params) {
@@ -43,21 +42,20 @@ function HomeScreen({ route, navigation }) {
 
   async function filterPosts(query, queryType) {
     let promise;
-    console.log('filterPosts - Downloading Posts');
-    console.log('filterPosts - Query type: ' + queryType);
+    console.log(TopBar.searchOptions);
     if (query == '' || queryType == null) promise = getTopPosts();
     else {
       switch (queryType) {
-        case 2:
+        case TopBar.searchOptions.Tags:
           promise = getPostsByTag(query);
           break;
-        case 3:
+        case TopBar.searchOptions.Location:
           promise = getPostsByLocation(query);
           break;
-        case 1:
+        case TopBar.searchOptions.Author:
           promise = getPostsByUsername(query);
           break;
-        case 0:
+        case TopBar.searchOptions.Title:
           promise = getPostsByTitle(query);
           break;
         default:
@@ -65,14 +63,11 @@ function HomeScreen({ route, navigation }) {
           return;
       }
     }
-    console.log('filterPosts - Awaiting Posts');
     let downloadedPosts = await promise;
-    console.log('filterPosts - Downloaded Posts');
     if (downloadedPosts) {
       downloadedPosts.forEach((post, index) => post.id = index);
       setPosts(downloadedPosts);
       Promise.all(downloadedPosts.map(post => addFilesToPost(post))).then(ps => setPosts(ps));
-      console.log('filterPosts - Downloaded Images for Posts');
       refreshPosts();
     }
     

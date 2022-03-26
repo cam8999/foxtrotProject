@@ -6,6 +6,8 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL, listAll, list, d
 import { readAsStringAsync } from "expo-file-system";
 import { FIREBASE_API_KEY } from "@env";
 
+import * as Location from 'expo-location';
+
 const firebaseConfig = {
     apiKey: FIREBASE_API_KEY,
     authDomain: "foxtrotproject-678f5.firebaseapp.com",
@@ -15,7 +17,6 @@ const firebaseConfig = {
     appId: "1:698723331692:web:5279b9249b96148331f249",
     databaseURL: "https://foxtrotproject-678f5-default-rtdb.europe-west1.firebasedatabase.app/"
 };
-
 
 export const FirebaseApp = initializeApp(firebaseConfig);
 export const FirebaseAuth = getAuth(FirebaseApp);
@@ -223,19 +224,21 @@ async function snapshotToArray(q) {
   * snapshotToArrayCoordinates - translates a query by coordinates to an array of JSON objects representing posts
   * @param q - the query
   * @param longitude - the longitude for the coordinates
+  * @param range - the area to search around the supplied coordinates
   * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
-async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal) {
+async function snapshotToArrayCoordinates(q, longitude, range, orderByUpvotes, limitVal) {
     const querySnapshot = await getDocs(q);
     let postsArray = [];
     querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
-        if (doc.data().Longitude >= longitude - 1 / 3 && doc.data().Longitude <= longitude + 1 / 3) {
+        if (doc.data().longitude >= longitude - range && doc.data().longitude <= longitude + range) {
             postsArray.push(doc.data());
         }
     });
+
     if (orderByUpvotes) {
         postsArray.sort(function (a, b) {
             return b.Upvotes - a.Upvotes;
@@ -259,11 +262,17 @@ async function snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
-export async function getPostsByLocation(location, limitVal = 100, orderByUpvotes = false) {
-    queries = [
-        { attributeName: 'location', operator: '==', attributeValue: location }
-    ]
-    return getPostsByAttributes(queries, limitVal, orderByUpvotes);
+export async function getPostsByLocation(address, limitVal = 100, orderByUpvotes = false) {
+    let currPermission = await Location.requestForegroundPermissionsAsync();
+    if (currPermission.granted) {
+        let locations = await Location.geocodeAsync(address);
+        if (locations.length > 0) {
+            let coords = { latitude: locations[0].latitude, longitude: locations[0].longitude };
+            return await getPostsByCoordinates(coords, 1, limitVal, orderByUpvotes);
+        }
+    }
+    return [];
+    
 }
 
 /*
@@ -341,22 +350,24 @@ async function getPostsByAttributes(attributeQueries, limitVal, orderByUpvotes) 
 /*
   * getPostsByCoordinates - returns the posts searched by the coordinates given
   * @param coordinates - the coordinates with which to search
+  * @param range - the area to search around the supplied coordinates
   * @param orderByUpvotes - specifies whether to order by upvotes
   * @param limitVal - specifies how many posts to return
   * @return postsArray {array of JSON objects} - the objects representing the relevant posts
 */
-export async function getPostsByCoordinates(coordinates, limitVal = 100, orderByUpvotes = false) {
+export async function getPostsByCoordinates(coordinates, range = 1/6, limitVal = 100, orderByUpvotes = false) {
     let q;
-    let latitude = coordinates.Latitude;
-    let longitude = coordinates.Longitude;
+    let latitude = coordinates.latitude;
+    let longitude = coordinates.longitude;
+    console.log('getPostsByCoordinates %f %f %f', latitude, longitude, range);
     if (!orderByUpvotes) {
-        q = query(collection(db, "Posts"), where("Latitude", ">=", latitude - 1 / 6), where("Latitude", "<=", latitude + 1 / 6));
+        q = query(collection(db, "Posts"), where("latitude", ">=", latitude - range), where("latitude", "<=", latitude + range));
 
     } else {
-        q = query(collection(db, "Posts"), where("Latitude", ">=", latitude - 1 / 6), where("Latitude", "<=", latitude + 1 / 6));
+        q = query(collection(db, "Posts"), where("latitude", ">=", latitude - range), where("latitude", "<=", latitude + range));
 
     }
-    return snapshotToArrayCoordinates(q, longitude, orderByUpvotes, limitVal);
+    return snapshotToArrayCoordinates(q, longitude, range, orderByUpvotes, limitVal);
 }
 
 

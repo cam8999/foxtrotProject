@@ -75,4 +75,10 @@ TopBar = ({ navigation, onSearch }) => {
   )
 }
 
+let searchOptions = {}
+for (const option of searchOptionList) {
+  searchOptions[option.label] = option.value;
+}
+TopBar.searchOptions = searchOptions;
+
 export default TopBar;
