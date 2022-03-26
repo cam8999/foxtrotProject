@@ -37,18 +37,21 @@ const uploadFormFields = new Array(
 )
 
 
-const acceptedDocumentTypes = new Array(  // List of document (non-media) file formats to accept as uploads.
+const acceptedDocumentTypes = new Array(  // List of document (non-image) file formats to accept as uploads.
   'application/msword',  // .doc
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',  // .docx
   'application/pdf',  // .pdf
   'application/vnd.oasis.opendocument.text',  // .odt
   'application/vnd.ms-powerpoint',  // .ppt
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',  // .pptx
-  'text/plain',  // .txt
+  'audio/mpeg',  // .mp3
+  'audio/wav',  // .wav
+  'text/plain',   // .txt
+  'video/3gpp',  // 3GP mobile video
+  'video/mp4',  // mp4 video
 )
 
 
-// TODO: Integrate with uploadPostToDB in main branch
 async function uploadFormDataToDB(formData) {
   console.log("uploadFormDataToDB - uploading form");
 
