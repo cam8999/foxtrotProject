@@ -1,9 +1,12 @@
 import React from 'react';
 import { Dimensions, Image, View, Text, TouchableHighlight, ScrollView, Button, Alert } from 'react-native';
+
+import { downloadAsync, documentDirectory } from 'expo-file-system';
+import { requestPermissionsAsync, saveToLibraryAsync } from 'expo-media-library';
 import { WebView } from 'react-native-webview';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-import { getUser, togglePostUpvote, deletePost } from '../firebase-config';
+import { FirebaseStorage, getUser, togglePostUpvote, deletePost } from '../firebase-config';
 import Colours, { AppStyle } from '../styles';
 
 
@@ -22,19 +25,26 @@ class Post extends React.Component {
       mediaHeight: 0,
 
       download: false,
-      downloaded: false,
+      postFiles: [],  // Array of all documents and media used for downloading.
+
     }
     if (this.props.media) this.props.media.forEach((item, index) => item.key = index);
     this.determineIfUpvoted.bind(this)();
     this.render = this.render.bind(this);
-    console.log(this.props.documents);
   }
 
 
   async determineIfUpvoted() {
-    let user = await getUser();
-    //console.log(user);
-    this.setState({ postUpvoted: this.props.Upvoters.includes(user.uid), currentUser: user });
+    if (!this.state.currentUser) {
+      let user = await getUser();
+      this.setState({ currentUser: user })
+    }
+      
+    if (this.state.currentUser) {
+      this.setState({ postUpvoted: this.props.Upvoters.includes(this.state.currentUser.uid) });
+    } else {
+      this.setState({ postUpvoted: false });
+    }
   }
 
   onDeletePressed = () =>
@@ -80,7 +90,27 @@ class Post extends React.Component {
     getUser().then(user => togglePostUpvote(this.props.ID, user));
   }
 
-  startDownload = () => this.setState({ download: true });
+  startDownload = async () => {
+    console.log('Requesting Permissions');
+    response = await requestPermissionsAsync();
+    console.log(response);
+    if (this.props.media) {
+      let counter = 1;
+      for (const image of this.props.media) {
+        //let filename = this.props.ID + counter + image.type;
+        let filename = image.filename; // Includes type
+        console.log('Downloading %s', image.uri);
+        downloadAsync(image.uri, documentDirectory + filename)
+          .then(res => {
+            saveToLibraryAsync(res.uri)
+            console.log('Downloaded %s', filename);
+          })
+      }
+    }
+    if (this.props.documents) {
+      this.setState({ download: true });
+    }
+  }
 
   render() {
     if (this.state.renderSummary) return (
@@ -164,9 +194,9 @@ class Post extends React.Component {
         }
 
         {
-          this.props.documents ?
+          this.props.documents || this.props.media ?
             <Button
-              title={this.state.download ? 'Downloaded' : 'Click to download files and videos!'}
+              title={this.state.download ? 'Downloaded' : 'Click to download documents and media!'}
               color={Colours.PRIMARY}
               onPress={this.startDownload}
               disabled={this.state.download}
@@ -174,7 +204,7 @@ class Post extends React.Component {
             : null
         }
         {
-          (this.state.download) ?
+          (this.state.download && this.props.documents) ?
             this.props.documents.map((file, index) => {
               return (
                 <WebView
